@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f5f0;
+  --foreground: #14110d;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Disable the default mobile tap-highlight flash on buttons/links so
+   presses only show whatever active/focus styling we define ourselves. */
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Many icon SVGs have non-square viewBoxes but are rendered in square
+   boxes (size-[20px] etc.), which stretches them. Keep their aspect
+   ratio inside the box instead. */
+img[src$=".svg"] {
+  object-fit: contain;
+}
