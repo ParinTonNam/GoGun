@@ -2,6 +2,8 @@ import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { ok, err } from '../lib/response'
 import { requireOrganizer } from '../middleware/trip'
+import { param } from '../lib/params'
+import { AvailabilityStatus } from '../../generated/prisma/enums'
 
 const router = Router({ mergeParams: true })
 
@@ -11,7 +13,7 @@ const MAX_RANGE_DAYS = 62
 // ?start=YYYY-MM-DD&end=YYYY-MM-DD range (e.g. the month currently being
 // browsed in the calendar); falls back to the trip's proposed window.
 router.get('/', async (req, res) => {
-  const trip = await prisma.trip.findUnique({ where: { id: req.params.tripId } })
+  const trip = await prisma.trip.findUnique({ where: { id: param(req, 'tripId') } })
   if (!trip) return err(res, 404, 'NOT_FOUND', 'Trip not found')
 
   const { start, end } = req.query as { start?: string; end?: string }
@@ -42,7 +44,7 @@ router.get('/', async (req, res) => {
   const [allAvailability, members] = await Promise.all([
     prisma.availability.findMany({
       where: {
-        trip_id: req.params.tripId,
+        trip_id: param(req, 'tripId'),
         date: { in: dates },
       },
       include: {
@@ -50,7 +52,7 @@ router.get('/', async (req, res) => {
       },
     }),
     prisma.tripMember.findMany({
-      where: { trip_id: req.params.tripId, status: 'joined' },
+      where: { trip_id: param(req, 'tripId'), status: 'joined' },
     }),
   ])
 
@@ -91,7 +93,7 @@ router.get('/', async (req, res) => {
 // Current user's availability
 router.get('/me', async (req, res) => {
   const avail = await prisma.availability.findMany({
-    where: { trip_id: req.params.tripId, user_id: req.user!.id },
+    where: { trip_id: param(req, 'tripId'), user_id: req.user!.id },
     orderBy: { date: 'asc' },
   })
   return ok(res, avail.map(a => ({ ...a, date: a.date.toISOString().slice(0, 10) })))
@@ -99,7 +101,7 @@ router.get('/me', async (req, res) => {
 
 // Upsert current user's availability
 router.put('/', async (req, res) => {
-  const entries = req.body as Array<{ date: string; status: string }>
+  const entries = req.body as Array<{ date: string; status: AvailabilityStatus }>
   if (!Array.isArray(entries))
     return err(res, 400, 'VALIDATION_ERROR', 'body must be an array of { date, status }')
 
@@ -108,13 +110,13 @@ router.put('/', async (req, res) => {
       prisma.availability.upsert({
         where: {
           trip_id_user_id_date: {
-            trip_id: req.params.tripId,
+            trip_id: param(req, 'tripId'),
             user_id: req.user!.id,
             date: new Date(date),
           },
         },
         create: {
-          trip_id: req.params.tripId,
+          trip_id: param(req, 'tripId'),
           user_id: req.user!.id,
           date: new Date(date),
           status,
@@ -130,13 +132,13 @@ router.put('/', async (req, res) => {
 router.get('/:userId', requireOrganizer, async (req, res) => {
   const member = await prisma.tripMember.findUnique({
     where: {
-      trip_id_user_id: { trip_id: req.params.tripId, user_id: req.params.userId },
+      trip_id_user_id: { trip_id: param(req, 'tripId'), user_id: param(req, 'userId') },
     },
   })
   if (!member) return err(res, 404, 'NOT_FOUND', 'Member not found')
 
   const avail = await prisma.availability.findMany({
-    where: { trip_id: req.params.tripId, user_id: req.params.userId },
+    where: { trip_id: param(req, 'tripId'), user_id: param(req, 'userId') },
     orderBy: { date: 'asc' },
   })
   return ok(res, avail.map(a => ({ ...a, date: a.date.toISOString().slice(0, 10) })))
@@ -146,12 +148,12 @@ router.get('/:userId', requireOrganizer, async (req, res) => {
 router.put('/:userId', requireOrganizer, async (req, res) => {
   const member = await prisma.tripMember.findUnique({
     where: {
-      trip_id_user_id: { trip_id: req.params.tripId, user_id: req.params.userId },
+      trip_id_user_id: { trip_id: param(req, 'tripId'), user_id: param(req, 'userId') },
     },
   })
   if (!member) return err(res, 404, 'NOT_FOUND', 'Member not found')
 
-  const entries = req.body as Array<{ date: string; status: string }>
+  const entries = req.body as Array<{ date: string; status: AvailabilityStatus }>
   if (!Array.isArray(entries))
     return err(res, 400, 'VALIDATION_ERROR', 'body must be an array of { date, status }')
 
@@ -160,14 +162,14 @@ router.put('/:userId', requireOrganizer, async (req, res) => {
       prisma.availability.upsert({
         where: {
           trip_id_user_id_date: {
-            trip_id: req.params.tripId,
-            user_id: req.params.userId,
+            trip_id: param(req, 'tripId'),
+            user_id: param(req, 'userId'),
             date: new Date(date),
           },
         },
         create: {
-          trip_id: req.params.tripId,
-          user_id: req.params.userId,
+          trip_id: param(req, 'tripId'),
+          user_id: param(req, 'userId'),
           date: new Date(date),
           status,
         },

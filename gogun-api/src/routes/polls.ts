@@ -2,6 +2,8 @@ import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { requireOrganizer } from '../middleware/trip'
 import { ok, err } from '../lib/response'
+import { param } from '../lib/params'
+import { PollStatus } from '../../generated/prisma/enums'
 
 const router = Router({ mergeParams: true })
 
@@ -10,7 +12,7 @@ const memberSelect = { id: true, display_name: true, avatar_color: true }
 // List polls
 router.get('/', async (req, res) => {
   const polls = await prisma.poll.findMany({
-    where: { trip_id: req.params.tripId },
+    where: { trip_id: param(req, 'tripId') },
     include: {
       options: {
         include: { votes: { include: { user: { select: memberSelect } } } },
@@ -44,7 +46,7 @@ router.post('/', requireOrganizer, async (req, res) => {
 
   const poll = await prisma.poll.create({
     data: {
-      trip_id: req.params.tripId,
+      trip_id: param(req, 'tripId'),
       title,
       subtitle,
       close_date: close_date ? new Date(close_date) : null,
@@ -61,17 +63,17 @@ router.post('/', requireOrganizer, async (req, res) => {
 // Update poll
 router.patch('/:pollId', requireOrganizer, async (req, res) => {
   const poll = await prisma.poll.findFirst({
-    where: { id: req.params.pollId, trip_id: req.params.tripId },
+    where: { id: param(req, 'pollId'), trip_id: param(req, 'tripId') },
   })
   if (!poll) return err(res, 404, 'NOT_FOUND', 'Poll not found')
 
   const { title, subtitle, status } = req.body as {
     title?: string
     subtitle?: string
-    status?: string
+    status?: PollStatus
   }
   const updated = await prisma.poll.update({
-    where: { id: req.params.pollId },
+    where: { id: param(req, 'pollId') },
     data: {
       ...(title !== undefined && { title }),
       ...(subtitle !== undefined && { subtitle }),
@@ -84,17 +86,17 @@ router.patch('/:pollId', requireOrganizer, async (req, res) => {
 // Delete poll
 router.delete('/:pollId', requireOrganizer, async (req, res) => {
   const poll = await prisma.poll.findFirst({
-    where: { id: req.params.pollId, trip_id: req.params.tripId },
+    where: { id: param(req, 'pollId'), trip_id: param(req, 'tripId') },
   })
   if (!poll) return err(res, 404, 'NOT_FOUND', 'Poll not found')
-  await prisma.poll.delete({ where: { id: req.params.pollId } })
+  await prisma.poll.delete({ where: { id: param(req, 'pollId') } })
   return ok(res, { deleted: true })
 })
 
 // Get poll detail with vote counts
 router.get('/:pollId', async (req, res) => {
   const poll = await prisma.poll.findFirst({
-    where: { id: req.params.pollId, trip_id: req.params.tripId },
+    where: { id: param(req, 'pollId'), trip_id: param(req, 'tripId') },
     include: {
       options: {
         include: {
@@ -140,7 +142,7 @@ router.get('/:pollId', async (req, res) => {
 // Vote (cast or change vote)
 router.post('/:pollId/vote', async (req, res) => {
   const poll = await prisma.poll.findFirst({
-    where: { id: req.params.pollId, trip_id: req.params.tripId },
+    where: { id: param(req, 'pollId'), trip_id: param(req, 'tripId') },
   })
   if (!poll) return err(res, 404, 'NOT_FOUND', 'Poll not found')
   if (poll.status === 'closed') return err(res, 409, 'CONFLICT', 'Poll is closed')
@@ -149,16 +151,16 @@ router.post('/:pollId/vote', async (req, res) => {
   if (!option_id) return err(res, 400, 'VALIDATION_ERROR', 'option_id is required')
 
   const option = await prisma.pollOption.findFirst({
-    where: { id: option_id, poll_id: req.params.pollId },
+    where: { id: option_id, poll_id: param(req, 'pollId') },
   })
   if (!option) return err(res, 404, 'NOT_FOUND', 'Option not found')
 
   const vote = await prisma.pollVote.upsert({
     where: {
-      poll_id_user_id: { poll_id: req.params.pollId, user_id: req.user!.id },
+      poll_id_user_id: { poll_id: param(req, 'pollId'), user_id: req.user!.id },
     },
     create: {
-      poll_id: req.params.pollId,
+      poll_id: param(req, 'pollId'),
       option_id,
       user_id: req.user!.id,
     },
@@ -170,13 +172,13 @@ router.post('/:pollId/vote', async (req, res) => {
 // Unvote
 router.delete('/:pollId/vote', async (req, res) => {
   const poll = await prisma.poll.findFirst({
-    where: { id: req.params.pollId, trip_id: req.params.tripId },
+    where: { id: param(req, 'pollId'), trip_id: param(req, 'tripId') },
   })
   if (!poll) return err(res, 404, 'NOT_FOUND', 'Poll not found')
 
   const existing = await prisma.pollVote.findUnique({
     where: {
-      poll_id_user_id: { poll_id: req.params.pollId, user_id: req.user!.id },
+      poll_id_user_id: { poll_id: param(req, 'pollId'), user_id: req.user!.id },
     },
   })
   if (!existing) return err(res, 404, 'NOT_FOUND', 'Vote not found')

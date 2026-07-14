@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   getTrip,
@@ -81,17 +81,6 @@ export default function AddExpensePage({
   const [amount, setAmount] = useState("");
   const [paidBy, setPaidBy] = useState<string | null>(null);
   const [splitAmong, setSplitAmong] = useState<Set<string>>(new Set());
-  const [slipUrl, setSlipUrl] = useState<string | null>(null);
-  const slipInputRef = useRef<HTMLInputElement>(null);
-
-  function handleSlipFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setSlipUrl(reader.result as string);
-    reader.readAsDataURL(file);
-    e.target.value = "";
-  }
 
   useEffect(() => {
     Promise.all([getTrip(tripId), getMe()])
@@ -129,7 +118,7 @@ export default function AddExpensePage({
     setSaving(true);
     setError("");
     try {
-      const created = await createExpense(tripId, {
+      await createExpense(tripId, {
         name: name.trim(),
         category,
         total_amount: numAmount,
@@ -137,8 +126,6 @@ export default function AddExpensePage({
         paid_by_user_id: paidBy,
         splits: evenSplit(numAmount, [...splitAmong]),
       });
-      // Slip images aren't supported by the API, so keep them client-side keyed by expense id.
-      if (slipUrl) localStorage.setItem(`gogun_expense_slip_${created.id}`, slipUrl);
       router.push(`/trips/${tripId}/member/wallet`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "บันทึกไม่สำเร็จ");
@@ -281,58 +268,6 @@ export default function AddExpensePage({
               </span>
             </div>
           )}
-        </div>
-
-        {/* Slip attachment (optional) */}
-        <div className="flex flex-col gap-[10px] px-[24px]">
-          <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">แนบสลิป (ถ้ามี)</p>
-          <input
-            ref={slipInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleSlipFile}
-          />
-          <div className="flex items-center gap-[12px] rounded-[14px] border border-[#e5e1d7] bg-white px-[14px] py-[12px]">
-            <button
-              type="button"
-              onClick={() => slipInputRef.current?.click()}
-              className="flex size-[44px] shrink-0 items-center justify-center overflow-hidden rounded-[10px] border border-[#e5e1d7] bg-[#f7f5f0]"
-            >
-              {slipUrl ? (
-                <img src={slipUrl} alt="" className="size-full object-cover" />
-              ) : (
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M3 4.5H17V15.5H3V4.5Z" stroke="#767168" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M3 14L7 10L10 13L14 8L17 11.5" stroke="#767168" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                  <circle cx="7" cy="7.5" r="1.2" fill="#767168" />
-                </svg>
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={() => slipInputRef.current?.click()}
-              className="flex flex-1 flex-col gap-[2px] text-left"
-            >
-              <span className={`text-[14px] font-medium tracking-[0.08px] ${slipUrl ? "text-[#2e8b5c]" : "text-[#14110d]"}`}>
-                {slipUrl ? "แนบสลิปแล้ว" : "แตะเพื่อแนบสลิป"}
-              </span>
-              <span className="text-[11px] font-light text-[#767168]">
-                {slipUrl ? "แตะรูปเพื่อเปลี่ยน" : "รูปสลิปหรือใบเสร็จ"}
-              </span>
-            </button>
-            {slipUrl && (
-              <button
-                type="button"
-                onClick={() => setSlipUrl(null)}
-                className="flex size-[28px] shrink-0 items-center justify-center rounded-full bg-[#edeae2]"
-              >
-                <svg width="10" height="10" viewBox="0 0 11 11" fill="none">
-                  <path d="M1 1L10 10M10 1L1 10" stroke="#14110d" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              </button>
-            )}
-          </div>
         </div>
 
         {error && <p className="px-[24px] text-[12px] text-red-500">{error}</p>}

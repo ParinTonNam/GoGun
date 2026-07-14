@@ -174,20 +174,6 @@ export const getSettlements = (tripId: string) =>
 export const getTransfers = (tripId: string) =>
   req<TransferSlip[]>(`/trips/${tripId}/transfers`)
 
-export const uploadSlip = async (tripId: string, transferId: string, file: File) => {
-  const form = new FormData()
-  form.append("slip", file)
-  const token = getToken()
-  const res = await fetch(`${BASE}/trips/${tripId}/transfers/${transferId}/slip`, {
-    method: "POST",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-    body: form,
-  })
-  const json = await res.json()
-  if (!res.ok) throw new Error(json.error?.message ?? "Upload failed")
-  return json.data as TransferSlip
-}
-
 export const confirmTransfer = (tripId: string, transferId: string) =>
   req<TransferSlip>(`/trips/${tripId}/transfers/${transferId}/confirm`, { method: "PATCH" })
 
@@ -467,8 +453,7 @@ export type TransferSlip = {
   to_user_id: string
   amount: number
   currency: string
-  status: "pending" | "slip_attached" | "confirmed"
-  slip_url: string | null
+  status: "pending" | "confirmed"
   confirmed_at: string | null
   from_user: Pick<User, "id" | "display_name" | "avatar_color">
   to_user: Pick<User, "id" | "display_name" | "avatar_color">

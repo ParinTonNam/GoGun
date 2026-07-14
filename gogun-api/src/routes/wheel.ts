@@ -1,12 +1,13 @@
 import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { ok, err } from '../lib/response'
+import { param } from '../lib/params'
 
 const router = Router({ mergeParams: true })
 
 router.get('/', async (req, res) => {
   const options = await prisma.wheelOption.findMany({
-    where: { trip_id: req.params.tripId },
+    where: { trip_id: param(req, 'tripId') },
     orderBy: { sort_order: 'asc' },
   })
   return ok(res, options)
@@ -22,7 +23,7 @@ router.post('/', async (req, res) => {
 
   const option = await prisma.wheelOption.create({
     data: {
-      trip_id: req.params.tripId,
+      trip_id: param(req, 'tripId'),
       text,
       color,
       sort_order: sort_order ?? 0,
@@ -32,16 +33,16 @@ router.post('/', async (req, res) => {
 })
 
 router.delete('/', async (req, res) => {
-  await prisma.wheelOption.deleteMany({ where: { trip_id: req.params.tripId } })
+  await prisma.wheelOption.deleteMany({ where: { trip_id: param(req, 'tripId') } })
   return ok(res, { deleted: true })
 })
 
 router.delete('/:optId', async (req, res) => {
   const option = await prisma.wheelOption.findFirst({
-    where: { id: req.params.optId, trip_id: req.params.tripId },
+    where: { id: param(req, 'optId'), trip_id: param(req, 'tripId') },
   })
   if (!option) return err(res, 404, 'NOT_FOUND', 'Option not found')
-  await prisma.wheelOption.delete({ where: { id: req.params.optId } })
+  await prisma.wheelOption.delete({ where: { id: param(req, 'optId') } })
   return ok(res, { deleted: true })
 })
 

@@ -1,8 +1,8 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
-import path from 'path'
-import fs from 'fs'
+import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 import swaggerUi from 'swagger-ui-express'
 import swaggerSpec from './swagger'
 
@@ -25,18 +25,45 @@ import notesRouter from './routes/notes'
 
 const app = express()
 
-app.use(cors())
+// Behind a proxy (e.g. Render/Nginx) the client IP arrives in X-Forwarded-For.
+// Trust one hop so the rate limiter keys on the real client, not the proxy.
+app.set('trust proxy', 1)
+
+// Security headers on every response.
+app.use(helmet())
+
+// CORS — only the frontend origins listed in CORS_ORIGIN (comma-separated)
+// may call the API from a browser; everything else gets no CORS headers.
+const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:3000')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean)
+app.use(cors({ origin: allowedOrigins, credentials: true }))
+
+// General rate limit — a loose ceiling to blunt abuse/DoS across the API.
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 min
+    max: 1000,
+    standardHeaders: true,
+    legacyHeaders: false,
+  }),
+)
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Static file serving for uploads
-const uploadsDir = path.join(process.cwd(), 'uploads')
-fs.mkdirSync(path.join(uploadsDir, 'slips'), { recursive: true })
-fs.mkdirSync(path.join(uploadsDir, 'qr'), { recursive: true })
-app.use('/uploads', express.static(uploadsDir))
+// Strict rate limit on auth — login/register are the brute-force surface.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: { code: 'RATE_LIMITED', message: 'Too many attempts, try again later' } },
+})
 
 // Auth routes (per-route auth in the router)
-app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/auth', authLimiter, authRouter)
 
 // Trip top-level routes (GET /join/:code is public; rest are per-route guarded)
 app.use('/api/v1/trips', tripsRouter)
@@ -55,7 +82,9 @@ app.use(`${tripBase}/checklist`, requireAuth, requireTripMember, checklistRouter
 app.use(`${tripBase}/wheel`, requireAuth, requireTripMember, wheelRouter)
 app.use(`${tripBase}/notes`, requireAuth, requireTripMember, notesRouter)
 
-// API Docs
+// API Docs — Swagger UI relies on inline scripts/styles, which helmet's
+// default Content-Security-Policy blocks, so disable CSP for this route only.
+app.use('/api/docs', helmet({ contentSecurityPolicy: false }))
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customSiteTitle: 'GoGun API Docs',
   swaggerOptions: { persistAuthorization: true },

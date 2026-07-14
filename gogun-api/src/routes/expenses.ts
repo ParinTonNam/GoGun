@@ -2,6 +2,7 @@ import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { ok, err } from '../lib/response'
 import { computeSettlements } from '../lib/settlements'
+import { param } from '../lib/params'
 
 const router = Router({ mergeParams: true })
 
@@ -10,7 +11,7 @@ const memberSelect = { id: true, display_name: true, avatar_color: true }
 // List expenses
 router.get('/', async (req, res) => {
   const expenses = await prisma.expense.findMany({
-    where: { trip_id: req.params.tripId },
+    where: { trip_id: param(req, 'tripId') },
     include: {
       paid_by: { select: memberSelect },
       splits: { include: { user: { select: memberSelect } } },
@@ -37,7 +38,7 @@ router.post('/', async (req, res) => {
 
   const expense = await prisma.expense.create({
     data: {
-      trip_id: req.params.tripId,
+      trip_id: param(req, 'tripId'),
       name,
       category,
       total_amount,
@@ -56,7 +57,7 @@ router.post('/', async (req, res) => {
 // Edit expense
 router.patch('/:expId', async (req, res) => {
   const expense = await prisma.expense.findFirst({
-    where: { id: req.params.expId, trip_id: req.params.tripId },
+    where: { id: param(req, 'expId'), trip_id: param(req, 'tripId') },
   })
   if (!expense) return err(res, 404, 'NOT_FOUND', 'Expense not found')
 
@@ -72,10 +73,10 @@ router.patch('/:expId', async (req, res) => {
 
   const updated = await prisma.$transaction(async tx => {
     if (splits) {
-      await tx.expenseSplit.deleteMany({ where: { expense_id: req.params.expId } })
+      await tx.expenseSplit.deleteMany({ where: { expense_id: param(req, 'expId') } })
     }
     return tx.expense.update({
-      where: { id: req.params.expId },
+      where: { id: param(req, 'expId') },
       data: {
         ...(name !== undefined && { name }),
         ...(category !== undefined && { category }),
@@ -98,10 +99,10 @@ router.patch('/:expId', async (req, res) => {
 // Delete expense
 router.delete('/:expId', async (req, res) => {
   const expense = await prisma.expense.findFirst({
-    where: { id: req.params.expId, trip_id: req.params.tripId },
+    where: { id: param(req, 'expId'), trip_id: param(req, 'tripId') },
   })
   if (!expense) return err(res, 404, 'NOT_FOUND', 'Expense not found')
-  await prisma.expense.delete({ where: { id: req.params.expId } })
+  await prisma.expense.delete({ where: { id: param(req, 'expId') } })
   return ok(res, { deleted: true })
 })
 
@@ -109,14 +110,14 @@ router.delete('/:expId', async (req, res) => {
 router.get('/balance', async (req, res) => {
   const [expenses, members, trip] = await Promise.all([
     prisma.expense.findMany({
-      where: { trip_id: req.params.tripId },
+      where: { trip_id: param(req, 'tripId') },
       include: { splits: true },
     }),
     prisma.tripMember.findMany({
-      where: { trip_id: req.params.tripId, status: { not: 'declined' } },
+      where: { trip_id: param(req, 'tripId'), status: { not: 'declined' } },
       include: { user: { select: memberSelect } },
     }),
-    prisma.trip.findUnique({ where: { id: req.params.tripId } }),
+    prisma.trip.findUnique({ where: { id: param(req, 'tripId') } }),
   ])
 
   const balances = members.map(m => {
@@ -147,14 +148,14 @@ router.get('/balance', async (req, res) => {
 router.get('/settlements', async (req, res) => {
   const [expenses, members, trip] = await Promise.all([
     prisma.expense.findMany({
-      where: { trip_id: req.params.tripId },
+      where: { trip_id: param(req, 'tripId') },
       include: { splits: true },
     }),
     prisma.tripMember.findMany({
-      where: { trip_id: req.params.tripId, status: { not: 'declined' } },
+      where: { trip_id: param(req, 'tripId'), status: { not: 'declined' } },
       include: { user: { select: memberSelect } },
     }),
-    prisma.trip.findUnique({ where: { id: req.params.tripId } }),
+    prisma.trip.findUnique({ where: { id: param(req, 'tripId') } }),
   ])
 
   const netBalances = members.map(m => {

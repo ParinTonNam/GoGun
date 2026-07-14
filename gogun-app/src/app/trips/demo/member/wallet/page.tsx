@@ -243,7 +243,6 @@ function SummarySheet({
   const [openRow, setOpenRow] = useState<number | null>(null);
   const [confirmed, setConfirmed] = useState([false, false, false]);
   const [numCopied, setNumCopied] = useState(false);
-  const slipInputRef = useRef<HTMLInputElement>(null);
 
   const isBank = paymentMethod === "bank";
 
@@ -259,18 +258,13 @@ function SummarySheet({
     } catch {}
   }
 
-  function attachSlip() {
-    slipInputRef.current?.click();
-  }
-
-  function onSlipSelected(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files?.length || openRow === null) return;
+  function markPaid() {
+    if (openRow === null) return;
     setConfirmed((prev) => {
       const next = [...prev];
       next[openRow] = true;
       return next;
     });
-    e.target.value = "";
   }
 
   const activeTransfer = openRow !== null ? TRANSFERS[openRow] : null;
@@ -278,13 +272,6 @@ function SummarySheet({
 
   return (
     <>
-      <input
-        ref={slipInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={onSlipSelected}
-      />
       <div
         className={`fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300 ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
         onClick={onClose}
@@ -395,10 +382,10 @@ function SummarySheet({
                     </button>
                     <button
                       type="button"
-                      onClick={attachSlip}
+                      onClick={markPaid}
                       className={`flex w-full items-center justify-center gap-[6px] rounded-[13px] border border-[#e5e1d7] py-[14px] text-[11px] font-medium text-white transition-colors ${isConfirmed ? "bg-[#2e8b5c]" : "bg-[#e85a2c]"}`}
                     >
-                      แนบสลิปโอนเงิน
+                      {isConfirmed ? "โอนแล้ว" : "ยืนยันว่าโอนแล้ว"}
                       {isConfirmed && <CheckBadge />}
                     </button>
                   </div>
@@ -416,10 +403,10 @@ function SummarySheet({
                       </button>
                       <button
                         type="button"
-                        onClick={attachSlip}
+                        onClick={markPaid}
                         className={`flex flex-1 items-center justify-center gap-[6px] rounded-[13px] border border-[#e5e1d7] py-[14px] text-[11px] font-medium text-white transition-colors ${isConfirmed ? "bg-[#2e8b5c]" : "bg-[#e85a2c]"}`}
                       >
-                        แนบสลิปโอนเงิน
+                        {isConfirmed ? "โอนแล้ว" : "ยืนยันว่าโอนแล้ว"}
                         {isConfirmed && <CheckBadge />}
                       </button>
                     </div>

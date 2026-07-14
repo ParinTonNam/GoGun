@@ -1,13 +1,14 @@
 import type { Request, Response, NextFunction } from 'express'
 import prisma from '../lib/prisma'
 import { err } from '../lib/response'
+import { param } from '../lib/params'
 
 export async function requireTripMember(
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  const tripId = req.params.tripId
+  const tripId = param(req, 'tripId')
   if (!tripId) {
     err(res, 400, 'VALIDATION_ERROR', 'tripId param missing')
     return

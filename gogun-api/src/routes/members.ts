@@ -4,6 +4,8 @@ import { randomUUID } from 'crypto'
 import prisma from '../lib/prisma'
 import { requireOrganizer } from '../middleware/trip'
 import { ok, err } from '../lib/response'
+import { param } from '../lib/params'
+import { TripMemberRole, TripMemberStatus } from '../../generated/prisma/enums'
 
 const router = Router({ mergeParams: true })
 
@@ -17,7 +19,7 @@ function randomGuestColor(): string {
 // List members
 router.get('/', async (req, res) => {
   const members = await prisma.tripMember.findMany({
-    where: { trip_id: req.params.tripId },
+    where: { trip_id: param(req, 'tripId') },
     include: {
       user: { select: { id: true, display_name: true, avatar_color: true, is_guest: true } },
     },
@@ -46,7 +48,7 @@ router.post('/', async (req, res) => {
 
   const existing = await prisma.tripMember.findUnique({
     where: {
-      trip_id_user_id: { trip_id: req.params.tripId, user_id: req.user!.id },
+      trip_id_user_id: { trip_id: param(req, 'tripId'), user_id: req.user!.id },
     },
   })
 
@@ -64,7 +66,7 @@ router.post('/', async (req, res) => {
 
   const member = await prisma.tripMember.create({
     data: {
-      trip_id: req.params.tripId,
+      trip_id: param(req, 'tripId'),
       user_id: req.user!.id,
       role: 'member',
       status: 'joined',
@@ -97,7 +99,7 @@ router.post('/add', requireOrganizer, async (req, res) => {
 
   const member = await prisma.tripMember.create({
     data: {
-      trip_id: req.params.tripId,
+      trip_id: param(req, 'tripId'),
       user_id: guest.id,
       role: 'member',
       status: 'invited',
@@ -112,13 +114,13 @@ router.post('/add', requireOrganizer, async (req, res) => {
 // Update member status/role, or rename a guest member (organizer only)
 router.patch('/:userId', requireOrganizer, async (req, res) => {
   const { status, role, display_name } = req.body as {
-    status?: string
-    role?: string
+    status?: TripMemberStatus
+    role?: TripMemberRole
     display_name?: string
   }
   const member = await prisma.tripMember.findUnique({
     where: {
-      trip_id_user_id: { trip_id: req.params.tripId, user_id: req.params.userId },
+      trip_id_user_id: { trip_id: param(req, 'tripId'), user_id: param(req, 'userId') },
     },
     include: { user: { select: { is_guest: true } } },
   })
@@ -147,7 +149,7 @@ router.patch('/:userId', requireOrganizer, async (req, res) => {
 router.delete('/:userId', requireOrganizer, async (req, res) => {
   const member = await prisma.tripMember.findUnique({
     where: {
-      trip_id_user_id: { trip_id: req.params.tripId, user_id: req.params.userId },
+      trip_id_user_id: { trip_id: param(req, 'tripId'), user_id: param(req, 'userId') },
     },
   })
   if (!member) return err(res, 404, 'NOT_FOUND', 'Member not found')

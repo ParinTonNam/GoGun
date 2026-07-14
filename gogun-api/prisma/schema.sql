@@ -31,7 +31,7 @@ CASCADE;
 CREATE TYPE date_status_enum        AS ENUM ('proposed', 'confirmed');
 CREATE TYPE trip_member_role_enum   AS ENUM ('organizer', 'member');
 CREATE TYPE trip_member_status_enum AS ENUM ('invited', 'joined', 'declined');
-CREATE TYPE transfer_status_enum    AS ENUM ('pending', 'slip_attached', 'confirmed');
+CREATE TYPE transfer_status_enum    AS ENUM ('pending', 'confirmed');
 CREATE TYPE availability_status_enum AS ENUM ('available', 'uncertain', 'unavailable');
 CREATE TYPE poll_status_enum        AS ENUM ('open', 'closed');
 CREATE TYPE packing_category_enum   AS ENUM ('shared', 'personal');
@@ -124,7 +124,6 @@ CREATE TABLE transfer_slips (
   amount       NUMERIC(12,2)        NOT NULL,
   currency     TEXT                 NOT NULL,
   status       transfer_status_enum NOT NULL DEFAULT 'pending',
-  slip_url     TEXT,
   confirmed_at TIMESTAMPTZ,
   created_at   TIMESTAMPTZ          NOT NULL DEFAULT NOW()
 );

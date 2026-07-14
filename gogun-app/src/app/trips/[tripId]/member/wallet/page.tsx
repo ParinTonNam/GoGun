@@ -175,14 +175,8 @@ function ExpenseDetailSheet({
   sym: string;
   convert: (n: number) => string;
 }) {
-  const [viewingSlip, setViewingSlip] = useState(false);
   const open = expense !== null;
   const categoryLabel = expense ? (CATEGORY_LABELS[expense.category] ?? "อื่นๆ") : "";
-  // Slip images live in localStorage (keyed by expense id) since the API has no slip field.
-  const slipUrl =
-    expense && typeof window !== "undefined"
-      ? localStorage.getItem(`gogun_expense_slip_${expense.id}`)
-      : null;
 
   return (
     <>
@@ -268,46 +262,9 @@ function ExpenseDetailSheet({
               </div>
             </div>
 
-            {/* Slip */}
-            {slipUrl ? (
-              <button
-                type="button"
-                onClick={() => setViewingSlip(true)}
-                className="flex items-center justify-center gap-[8px] rounded-[14px] border border-[#e5e1d7] bg-white py-[14px] text-[14px] font-medium tracking-[0.08px] text-[#14110d] transition-colors active:bg-[#f2efe8]"
-              >
-                <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
-                  <path d="M1 9C1 9 4 3 9 3C14 3 17 9 17 9C17 9 14 15 9 15C4 15 1 9 1 9Z" stroke="#14110d" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                  <circle cx="9" cy="9" r="2.2" stroke="#14110d" strokeWidth="1.3" />
-                </svg>
-                ดูสลิป
-              </button>
-            ) : (
-              <div className="flex items-center justify-center rounded-[14px] border border-dashed border-[#e5e1d7] py-[14px] text-[13px] font-light tracking-[0.08px] text-[#b5b0a4]">
-                ไม่มีสลิปแนบ
-              </div>
-            )}
           </div>
         )}
       </div>
-
-      {/* Fullscreen slip viewer */}
-      {viewingSlip && slipUrl && (
-        <div
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85 p-[24px]"
-          onClick={() => setViewingSlip(false)}
-        >
-          <img src={slipUrl} alt="สลิป" className="max-h-[85vh] max-w-full rounded-[12px] object-contain" />
-          <button
-            type="button"
-            onClick={() => setViewingSlip(false)}
-            className="absolute right-[20px] top-[20px] flex size-[40px] items-center justify-center rounded-full bg-white/90"
-          >
-            <svg width="13" height="13" viewBox="0 0 11 11" fill="none">
-              <path d="M1 1L10 10M10 1L1 10" stroke="#14110d" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
-      )}
     </>
   );
 }

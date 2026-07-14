@@ -4,6 +4,8 @@ import { requireAuth } from '../middleware/auth'
 import { requireTripMember, requireOrganizer } from '../middleware/trip'
 import { ok, err, generateInviteCode } from '../lib/response'
 import { signToken } from '../lib/jwt'
+import { param } from '../lib/params'
+import { DateStatus } from '../../generated/prisma/enums'
 
 const router = Router()
 
@@ -33,7 +35,7 @@ router.get('/', requireAuth, async (req, res) => {
 // Public — join page preview
 router.get('/join/:invite_code', async (req, res) => {
   const trip = await prisma.trip.findUnique({
-    where: { invite_code: req.params.invite_code },
+    where: { invite_code: param(req, 'invite_code') },
     include: {
       organizer: { select: { id: true, display_name: true, avatar_color: true } },
       members: {
@@ -51,7 +53,7 @@ router.get('/join/:invite_code', async (req, res) => {
 // Join trip by invite code (auth required, no membership check)
 router.post('/join/:invite_code', requireAuth, async (req, res) => {
   const trip = await prisma.trip.findUnique({
-    where: { invite_code: req.params.invite_code },
+    where: { invite_code: param(req, 'invite_code') },
   })
   if (!trip) return err(res, 404, 'NOT_FOUND', 'Trip not found')
 
@@ -91,12 +93,12 @@ router.post('/join/:invite_code', requireAuth, async (req, res) => {
 // email, which locks the name to that account permanently.
 router.post('/join/:invite_code/claim/:memberId', async (req, res) => {
   const trip = await prisma.trip.findUnique({
-    where: { invite_code: req.params.invite_code },
+    where: { invite_code: param(req, 'invite_code') },
   })
   if (!trip) return err(res, 404, 'NOT_FOUND', 'Trip not found')
 
   const member = await prisma.tripMember.findUnique({
-    where: { id: req.params.memberId },
+    where: { id: param(req, 'memberId') },
     include: { user: { select: { is_guest: true } } },
   })
   if (!member || member.trip_id !== trip.id)
@@ -172,7 +174,7 @@ router.post('/', requireAuth, async (req, res) => {
 // Get trip detail
 router.get('/:tripId', requireAuth, requireTripMember, async (req, res) => {
   const trip = await prisma.trip.findUnique({
-    where: { id: req.params.tripId },
+    where: { id: param(req, 'tripId') },
     include: {
       organizer: { select: { id: true, display_name: true, avatar_color: true } },
       members: {
@@ -202,7 +204,7 @@ router.patch('/:tripId', requireAuth, requireTripMember, requireOrganizer, async
   } = req.body as Record<string, string | number | boolean | null | undefined>
 
   const trip = await prisma.trip.update({
-    where: { id: req.params.tripId },
+    where: { id: param(req, 'tripId') },
     data: {
       ...(name !== undefined && { name: String(name) }),
       ...(destination !== undefined && { destination: String(destination) }),
@@ -215,7 +217,7 @@ router.patch('/:tripId', requireAuth, requireTripMember, requireOrganizer, async
           ? new Date(String(confirmed_start_date))
           : null,
       }),
-      ...(date_status !== undefined && { date_status: String(date_status) }),
+      ...(date_status !== undefined && { date_status: String(date_status) as DateStatus }),
       ...(currency !== undefined && { currency: String(currency) }),
       ...(budget_per_person !== undefined && {
         budget_per_person: budget_per_person === null || budget_per_person === '' ? null : Number(budget_per_person),
@@ -236,11 +238,11 @@ router.post('/:tripId/transfer-host', requireAuth, requireTripMember, requireOrg
   if (!new_organizer_user_id)
     return err(res, 400, 'VALIDATION_ERROR', 'new_organizer_user_id is required')
 
-  const trip = await prisma.trip.findUnique({ where: { id: req.params.tripId } })
+  const trip = await prisma.trip.findUnique({ where: { id: param(req, 'tripId') } })
   if (!trip) return err(res, 404, 'NOT_FOUND', 'Trip not found')
 
   const target = await prisma.tripMember.findUnique({
-    where: { trip_id_user_id: { trip_id: req.params.tripId, user_id: new_organizer_user_id } },
+    where: { trip_id_user_id: { trip_id: param(req, 'tripId'), user_id: new_organizer_user_id } },
   })
   if (!target || target.status !== 'joined')
     return err(res, 404, 'NOT_FOUND', 'Member not found or has not joined the trip')
@@ -258,7 +260,7 @@ router.post('/:tripId/transfer-host', requireAuth, requireTripMember, requireOrg
     prisma.trip.update({ where: { id: trip.id }, data: { organizer_id: new_organizer_user_id } }),
     prisma.tripMember.update({ where: { id: target.id }, data: { role: 'organizer' } }),
     prisma.tripMember.update({
-      where: { trip_id_user_id: { trip_id: req.params.tripId, user_id: trip.organizer_id } },
+      where: { trip_id_user_id: { trip_id: param(req, 'tripId'), user_id: trip.organizer_id } },
       data: { role: 'member' },
     }),
   ])
@@ -268,7 +270,7 @@ router.post('/:tripId/transfer-host', requireAuth, requireTripMember, requireOrg
 
 // Delete trip (cascades to all trip-scoped data)
 router.delete('/:tripId', requireAuth, requireTripMember, requireOrganizer, async (req, res) => {
-  await prisma.trip.delete({ where: { id: req.params.tripId } })
+  await prisma.trip.delete({ where: { id: param(req, 'tripId') } })
   return ok(res, { deleted: true })
 })
 

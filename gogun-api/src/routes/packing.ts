@@ -1,6 +1,8 @@
 import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { ok, err } from '../lib/response'
+import { param } from '../lib/params'
+import { PackingCategory } from '../../generated/prisma/enums'
 
 const router = Router({ mergeParams: true })
 
@@ -9,7 +11,7 @@ const memberSelect = { id: true, display_name: true, avatar_color: true }
 // List all items with check state for current user
 router.get('/', async (req, res) => {
   const items = await prisma.packingItem.findMany({
-    where: { trip_id: req.params.tripId },
+    where: { trip_id: param(req, 'tripId') },
     include: {
       assignees: { include: { user: { select: memberSelect } } },
       checks: { include: { user: { select: memberSelect } } },
@@ -34,7 +36,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   const { text, category, assignees, sort_order } = req.body as {
     text?: string
-    category?: string
+    category?: PackingCategory
     assignees?: string[]
     sort_order?: number
   }
@@ -42,7 +44,7 @@ router.post('/', async (req, res) => {
 
   const item = await prisma.packingItem.create({
     data: {
-      trip_id: req.params.tripId,
+      trip_id: param(req, 'tripId'),
       text,
       category,
       sort_order: sort_order ?? 0,
@@ -61,13 +63,13 @@ router.post('/', async (req, res) => {
 // Edit item
 router.patch('/:itemId', async (req, res) => {
   const item = await prisma.packingItem.findFirst({
-    where: { id: req.params.itemId, trip_id: req.params.tripId },
+    where: { id: param(req, 'itemId'), trip_id: param(req, 'tripId') },
   })
   if (!item) return err(res, 404, 'NOT_FOUND', 'Item not found')
 
-  const { text, category } = req.body as { text?: string; category?: string }
+  const { text, category } = req.body as { text?: string; category?: PackingCategory }
   const updated = await prisma.packingItem.update({
-    where: { id: req.params.itemId },
+    where: { id: param(req, 'itemId') },
     data: {
       ...(text !== undefined && { text }),
       ...(category !== undefined && { category }),
@@ -79,25 +81,25 @@ router.patch('/:itemId', async (req, res) => {
 // Delete item
 router.delete('/:itemId', async (req, res) => {
   const item = await prisma.packingItem.findFirst({
-    where: { id: req.params.itemId, trip_id: req.params.tripId },
+    where: { id: param(req, 'itemId'), trip_id: param(req, 'tripId') },
   })
   if (!item) return err(res, 404, 'NOT_FOUND', 'Item not found')
-  await prisma.packingItem.delete({ where: { id: req.params.itemId } })
+  await prisma.packingItem.delete({ where: { id: param(req, 'itemId') } })
   return ok(res, { deleted: true })
 })
 
 // Check item
 router.post('/:itemId/check', async (req, res) => {
   const item = await prisma.packingItem.findFirst({
-    where: { id: req.params.itemId, trip_id: req.params.tripId },
+    where: { id: param(req, 'itemId'), trip_id: param(req, 'tripId') },
   })
   if (!item) return err(res, 404, 'NOT_FOUND', 'Item not found')
 
   await prisma.packingItemCheck.upsert({
     where: {
-      item_id_user_id: { item_id: req.params.itemId, user_id: req.user!.id },
+      item_id_user_id: { item_id: param(req, 'itemId'), user_id: req.user!.id },
     },
-    create: { item_id: req.params.itemId, user_id: req.user!.id },
+    create: { item_id: param(req, 'itemId'), user_id: req.user!.id },
     update: { checked_at: new Date() },
   })
   return ok(res, { checked: true })
@@ -107,12 +109,12 @@ router.post('/:itemId/check', async (req, res) => {
 router.delete('/:itemId/check', async (req, res) => {
   const existing = await prisma.packingItemCheck.findUnique({
     where: {
-      item_id_user_id: { item_id: req.params.itemId, user_id: req.user!.id },
+      item_id_user_id: { item_id: param(req, 'itemId'), user_id: req.user!.id },
     },
   })
   if (!existing) return err(res, 404, 'NOT_FOUND', 'Check not found')
   await prisma.packingItemCheck.delete({
-    where: { item_id_user_id: { item_id: req.params.itemId, user_id: req.user!.id } },
+    where: { item_id_user_id: { item_id: param(req, 'itemId'), user_id: req.user!.id } },
   })
   return ok(res, { deleted: true })
 })
