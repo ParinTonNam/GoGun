@@ -2,42 +2,8 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getMe, linkAccount, googleLinkAccount, getInitial, type User } from "@/lib/api";
+import { getMe, googleLinkAccount, getInitial, type User } from "@/lib/api";
 import GoogleSignInButton from "@/components/google-signin-button";
-
-function IconEmail() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <rect x="2" y="4" width="12" height="9" rx="2" stroke="#b5b0a4" strokeWidth="1.3" />
-      <path d="M2 6l6 4 6-4" stroke="#b5b0a4" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function IconLock() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <rect x="3" y="7" width="10" height="7" rx="2" stroke="#b5b0a4" strokeWidth="1.3" />
-      <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="#b5b0a4" strokeWidth="1.3" strokeLinecap="round" />
-      <circle cx="8" cy="10.5" r="1" fill="#b5b0a4" />
-    </svg>
-  );
-}
-
-function IconEye({ off }: { off?: boolean }) {
-  return off ? (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <path d="M1 9c1.3-3.1 4.7-5 8-5s6.7 1.9 8 5c-1.3 3.1-4.7 5-8 5S2.3 12.1 1 9Z" stroke="#b5b0a4" strokeWidth="1.3" />
-      <circle cx="9" cy="9" r="2.5" stroke="#b5b0a4" strokeWidth="1.3" />
-      <path d="M3 3l12 12" stroke="#b5b0a4" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  ) : (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <path d="M1 9c1.3-3.1 4.7-5 8-5s6.7 1.9 8 5c-1.3 3.1-4.7 5-8 5S2.3 12.1 1 9Z" stroke="#b5b0a4" strokeWidth="1.3" />
-      <circle cx="9" cy="9" r="2.5" stroke="#b5b0a4" strokeWidth="1.3" />
-    </svg>
-  );
-}
 
 function LinkAccountContent() {
   const router = useRouter();
@@ -46,13 +12,6 @@ function LinkAccountContent() {
 
   const [me, setMe] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  // เริ่มจากปุ่มเลือกวิธี (อีเมล / Google) แบบเดียวกับหน้าแรก — กดอีเมลค่อยกางฟอร์ม
-  const [showEmailForm, setShowEmailForm] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPw, setShowPw] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
@@ -63,31 +22,6 @@ function LinkAccountContent() {
       .catch(() => router.replace("/login"))
       .finally(() => setLoading(false));
   }, [router]);
-
-  async function handleLink() {
-    if (!email.trim() || !password) {
-      setError("กรุณากรอกอีเมลและรหัสผ่าน");
-      return;
-    }
-    if (password.length < 8) {
-      setError("รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("รหัสผ่านไม่ตรงกัน");
-      return;
-    }
-    setError("");
-    setSaving(true);
-    try {
-      await linkAccount(email.trim(), password);
-      setDone(true);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "เกิดข้อผิดพลาด กรุณาลองใหม่");
-    } finally {
-      setSaving(false);
-    }
-  }
 
   async function handleGoogleCredential(credential: string) {
     setError("");
@@ -151,6 +85,7 @@ function LinkAccountContent() {
             </p>
             <p className="text-[13px] font-light leading-[1.6] text-[#767168]">
               จากนี้เข้าใช้งานจากเครื่องไหนก็ได้ด้วยบัญชีที่เชื่อมไว้
+              <br />
               และไม่มีใครเลือกใช้ชื่อนี้จากลิงก์เชิญได้อีก
             </p>
           </div>
@@ -186,119 +121,40 @@ function LinkAccountContent() {
           และเข้าจากเครื่องไหนก็ได้
         </p>
 
-        {showEmailForm ? (
-          <>
-            {/* Email form */}
-            <div className="flex w-full flex-col gap-[12px]">
-              <div className="flex h-[52px] w-full items-center gap-[12px] rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] focus-within:border-[#14110d]">
-                <IconEmail />
-                <input
-                  autoFocus
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 bg-transparent text-[14px] tracking-[0.08px] text-[#14110d] outline-none placeholder:text-[#b5b0a4]"
-                />
-              </div>
+        {/* Method buttons — same stack pattern as the landing page */}
+        <button
+          type="button"
+          onClick={() => router.push(`/login?returnTo=${encodeURIComponent(returnTo)}`)}
+          className="flex h-[52px] w-full items-center justify-center rounded-[18px] bg-[#e85a2c] text-[15px] font-medium tracking-[0.08px] text-white transition-opacity active:opacity-80"
+        >
+          เชื่อมอีเมลและล็อกอิน
+        </button>
 
-              <div className="flex h-[52px] w-full items-center gap-[12px] rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] focus-within:border-[#14110d]">
-                <IconLock />
-                <input
-                  type={showPw ? "text" : "password"}
-                  placeholder="Password (อย่างน้อย 8 ตัว)"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="flex-1 bg-transparent text-[14px] tracking-[0.08px] text-[#14110d] outline-none placeholder:text-[#b5b0a4]"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw((v) => !v)}
-                  className="ml-auto shrink-0"
-                  aria-label={showPw ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
-                >
-                  <IconEye off={!showPw} />
-                </button>
-              </div>
+        {/* Divider */}
+        <div className="flex w-full items-center gap-[12px] py-[20px]">
+          <div className="h-px flex-1 bg-[#e5e1d7]" />
+          <span className="text-[12px] font-light tracking-[0.5px] text-[#b5b0a4]">หรือ</span>
+          <div className="h-px flex-1 bg-[#e5e1d7]" />
+        </div>
 
-              <div className="flex h-[52px] w-full items-center gap-[12px] rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] focus-within:border-[#14110d]">
-                <IconLock />
-                <input
-                  type={showConfirm ? "text" : "password"}
-                  placeholder="ยืนยัน Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleLink()}
-                  className="flex-1 bg-transparent text-[14px] tracking-[0.08px] text-[#14110d] outline-none placeholder:text-[#b5b0a4]"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm((v) => !v)}
-                  className="ml-auto shrink-0"
-                  aria-label={showConfirm ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
-                >
-                  <IconEye off={!showConfirm} />
-                </button>
-              </div>
-            </div>
+        <GoogleSignInButton
+          variant="styled"
+          label="เชื่อมด้วย Google"
+          onCredential={handleGoogleCredential}
+        />
 
-            {error && <p className="mt-[8px] w-full text-[12px] text-red-500">{error}</p>}
-
-            <button
-              type="button"
-              onClick={handleLink}
-              disabled={saving}
-              className="mt-[20px] flex h-[52px] w-full items-center justify-center rounded-[18px] bg-[#e85a2c] text-[15px] font-medium tracking-[0.08px] text-white transition-opacity active:opacity-80 disabled:opacity-60"
-            >
-              {saving ? "กำลังเชื่อม..." : "เชื่อมอีเมลและล็อกอิน"}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setShowEmailForm(false); setError(""); }}
-              className="pt-[20px] text-[12px] font-light tracking-[0.08px] text-[#767168] underline underline-offset-2"
-            >
-              ย้อนกลับ
-            </button>
-          </>
-        ) : (
-          <>
-            {/* Method buttons — same stack pattern as the landing page */}
-            <button
-              type="button"
-              onClick={() => setShowEmailForm(true)}
-              className="flex h-[52px] w-full items-center justify-center rounded-[18px] bg-[#e85a2c] text-[15px] font-medium tracking-[0.08px] text-white transition-opacity active:opacity-80"
-            >
-              เชื่อมอีเมลและล็อกอิน
-            </button>
-
-            {/* Divider */}
-            <div className="flex w-full items-center gap-[12px] py-[20px]">
-              <div className="h-px flex-1 bg-[#e5e1d7]" />
-              <span className="text-[12px] font-light tracking-[0.5px] text-[#b5b0a4]">หรือ</span>
-              <div className="h-px flex-1 bg-[#e5e1d7]" />
-            </div>
-
-            <GoogleSignInButton
-              variant="styled"
-              label="เชื่อมด้วย Google"
-              onCredential={handleGoogleCredential}
-            />
-
-            {saving && (
-              <p className="pt-[12px] text-[12px] font-light text-[#767168]">กำลังเชื่อม...</p>
-            )}
-            {error && <p className="pt-[8px] w-full text-center text-[12px] text-red-500">{error}</p>}
-
-            <button
-              type="button"
-              onClick={() => router.push(returnTo)}
-              className="pt-[20px] text-[12px] font-light tracking-[0.08px] text-[#767168] underline underline-offset-2"
-            >
-              ไว้ทีหลัง
-            </button>
-          </>
+        {saving && (
+          <p className="pt-[12px] text-[12px] font-light text-[#767168]">กำลังเชื่อม...</p>
         )}
+        {error && <p className="pt-[8px] w-full text-center text-[12px] text-red-500">{error}</p>}
+
+        <button
+          type="button"
+          onClick={() => router.push(returnTo)}
+          className="pt-[20px] text-[12px] font-light tracking-[0.08px] text-[#767168] underline underline-offset-2"
+        >
+          ไว้ทีหลัง
+        </button>
 
       </div>
     </main>

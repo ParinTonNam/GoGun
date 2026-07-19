@@ -38,7 +38,7 @@ export default function Home() {
       <div className="flex w-full max-w-[258px] flex-col items-center gap-[10px]">
         <Link
           href="/login"
-          className="w-full rounded-[18px] border border-[#e5e1d7] bg-[#e85a2c] py-[15px] text-center text-[15px] font-medium tracking-[0.08px] text-white"
+          className="w-full rounded-[18px] bg-[#e85a2c] py-[15px] text-center text-[15px] font-medium tracking-[0.08px] text-white"
         >
           เข้าสู่ระบบ
         </Link>
@@ -50,7 +50,8 @@ export default function Home() {
         </Link>
 
         {/* Divider */}
-        <div className="flex w-full items-center gap-[12px] py-[6px]">
+        {/* py-[10px] + stack gap-[10px] = ระยะห่างจริง 20px เท่ากับหน้า login/signin */}
+        <div className="flex w-full items-center gap-[12px] py-[10px]">
           <div className="h-px flex-1 bg-[#e5e1d7]" />
           <span className="text-[12px] font-light tracking-[0.5px] text-[#b5b0a4]">หรือ</span>
           <div className="h-px flex-1 bg-[#e5e1d7]" />

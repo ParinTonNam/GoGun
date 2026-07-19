@@ -3,7 +3,8 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { login, saveToken } from "@/lib/api";
+import { googleLogin, login, saveToken } from "@/lib/api";
+import GoogleSignInButton from "@/components/google-signin-button";
 
 function IconUser() {
   return (
@@ -63,6 +64,19 @@ function LoginForm() {
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "เกิดข้อผิดพลาด กรุณาลองใหม่");
     } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleGoogleCredential(credential: string) {
+    setError("");
+    setLoading(true);
+    try {
+      const { token } = await googleLogin(credential);
+      saveToken(token);
+      router.push(returnTo ?? "/trips");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "เกิดข้อผิดพลาด กรุณาลองใหม่");
       setLoading(false);
     }
   }
@@ -135,6 +149,16 @@ function LoginForm() {
           {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
         </button>
 
+        {/* Divider */}
+        <div className="flex w-full items-center gap-[12px] py-[20px]">
+          <div className="h-px flex-1 bg-[#e5e1d7]" />
+          <span className="text-[12px] font-light tracking-[0.5px] text-[#b5b0a4]">หรือ</span>
+          <div className="h-px flex-1 bg-[#e5e1d7]" />
+        </div>
+
+        {/* Google */}
+        <GoogleSignInButton variant="styled" onCredential={handleGoogleCredential} />
+
         {/* Register link */}
         <div className="flex items-center gap-[5px] pt-[28px] text-[13px]">
           <span className="font-light tracking-[0.08px] text-[#767168]">ยังไม่มีบัญชี?</span>
@@ -145,6 +169,15 @@ function LoginForm() {
             สมัครสมาชิก
           </Link>
         </div>
+
+        {/* Skip for now — goes back to where the user came from */}
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="pt-[20px] text-[12px] font-light tracking-[0.08px] text-[#767168] underline underline-offset-2"
+        >
+          ไว้ทีหลัง
+        </button>
 
       </div>
     </main>

@@ -344,7 +344,7 @@ export default function InviteClient({ inviteCode }: { inviteCode: string }) {
             type="button"
             onClick={handleLoginJoin}
             disabled={pageState === "joining"}
-            className="w-full rounded-[18px] bg-[#e85a2c] py-[16px] text-[15px] font-medium text-white disabled:opacity-60"
+            className="w-full rounded-[18px] bg-[#e85a2c] py-[15px] text-[15px] font-medium text-white disabled:opacity-60"
           >
             {pageState === "joining" ? "กำลังเข้าร่วม..." : "เข้าร่วมทริป"}
           </button>
@@ -366,14 +366,14 @@ export default function InviteClient({ inviteCode }: { inviteCode: string }) {
             <button
               type="button"
               onClick={handleLoginJoin}
-              className="w-full rounded-[18px] bg-[#e85a2c] py-[16px] text-[15px] font-medium text-white"
+              className="w-full rounded-[18px] bg-[#e85a2c] py-[15px] text-[15px] font-medium text-white"
             >
               เข้าสู่ระบบเพื่อเข้าร่วม
             </button>
             <button
               type="button"
               onClick={() => router.push(`/signin?returnTo=/t/${inviteCode}`)}
-              className="w-full rounded-[18px] border border-[#e5e1d7] bg-white py-[16px] text-[15px] font-medium text-[#14110d]"
+              className="w-full rounded-[18px] border border-[#e5e1d7] bg-white py-[15px] text-[15px] font-medium text-[#14110d]"
             >
               สมัครสมาชิก
             </button>
