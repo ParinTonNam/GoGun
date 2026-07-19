@@ -1,10 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { kanit } from "@/lib/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "GoGun",
   description: "ไปกัน GOGUN",
+};
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

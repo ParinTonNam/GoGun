@@ -1,10 +1,13 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TaskCard } from "@/components/trip-dashboard/task-card";
 import { StatCard } from "@/components/trip-dashboard/stat-card";
 import { ToolRow } from "@/components/trip-dashboard/tool-row";
+import { LoadError } from "@/components/load-error";
+import { useLoad } from "@/lib/use-load";
+import { inviteUrl, inviteLinkLabel } from "@/lib/invite";
 import {
   getTrip,
   getBalance,
@@ -31,20 +34,22 @@ export default function TripDashboardPage({
   const [me, setMe] = useState<User | null>(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    Promise.all([getTrip(tripId), getBalance(tripId), getPolls(tripId), getMe()])
-      .then(([t, b, p, u]) => {
-        setTrip(t);
-        setBalance(b);
-        setPolls(p);
-        setMe(u);
-      })
-      .catch(console.error);
+  const { error: loadError, retry } = useLoad(async () => {
+    const [t, b, p, u] = await Promise.all([
+      getTrip(tripId),
+      getBalance(tripId),
+      getPolls(tripId),
+      getMe(),
+    ]);
+    setTrip(t);
+    setBalance(b);
+    setPolls(p);
+    setMe(u);
   }, [tripId]);
 
   async function copyInviteLink() {
     if (!trip) return;
-    const url = `https://gogun.app/t/${trip.invite_code}`;
+    const url = inviteUrl(trip.invite_code);
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
@@ -52,6 +57,10 @@ export default function TripDashboardPage({
     } catch {
       // clipboard unavailable
     }
+  }
+
+  if (loadError) {
+    return <LoadError message={loadError} onRetry={retry} />;
   }
 
   if (!trip) {
@@ -78,7 +87,7 @@ export default function TripDashboardPage({
   const totalAmount = balance ? balance.total_amount : 0;
   const currency = trip.currency;
   const currencySymbol = currency === "JPY" ? "¥" : currency === "THB" ? "฿" : currency;
-  const inviteLink = `gogun.app/t/${trip.invite_code}`;
+  const inviteLink = inviteLinkLabel(trip.invite_code);
 
   const dateLabel = trip.confirmed_start_date
     ? formatShortDate(trip.confirmed_start_date)
@@ -103,20 +112,9 @@ export default function TripDashboardPage({
       label: "เข้าร่วมแล้ว",
     },
     {
-      value: "4/4",
-      valueColor: "#2e8b5c",
-      label: "เลือกวันว่าง",
-      route: `/trips/${tripId}/availability`,
-    },
-    {
       value: `${currencySymbol}${totalAmount >= 1000 ? Math.round(totalAmount / 1000) + "k" : formatAmount(totalAmount)}`,
       valueColor: "#14110d",
       label: "ค่าใช้จ่ายรวม",
-    },
-    {
-      value: "0/4",
-      valueColor: "#14110d",
-      label: "พร้อมเดินทาง",
     },
   ];
 
@@ -280,7 +278,7 @@ export default function TripDashboardPage({
             <div className="flex flex-col items-center gap-[8px] rounded-[18px] p-[10px]">
               <button
                 type="button"
-                onClick={() => router.push(`/trips/${tripId}/share`)}
+                onClick={() => router.push(`/trips/${tripId}/members`)}
                 className="flex size-[50px] items-center justify-center rounded-[25px] border border-[#e5e1d7] bg-white"
               >
                 <img src="/images/icon-plus.svg" alt="" className="size-[16px] invert" />

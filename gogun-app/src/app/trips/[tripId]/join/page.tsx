@@ -1,8 +1,10 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getTrip, joinTrip, getInitial, type Trip } from "@/lib/api";
+import { LoadError } from "@/components/load-error";
+import { useLoad } from "@/lib/use-load";
 
 export default function JoinTripPage({
   params,
@@ -12,15 +14,11 @@ export default function JoinTripPage({
   const { tripId } = use(params);
   const router = useRouter();
   const [trip, setTrip] = useState<Trip | null>(null);
-  const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    getTrip(tripId)
-      .then(setTrip)
-      .catch(console.error)
-      .finally(() => setLoading(false));
+  const { loading, error: loadError, retry } = useLoad(async () => {
+    setTrip(await getTrip(tripId));
   }, [tripId]);
 
   async function handleJoin() {
@@ -33,6 +31,10 @@ export default function JoinTripPage({
       setError(e instanceof Error ? e.message : "เกิดข้อผิดพลาด");
       setJoining(false);
     }
+  }
+
+  if (loadError) {
+    return <LoadError message={loadError} onRetry={retry} />;
   }
 
   if (loading || !trip) {

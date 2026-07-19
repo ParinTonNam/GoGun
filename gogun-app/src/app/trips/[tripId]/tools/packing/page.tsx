@@ -1,9 +1,9 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { use, useState } from "react";
 import {
   getPacking,
+  getMe,
   addPackingItem,
   deletePackingItem,
   checkPackingItem,
@@ -11,6 +11,9 @@ import {
   type PackingItem,
   type User,
 } from "@/lib/api";
+import { PageHeader } from "@/components/page-header";
+import { LoadError } from "@/components/load-error";
+import { useLoad } from "@/lib/use-load";
 
 function Checkbox({ checked, onToggle }: { checked: boolean; onToggle: () => void }) {
   return (
@@ -53,9 +56,8 @@ export default function PackingListPage({
   params: Promise<{ tripId: string }>;
 }) {
   const { tripId } = use(params);
-  const router = useRouter();
   const [items, setItems] = useState<PackingItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [me, setMe] = useState<User | null>(null);
   const [toggling, setToggling] = useState<string | null>(null);
 
   // Add form
@@ -68,8 +70,9 @@ export default function PackingListPage({
     setItems(data);
   }
 
-  useEffect(() => {
-    load().catch(console.error).finally(() => setLoading(false));
+  const { loading, error: loadError, retry } = useLoad(async () => {
+    const [, user] = await Promise.all([load(), getMe()]);
+    setMe(user);
   }, [tripId]);
 
   async function handleToggle(item: PackingItem) {
@@ -118,6 +121,10 @@ export default function PackingListPage({
   const sharedDone = sharedItems.filter((i) => i.is_checked).length;
   const personalDone = personalItems.filter((i) => i.is_checked).length;
 
+  if (loadError) {
+    return <LoadError message={loadError} onRetry={retry} />;
+  }
+
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0]">
@@ -150,18 +157,9 @@ export default function PackingListPage({
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col gap-[24px] pb-[100px] pt-[65px] px-[24px]">
+      <div className="flex w-full max-w-[420px] flex-col gap-[24px] pb-[100px] pt-[24px] px-[24px]">
         {/* Header */}
-        <div className="flex items-center gap-[12px]">
-          <button
-            type="button"
-            onClick={() => router.push(`/trips/${tripId}/tools`)}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="size-[14px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">Packing List</p>
-        </div>
+        <PageHeader title="Packing List" backHref={`/trips/${tripId}/tools`} user={me} />
 
         {/* Section: ของกลาง */}
         {sharedItems.length > 0 && (

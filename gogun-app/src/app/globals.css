@@ -10,6 +10,12 @@
   --color-foreground: var(--foreground);
 }
 
+/* Reserve scrollbar space at all times so centered content doesn't
+   shift left/right when navigating between short and long pages. */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

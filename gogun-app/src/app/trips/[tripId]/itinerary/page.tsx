@@ -1,19 +1,36 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { use, useState } from "react";
 import {
   getTrip,
   getItinerary,
+  getMe,
   addDay,
   updateDay,
+  deleteDay,
   swapDays,
   addActivity,
+  updateActivity,
   deleteActivity,
   formatShortDate,
   type Trip,
   type ItineraryDay,
+  type ItineraryActivity,
+  type User,
 } from "@/lib/api";
+import { PageHeader } from "@/components/page-header";
+import { LoadError } from "@/components/load-error";
+import { useLoad } from "@/lib/use-load";
+
+// เวลาถัดไป = เวลาล่าสุดของวันนั้น + 1 ชม. (สูงสุด 23:00) ถ้ายังไม่มีกิจกรรมเริ่ม 09:00
+function nextActivityTime(day: ItineraryDay): string {
+  if (day.activities.length === 0) return "09:00";
+  const latest = day.activities.reduce((a, b) => (a.time > b.time ? a : b)).time;
+  const [h, m] = latest.split(":").map(Number);
+  const nh = Math.min((Number.isNaN(h) ? 9 : h) + 1, 23);
+  const mm = Number.isNaN(m) ? 0 : m;
+  return `${String(nh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+}
 
 export default function ItineraryPage({
   params,
@@ -21,16 +38,21 @@ export default function ItineraryPage({
   params: Promise<{ tripId: string }>;
 }) {
   const { tripId } = use(params);
-  const router = useRouter();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [days, setDays] = useState<ItineraryDay[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [me, setMe] = useState<User | null>(null);
 
   // Add activity
   const [activeAddDayId, setActiveAddDayId] = useState<string | null>(null);
   const [newTime, setNewTime] = useState("09:00");
   const [newTitle, setNewTitle] = useState("");
   const [savingAct, setSavingAct] = useState(false);
+
+  // Edit activity
+  const [editActId, setEditActId] = useState<string | null>(null);
+  const [editActTime, setEditActTime] = useState("09:00");
+  const [editActTitle, setEditActTitle] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
 
   // Edit day label
   const [editLabelId, setEditLabelId] = useState<string | null>(null);
@@ -41,11 +63,11 @@ export default function ItineraryPage({
   const [newDayLabel, setNewDayLabel] = useState("");
   const [savingDay, setSavingDay] = useState(false);
 
-  useEffect(() => {
-    Promise.all([getTrip(tripId), getItinerary(tripId)])
-      .then(([t, d]) => { setTrip(t); setDays(d); })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+  const { loading, error: loadError, retry } = useLoad(async () => {
+    const [t, d, user] = await Promise.all([getTrip(tripId), getItinerary(tripId), getMe()]);
+    setTrip(t);
+    setDays(d);
+    setMe(user);
   }, [tripId]);
 
   async function refresh() {
@@ -76,9 +98,10 @@ export default function ItineraryPage({
   }
 
   // ── Add activity ──────────────────────────────────────────────
-  function openAdd(dayId: string) {
-    setActiveAddDayId(dayId);
-    setNewTime("09:00");
+  function openAdd(day: ItineraryDay) {
+    setEditActId(null);
+    setActiveAddDayId(day.id);
+    setNewTime(nextActivityTime(day)); // เวลารันต่อ +1 ชม. จากกิจกรรมล่าสุด
     setNewTitle("");
   }
 
@@ -103,6 +126,44 @@ export default function ItineraryPage({
       await refresh();
     } catch (err) {
       console.error(err);
+    }
+  }
+
+  // ── Delete day ────────────────────────────────────────────────
+  async function handleDeleteDay(day: ItineraryDay) {
+    const count = day.activities.length;
+    const msg = count > 0
+      ? `ลบ "${day.label}" และกิจกรรม ${count} รายการ?`
+      : `ลบ "${day.label}"?`;
+    if (!window.confirm(msg)) return;
+    try {
+      await deleteDay(tripId, day.id);
+      await refresh();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // ── Edit activity ─────────────────────────────────────────────
+  function startEditActivity(act: ItineraryActivity) {
+    setActiveAddDayId(null);
+    setEditActId(act.id);
+    setEditActTime(act.time);
+    setEditActTitle(act.title);
+  }
+
+  async function handleSaveActivity(actId: string) {
+    const title = editActTitle.trim();
+    if (!title || savingEdit) return;
+    setSavingEdit(true);
+    try {
+      await updateActivity(tripId, actId, { time: editActTime, title });
+      await refresh();
+      setEditActId(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSavingEdit(false);
     }
   }
 
@@ -150,6 +211,10 @@ export default function ItineraryPage({
     }
   }
 
+  if (loadError) {
+    return <LoadError message={loadError} onRetry={retry} />;
+  }
+
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0]">
@@ -158,25 +223,19 @@ export default function ItineraryPage({
     );
   }
 
+  // ยังไม่กำหนดวันเดินทาง → ไม่โชว์วันที่ใต้เลข DAY (กันเลขวันที่หลอก)
+  const hasTripDate = Boolean(trip?.confirmed_start_date || trip?.proposed_start_date);
+
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[40px] pt-[64px]">
+      <div className="flex w-full max-w-[420px] flex-col pb-[40px] pt-[24px]">
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[18px] pt-[4px] px-[20px]">
-          <button
-            type="button"
-            onClick={() => router.push(`/trips/${tripId}`)}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="h-[10px] w-[6px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">
-            แก้แผนเดินทาง
-          </p>
+        <div className="px-[24px]">
+          <PageHeader title="แก้แผนเดินทาง" backHref={`/trips/${tripId}`} user={me} />
         </div>
 
         {/* Days timeline */}
-        <div className="flex flex-col pl-[44px] pr-[20px]">
+        <div className="flex flex-col pl-[44px] pr-[24px]">
           {days.map((day, idx) => (
             <div
               key={day.id}
@@ -216,15 +275,17 @@ export default function ItineraryPage({
                 <p className="text-[28px] font-light leading-[28px] tracking-[-0.56px] text-[#14110d]">
                   {String(day.day_number).padStart(2, "0")}
                 </p>
-                <p className="text-[10px] tracking-[0.08px] text-[#b5b0a4]">
-                  {formatShortDate(day.date)}
-                </p>
+                {hasTripDate && (
+                  <p className="text-[10px] tracking-[0.08px] text-[#b5b0a4]">
+                    {formatShortDate(day.date)}
+                  </p>
+                )}
               </div>
 
               {/* Day content */}
               <div className="flex flex-1 flex-col pb-[2px]">
-                {/* Editable day label */}
-                <div className="mb-[8px] flex h-[32px] items-center">
+                {/* Editable day label + delete day */}
+                <div className="mb-[8px] flex h-[32px] items-center gap-[8px]">
                   {editLabelId === day.id ? (
                     <input
                       autoFocus
@@ -239,29 +300,94 @@ export default function ItineraryPage({
                     <button
                       type="button"
                       onClick={() => startEditLabel(day)}
-                      className="text-left text-[15px] font-medium text-[#14110d]"
+                      className="flex-1 text-left text-[15px] font-medium text-[#14110d]"
                     >
                       {day.label}
                     </button>
                   )}
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteDay(day)}
+                    className="shrink-0 p-[6px] opacity-30 active:opacity-80"
+                    aria-label="ลบวัน"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M2.5 3.5h9M5.5 3.5V2.2a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1.3M3.5 3.5l.5 8a1 1 0 0 0 1 .95h4a1 1 0 0 0 1-.95l.5-8" stroke="#c0392b" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
                 </div>
 
-                {/* Activities */}
-                {day.activities.map((act) => (
-                  <div key={act.id} className="flex items-center gap-[8px] py-[6px]">
-                    <div className="w-[44px] shrink-0">
-                      <p className="text-[11.5px] text-[#767168]">{act.time}</p>
-                    </div>
-                    <p className="flex-1 text-[13px] text-[#14110d]">{act.title}</p>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteActivity(act.id)}
-                      className="shrink-0 opacity-25 active:opacity-80"
-                    >
-                      <img src="/images/icon-close.svg" alt="" className="size-[11px]" />
-                    </button>
-                  </div>
-                ))}
+                {/* Activities — เรียงตามเวลาเสมอ */}
+                {[...day.activities]
+                  .sort((a, b) => a.time.localeCompare(b.time))
+                  .map((act) =>
+                    editActId === act.id ? (
+                      // Inline edit form
+                      <div key={act.id} className="flex items-center gap-[8px] py-[6px]">
+                        <div className="w-[52px] shrink-0 border-b border-[#8a8275]">
+                          <input
+                            type="time"
+                            value={editActTime}
+                            onChange={(e) => setEditActTime(e.target.value)}
+                            className="w-full bg-transparent pb-[3px] pt-[2px] text-[11.5px] text-[#767168] outline-none [&::-webkit-calendar-picker-indicator]:hidden"
+                          />
+                        </div>
+                        <div className="flex flex-1 items-center gap-[6px] border-b border-[#8a8275]">
+                          <input
+                            type="text"
+                            value={editActTitle}
+                            onChange={(e) => setEditActTitle(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleSaveActivity(act.id);
+                              if (e.key === "Escape") setEditActId(null);
+                            }}
+                            autoFocus
+                            className="flex-1 bg-transparent pb-[3px] pt-[2px] text-[13px] text-[#14110d] outline-none placeholder:text-[#b5b0a4]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleSaveActivity(act.id)}
+                            disabled={!editActTitle.trim() || savingEdit}
+                            className={`shrink-0 px-[6px] pb-[3px] text-[12px] font-medium ${
+                              editActTitle.trim() ? "text-[#e85a2c]" : "text-[#b5b0a4] opacity-50"
+                            }`}
+                          >
+                            {savingEdit ? "..." : "บันทึก"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditActId(null)}
+                            className="shrink-0 px-[4px] pb-[3px] text-[12px] text-[#b5b0a4]"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      // แตะที่แถวเพื่อแก้ไข + ปุ่มลบแยก
+                      <div key={act.id} className="flex items-center gap-[8px] py-[6px]">
+                        <button
+                          type="button"
+                          onClick={() => startEditActivity(act)}
+                          className="flex flex-1 items-center gap-[8px] text-left active:opacity-60"
+                        >
+                          <span className="w-[44px] shrink-0 text-[11.5px] text-[#767168]">{act.time}</span>
+                          <span className="flex-1 text-[13px] text-[#14110d]">{act.title}</span>
+                          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" className="shrink-0 opacity-30">
+                            <path d="M9.5 2.5l2 2L5 11l-2.5.5L3 9l6.5-6.5Z" stroke="#14110d" strokeWidth="1.2" strokeLinejoin="round" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteActivity(act.id)}
+                          className="shrink-0 p-[4px] opacity-25 active:opacity-80"
+                          aria-label="ลบกิจกรรม"
+                        >
+                          <img src="/images/icon-close.svg" alt="" className="size-[11px]" />
+                        </button>
+                      </div>
+                    ),
+                  )}
 
                 {/* Inline add activity form */}
                 {activeAddDayId === day.id && (
@@ -286,27 +412,32 @@ export default function ItineraryPage({
                       />
                       <button
                         type="button"
-                        onClick={() => {
-                          if (newTitle.trim()) handleAddActivity(day.id);
-                          else setActiveAddDayId(null);
-                        }}
-                        disabled={savingAct}
-                        className={`shrink-0 pb-[3px] text-[12px] font-medium ${
-                          newTitle.trim() ? "text-[#e85a2c]" : "text-[#b5b0a4] opacity-50"
+                        onClick={() => handleAddActivity(day.id)}
+                        disabled={!newTitle.trim() || savingAct}
+                        className={`shrink-0 rounded-[8px] px-[10px] py-[5px] text-[12px] font-medium ${
+                          newTitle.trim() ? "bg-[#e85a2c] text-white" : "text-[#b5b0a4] opacity-50"
                         }`}
                       >
-                        {savingAct ? "..." : newTitle.trim() ? "เพิ่ม" : "✕"}
+                        {savingAct ? "..." : "เพิ่ม"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveAddDayId(null)}
+                        className="shrink-0 px-[4px] pb-[3px] text-[12px] text-[#b5b0a4]"
+                        aria-label="ปิด"
+                      >
+                        ✕
                       </button>
                     </div>
                   </div>
                 )}
 
-                {/* Add activity link */}
+                {/* Add activity link — แตะง่ายขึ้น (แถวเต็มความกว้าง) */}
                 {activeAddDayId !== day.id && (
                   <button
                     type="button"
-                    onClick={() => openAdd(day.id)}
-                    className="flex items-center gap-[6px] py-[4px] text-left"
+                    onClick={() => openAdd(day)}
+                    className="mt-[2px] flex w-full items-center gap-[8px] rounded-[10px] border border-dashed border-[#d4cfc2] px-[12px] py-[10px] text-left active:bg-[#f2efe8]"
                   >
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="opacity-50">
                       <path d="M7 1V13M1 7H13" stroke="#14110d" strokeWidth="1.3" strokeLinecap="round" />
@@ -322,7 +453,7 @@ export default function ItineraryPage({
         </div>
 
         {/* Add day area */}
-        <div className="px-[20px] pt-[6px]">
+        <div className="px-[24px] pt-[6px]">
           {addingDay ? (
             <div className="flex items-center gap-[10px] rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] py-[13px]">
               <div className="flex size-[28px] shrink-0 items-center justify-center rounded-[8px] bg-[#f2efe8]">

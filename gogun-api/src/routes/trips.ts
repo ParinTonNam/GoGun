@@ -5,7 +5,9 @@ import { requireTripMember, requireOrganizer } from '../middleware/trip'
 import { ok, err, generateInviteCode } from '../lib/response'
 import { signToken } from '../lib/jwt'
 import { param } from '../lib/params'
-import { DateStatus } from '../../generated/prisma/enums'
+import { DateStatus, TripType } from '../../generated/prisma/enums'
+
+const TRIP_TYPES: string[] = ['one_day', 'overnight', 'long']
 
 const router = Router()
 
@@ -120,10 +122,12 @@ router.post('/join/:invite_code/claim/:memberId', async (req, res) => {
 
 // Create trip
 router.post('/', requireAuth, async (req, res) => {
-  const { name, destination, duration_days, proposed_start_date, currency } =
+  const { name, destination, icon, trip_type, duration_days, proposed_start_date, currency } =
     req.body as {
       name?: string
       destination?: string
+      icon?: string
+      trip_type?: string
       duration_days?: number
       proposed_start_date?: string
       currency?: string
@@ -137,6 +141,13 @@ router.post('/', requireAuth, async (req, res) => {
   if (!name || !destination || !duration_days)
     return err(res, 400, 'VALIDATION_ERROR', 'name, destination, duration_days are required')
 
+  if (trip_type !== undefined && trip_type !== null && !TRIP_TYPES.includes(trip_type))
+    return err(res, 400, 'VALIDATION_ERROR', `trip_type must be one of: ${TRIP_TYPES.join(', ')}`)
+
+  // icon เก็บเป็น emoji สั้นๆ — กันส่ง string ยาวมาลง DB
+  if (icon !== undefined && icon !== null && (typeof icon !== 'string' || icon.length > 16))
+    return err(res, 400, 'VALIDATION_ERROR', 'icon must be a short emoji string')
+
   // invite_code is unique — on the (rare) collision Prisma throws P2002, so
   // retry with a fresh code instead of surfacing a 500.
   const MAX_INVITE_ATTEMPTS = 3
@@ -146,6 +157,8 @@ router.post('/', requireAuth, async (req, res) => {
         data: {
           name,
           destination,
+          icon: icon ?? null,
+          trip_type: (trip_type as TripType) ?? null,
           duration_days,
           proposed_start_date: proposed_start_date ? new Date(proposed_start_date) : null,
           currency: currency || 'JPY',
@@ -192,6 +205,8 @@ router.patch('/:tripId', requireAuth, requireTripMember, requireOrganizer, async
   const {
     name,
     destination,
+    icon,
+    trip_type,
     duration_days,
     proposed_start_date,
     confirmed_start_date,
@@ -203,11 +218,19 @@ router.patch('/:tripId', requireAuth, requireTripMember, requireOrganizer, async
     allow_member_invite,
   } = req.body as Record<string, string | number | boolean | null | undefined>
 
+  if (trip_type !== undefined && trip_type !== null && !TRIP_TYPES.includes(String(trip_type)))
+    return err(res, 400, 'VALIDATION_ERROR', `trip_type must be one of: ${TRIP_TYPES.join(', ')}`)
+
+  if (icon !== undefined && icon !== null && (typeof icon !== 'string' || icon.length > 16))
+    return err(res, 400, 'VALIDATION_ERROR', 'icon must be a short emoji string')
+
   const trip = await prisma.trip.update({
     where: { id: param(req, 'tripId') },
     data: {
       ...(name !== undefined && { name: String(name) }),
       ...(destination !== undefined && { destination: String(destination) }),
+      ...(icon !== undefined && { icon: icon === null || icon === '' ? null : String(icon) }),
+      ...(trip_type !== undefined && { trip_type: trip_type === null ? null : (trip_type as TripType) }),
       ...(duration_days !== undefined && { duration_days: Number(duration_days) }),
       ...(proposed_start_date !== undefined && {
         proposed_start_date: proposed_start_date ? new Date(String(proposed_start_date)) : null,

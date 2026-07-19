@@ -1,15 +1,19 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { use, useState } from "react";
 import {
   getChecklist,
+  getMe,
   checkItem,
   uncheckItem,
   addChecklistItem,
   deleteChecklistItem,
   type ChecklistItem,
+  type User,
 } from "@/lib/api";
+import { PageHeader } from "@/components/page-header";
+import { LoadError } from "@/components/load-error";
+import { useLoad } from "@/lib/use-load";
 
 function Checkbox({ checked, onToggle }: { checked: boolean; onToggle: () => void }) {
   return (
@@ -35,9 +39,8 @@ export default function ChecklistPage({
   params: Promise<{ tripId: string }>;
 }) {
   const { tripId } = use(params);
-  const router = useRouter();
   const [items, setItems] = useState<ChecklistItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [me, setMe] = useState<User | null>(null);
   const [newText, setNewText] = useState("");
   const [toggling, setToggling] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -47,8 +50,9 @@ export default function ChecklistPage({
     setItems(data);
   }
 
-  useEffect(() => {
-    load().catch(console.error).finally(() => setLoading(false));
+  const { loading, error: loadError, retry } = useLoad(async () => {
+    const [, user] = await Promise.all([load(), getMe()]);
+    setMe(user);
   }, [tripId]);
 
   async function handleToggle(item: ChecklistItem) {
@@ -94,6 +98,10 @@ export default function ChecklistPage({
 
   const doneCount = items.filter((i) => i.is_checked).length;
 
+  if (loadError) {
+    return <LoadError message={loadError} onRetry={retry} />;
+  }
+
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0]">
@@ -104,21 +112,18 @@ export default function ChecklistPage({
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col gap-[24px] pb-[100px] pt-[65px] px-[24px]">
+      <div className="flex w-full max-w-[420px] flex-col gap-[24px] pb-[100px] pt-[24px] px-[24px]">
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[18px] pt-[4px]">
-          <button
-            type="button"
-            onClick={() => router.push(`/trips/${tripId}/tools`)}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="size-[14px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">เช็คลิสต์</p>
-          <p className="text-[11px] font-light tracking-[0.66px] text-[#767168]">
-            {doneCount}/{items.length}
-          </p>
-        </div>
+        <PageHeader
+          title="เช็คลิสต์"
+          backHref={`/trips/${tripId}/tools`}
+          user={me}
+          right={
+            <p className="text-[11px] font-light tracking-[0.66px] text-[#767168]">
+              {doneCount}/{items.length}
+            </p>
+          }
+        />
 
         {/* Items list */}
         <div className="flex flex-col">

@@ -16,6 +16,14 @@ enum DateStatus {
   @@map("date_status_enum")
 }
 
+enum TripType {
+  one_day
+  overnight
+  long
+
+  @@map("trip_type_enum")
+}
+
 enum TripMemberRole {
   organizer
   member
@@ -93,6 +101,8 @@ model Trip {
   id                           String     @id @default(uuid()) @db.Uuid
   name                         String
   destination                  String
+  icon                         String?
+  trip_type                    TripType?
   duration_days                Int
   proposed_start_date          DateTime?  @db.Date
   confirmed_start_date         DateTime?  @db.Date

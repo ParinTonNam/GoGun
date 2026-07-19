@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS
 CASCADE;
 
 DROP TYPE IF EXISTS
-  date_status_enum, trip_member_role_enum, trip_member_status_enum,
+  date_status_enum, trip_type_enum, trip_member_role_enum, trip_member_status_enum,
   transfer_status_enum, availability_status_enum,
   poll_status_enum, packing_category_enum
 CASCADE;
@@ -29,6 +29,7 @@ CASCADE;
 -- =============================================================================
 
 CREATE TYPE date_status_enum        AS ENUM ('proposed', 'confirmed');
+CREATE TYPE trip_type_enum          AS ENUM ('one_day', 'overnight', 'long');
 CREATE TYPE trip_member_role_enum   AS ENUM ('organizer', 'member');
 CREATE TYPE trip_member_status_enum AS ENUM ('invited', 'joined', 'declined');
 CREATE TYPE transfer_status_enum    AS ENUM ('pending', 'confirmed');
@@ -54,6 +55,7 @@ CREATE TABLE trips (
   id                   UUID              PRIMARY KEY DEFAULT gen_random_uuid(),
   name                 TEXT              NOT NULL,
   destination          TEXT              NOT NULL,
+  trip_type            trip_type_enum,
   duration_days        INT               NOT NULL,
   proposed_start_date  DATE,
   confirmed_start_date DATE,

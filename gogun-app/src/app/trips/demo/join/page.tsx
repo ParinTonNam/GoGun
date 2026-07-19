@@ -14,7 +14,7 @@ export default function JoinSelectPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[430px] flex-col gap-[24px] pb-[30px] pt-[92px] px-[24px]">
+      <div className="flex w-full max-w-[420px] flex-col gap-[24px] pb-[30px] pt-[92px] px-[24px]">
 
         {/* Trip info header */}
         <div className="flex flex-col gap-[8px] pb-[40px]">

@@ -84,6 +84,31 @@ router.patch('/days/:dayId', requireOrganizer, async (req, res) => {
   return ok(res, updated)
 })
 
+// Delete day (cascade deletes its activities) + compact remaining day_numbers
+router.delete('/days/:dayId', requireOrganizer, async (req, res) => {
+  const day = await prisma.itineraryDay.findFirst({
+    where: { id: param(req, 'dayId'), trip_id: param(req, 'tripId') },
+  })
+  if (!day) return err(res, 404, 'NOT_FOUND', 'Day not found')
+
+  const tripId = param(req, 'tripId')
+  await prisma.$transaction(async (tx) => {
+    await tx.itineraryDay.delete({ where: { id: day.id } })
+    // เลื่อนวันที่อยู่หลังวันที่ลบลง 1 เพื่อให้ day_number ต่อเนื่อง (กันชน @@unique)
+    const rest = await tx.itineraryDay.findMany({
+      where: { trip_id: tripId, day_number: { gt: day.day_number } },
+      orderBy: { day_number: 'asc' },
+    })
+    for (const d of rest) {
+      await tx.itineraryDay.update({
+        where: { id: d.id },
+        data: { day_number: d.day_number - 1 },
+      })
+    }
+  })
+  return ok(res, { deleted: true })
+})
+
 // Add activity to day
 router.post('/days/:dayId/activities', requireOrganizer, async (req, res) => {
   const { time, title, sort_order } = req.body as {

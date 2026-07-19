@@ -10,6 +10,7 @@ const trip_1 = require("../middleware/trip");
 const response_1 = require("../lib/response");
 const jwt_1 = require("../lib/jwt");
 const params_1 = require("../lib/params");
+const TRIP_TYPES = ['one_day', 'overnight', 'long'];
 const router = (0, express_1.Router)();
 // List my trips
 router.get('/', auth_1.requireAuth, async (req, res) => {
@@ -111,13 +112,15 @@ router.post('/join/:invite_code/claim/:memberId', async (req, res) => {
 });
 // Create trip
 router.post('/', auth_1.requireAuth, async (req, res) => {
-    const { name, destination, duration_days, proposed_start_date, currency } = req.body;
+    const { name, destination, trip_type, duration_days, proposed_start_date, currency } = req.body;
     // Organizers must be real accounts — a guest who lost their session could
     // never get back into a trip they organize.
     if (req.user.is_guest)
         return (0, response_1.err)(res, 403, 'FORBIDDEN', 'Link an email to your account before creating a trip');
     if (!name || !destination || !duration_days)
         return (0, response_1.err)(res, 400, 'VALIDATION_ERROR', 'name, destination, duration_days are required');
+    if (trip_type !== undefined && trip_type !== null && !TRIP_TYPES.includes(trip_type))
+        return (0, response_1.err)(res, 400, 'VALIDATION_ERROR', `trip_type must be one of: ${TRIP_TYPES.join(', ')}`);
     // invite_code is unique — on the (rare) collision Prisma throws P2002, so
     // retry with a fresh code instead of surfacing a 500.
     const MAX_INVITE_ATTEMPTS = 3;
@@ -127,6 +130,7 @@ router.post('/', auth_1.requireAuth, async (req, res) => {
                 data: {
                     name,
                     destination,
+                    trip_type: trip_type ?? null,
                     duration_days,
                     proposed_start_date: proposed_start_date ? new Date(proposed_start_date) : null,
                     currency: currency || 'JPY',
@@ -170,12 +174,15 @@ router.get('/:tripId', auth_1.requireAuth, trip_1.requireTripMember, async (req,
 });
 // Update trip
 router.patch('/:tripId', auth_1.requireAuth, trip_1.requireTripMember, trip_1.requireOrganizer, async (req, res) => {
-    const { name, destination, duration_days, proposed_start_date, confirmed_start_date, date_status, currency, budget_per_person, allow_member_expenses, allow_member_itinerary_edit, allow_member_invite, } = req.body;
+    const { name, destination, trip_type, duration_days, proposed_start_date, confirmed_start_date, date_status, currency, budget_per_person, allow_member_expenses, allow_member_itinerary_edit, allow_member_invite, } = req.body;
+    if (trip_type !== undefined && trip_type !== null && !TRIP_TYPES.includes(String(trip_type)))
+        return (0, response_1.err)(res, 400, 'VALIDATION_ERROR', `trip_type must be one of: ${TRIP_TYPES.join(', ')}`);
     const trip = await prisma_1.default.trip.update({
         where: { id: (0, params_1.param)(req, 'tripId') },
         data: {
             ...(name !== undefined && { name: String(name) }),
             ...(destination !== undefined && { destination: String(destination) }),
+            ...(trip_type !== undefined && { trip_type: trip_type === null ? null : trip_type }),
             ...(duration_days !== undefined && { duration_days: Number(duration_days) }),
             ...(proposed_start_date !== undefined && {
                 proposed_start_date: proposed_start_date ? new Date(String(proposed_start_date)) : null,

@@ -53,7 +53,9 @@ app.use(
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Strict rate limit on auth — login/register are the brute-force surface.
+// Strict rate limit on credential endpoints — login/register/link are the
+// brute-force surface. Must NOT cover /auth/me, which the frontend calls on
+// nearly every page load and would exhaust this limit in normal use.
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 min
   max: 20,
@@ -61,9 +63,12 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: { code: 'RATE_LIMITED', message: 'Too many attempts, try again later' } },
 })
+app.use('/api/v1/auth/login', authLimiter)
+app.use('/api/v1/auth/register', authLimiter)
+app.use('/api/v1/auth/link', authLimiter)
 
 // Auth routes (per-route auth in the router)
-app.use('/api/v1/auth', authLimiter, authRouter)
+app.use('/api/v1/auth', authRouter)
 
 // Trip top-level routes (GET /join/:code is public; rest are per-route guarded)
 app.use('/api/v1/trips', tripsRouter)

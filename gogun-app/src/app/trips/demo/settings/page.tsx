@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { PageHeader, DEMO_USER } from "@/components/page-header";
 
 const INVITE_LINK = "gogun.app/t/tokyo-kyoto-x4";
 
@@ -40,7 +40,6 @@ function Chevron() {
 }
 
 export default function TripSettingsPage() {
-  const router = useRouter();
   const [copied, setCopied] = useState(false);
 
   const [toggles, setToggles] = useState({
@@ -69,23 +68,14 @@ export default function TripSettingsPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[24px] pt-[64px]">
+      <div className="flex w-full max-w-[420px] flex-col pb-[24px] pt-[24px]">
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[18px] pt-[4px] px-[20px]">
-          <button
-            type="button"
-            onClick={() => router.push("/trips/demo")}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="size-[14px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">
-            ตั้งค่าทริป
-          </p>
+        <div className="px-[24px]">
+          <PageHeader title="ตั้งค่าทริป" backHref="/trips/demo" user={DEMO_USER} />
         </div>
 
         {/* Content */}
-        <div className="flex flex-col gap-[18px] px-[20px]">
+        <div className="flex flex-col gap-[18px] px-[24px]">
 
           {/* ข้อมูลทริป */}
           <div className="overflow-hidden rounded-[16px] border border-[#e5e1d7] bg-white">

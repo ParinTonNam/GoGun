@@ -1,12 +1,14 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { use, useState } from "react";
 import {
   getPolls, getTrip, getMe,
   vote, unvote, createPoll, closePoll, deletePoll,
   type Poll, type Trip, type User,
 } from "@/lib/api";
+import { PageHeader } from "@/components/page-header";
+import { LoadError } from "@/components/load-error";
+import { useLoad } from "@/lib/use-load";
 
 function AvatarStack({ voters }: { voters: Pick<User, "id" | "display_name" | "avatar_color">[] }) {
   if (voters.length === 0) return null;
@@ -29,12 +31,10 @@ function AvatarStack({ voters }: { voters: Pick<User, "id" | "display_name" | "a
 
 export default function VotePage({ params }: { params: Promise<{ tripId: string }> }) {
   const { tripId } = use(params);
-  const router = useRouter();
 
   const [polls, setPolls] = useState<Poll[]>([]);
   const [me, setMe] = useState<User | null>(null);
   const [trip, setTrip] = useState<Trip | null>(null);
-  const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState<string | null>(null);
   const [closing, setClosing] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -51,15 +51,11 @@ export default function VotePage({ params }: { params: Promise<{ tripId: string 
     setPolls(data);
   }
 
-  useEffect(() => {
-    Promise.all([getPolls(tripId), getTrip(tripId), getMe()])
-      .then(([polls, trip, me]) => {
-        setPolls(polls);
-        setTrip(trip);
-        setMe(me);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+  const { loading, error: loadError, retry } = useLoad(async () => {
+    const [polls, trip, me] = await Promise.all([getPolls(tripId), getTrip(tripId), getMe()]);
+    setPolls(polls);
+    setTrip(trip);
+    setMe(me);
   }, [tripId]);
 
   const isOrganizer = !!(me && trip && me.id === trip.organizer_id);
@@ -144,6 +140,10 @@ export default function VotePage({ params }: { params: Promise<{ tripId: string 
     setNewOptions((prev) => prev.filter((_, idx) => idx !== i));
   }
 
+  if (loadError) {
+    return <LoadError message={loadError} onRetry={retry} />;
+  }
+
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0]">
@@ -154,32 +154,31 @@ export default function VotePage({ params }: { params: Promise<{ tripId: string 
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[60px] pt-[65px] px-[24px]">
+      <div className="flex w-full max-w-[420px] flex-col pb-[60px] pt-[24px] px-[24px]">
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[18px] pt-[4px]">
-          <button
-            type="button"
-            onClick={() => router.push(`/trips/${tripId}/tools`)}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="size-[14px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">โหวต</p>
-          {openCount > 0 && (
-            <p className="text-[11px] font-light tracking-[0.66px] text-[#767168]">{openCount} เปิดอยู่</p>
-          )}
-          {isOrganizer && (
-            <button
-              type="button"
-              onClick={() => setShowCreate((v) => !v)}
-              className="flex size-[32px] shrink-0 items-center justify-center rounded-[10px] bg-[#14110d]"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M7 2V12M2 7H12" stroke="white" strokeWidth="1.6" strokeLinecap="round" />
-              </svg>
-            </button>
-          )}
-        </div>
+        <PageHeader
+          title="โหวต"
+          backHref={`/trips/${tripId}/tools`}
+          user={me}
+          right={
+            <>
+              {openCount > 0 && (
+                <p className="text-[11px] font-light tracking-[0.66px] text-[#767168]">{openCount} เปิดอยู่</p>
+              )}
+              {isOrganizer && (
+                <button
+                  type="button"
+                  onClick={() => setShowCreate((v) => !v)}
+                  className="flex size-[32px] shrink-0 items-center justify-center rounded-[10px] bg-[#14110d]"
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M7 2V12M2 7H12" stroke="white" strokeWidth="1.6" strokeLinecap="round" />
+                  </svg>
+                </button>
+              )}
+            </>
+          }
+        />
 
         {/* Create poll form */}
         {showCreate && (

@@ -83,7 +83,7 @@ export default function AddVotePage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[430px] flex-col gap-[28px] pb-[48px] pt-[20px]">
+      <div className="flex w-full max-w-[420px] flex-col gap-[28px] pb-[48px] pt-[20px]">
 
         {/* Header */}
         <div className="flex items-center gap-[12px] px-[24px]">

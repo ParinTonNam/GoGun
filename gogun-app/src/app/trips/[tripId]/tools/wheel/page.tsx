@@ -1,14 +1,18 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { use, useState } from "react";
 import {
   getWheel,
+  getMe,
   addWheelOption,
   deleteWheelOption,
   clearWheel,
   type WheelOption,
+  type User,
 } from "@/lib/api";
+import { PageHeader } from "@/components/page-header";
+import { LoadError } from "@/components/load-error";
+import { useLoad } from "@/lib/use-load";
 
 const OPTION_COLORS = ["#c0613e", "#4f6e7a", "#7b8b57", "#8a6e9e", "#b58a4f", "#5b7c6e"];
 const SIZE = 272;
@@ -116,9 +120,8 @@ export default function WheelPage({
   params: Promise<{ tripId: string }>;
 }) {
   const { tripId } = use(params);
-  const router = useRouter();
   const [options, setOptions] = useState<WheelOption[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [me, setMe] = useState<User | null>(null);
   const [newText, setNewText] = useState("");
   const [totalDeg, setTotalDeg] = useState(0);
   const [spinning, setSpinning] = useState(false);
@@ -130,8 +133,9 @@ export default function WheelPage({
     setOptions(data);
   }
 
-  useEffect(() => {
-    load().catch(console.error).finally(() => setLoading(false));
+  const { loading, error: loadError, retry } = useLoad(async () => {
+    const [, user] = await Promise.all([load(), getMe()]);
+    setMe(user);
   }, [tripId]);
 
   function spin() {
@@ -192,6 +196,10 @@ export default function WheelPage({
 
   const winnerText = winnerIdx !== null ? options[winnerIdx]?.text : null;
 
+  if (loadError) {
+    return <LoadError message={loadError} onRetry={retry} />;
+  }
+
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0]">
@@ -202,35 +210,34 @@ export default function WheelPage({
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[100px] pt-[65px]">
+      <div className="flex w-full max-w-[420px] flex-col pb-[100px] pt-[24px]">
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[18px] pt-[4px] px-[20px]">
-          <button
-            type="button"
-            onClick={() => router.push(`/trips/${tripId}/tools`)}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="size-[14px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">กงล้อสุ่ม</p>
-          <div className="flex items-center gap-[12px]">
-            {options.length > 0 && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="text-[13px] font-medium tracking-[0.08px] text-[#e85a2c]"
-              >
-                ล้าง
-              </button>
-            )}
-            <p className="text-[11px] font-light tracking-[0.66px] text-[#767168]">
-              {options.length} ตัวเลือก
-            </p>
-          </div>
+        <div className="px-[24px]">
+          <PageHeader
+            title="กงล้อสุ่ม"
+            backHref={`/trips/${tripId}/tools`}
+            user={me}
+            right={
+              <div className="flex items-center gap-[12px]">
+                {options.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    className="text-[13px] font-medium tracking-[0.08px] text-[#e85a2c]"
+                  >
+                    ล้าง
+                  </button>
+                )}
+                <p className="text-[11px] font-light tracking-[0.66px] text-[#767168]">
+                  {options.length} ตัวเลือก
+                </p>
+              </div>
+            }
+          />
         </div>
 
         {/* Wheel + controls */}
-        <div className="flex flex-col items-center px-[20px]">
+        <div className="flex flex-col items-center px-[24px]">
           <SpinWheel options={options} totalDeg={totalDeg} spinning={spinning} />
           <div className="flex items-center justify-center py-[14px] w-full">
             <p className="text-[11px] font-light uppercase tracking-[0.5px] text-[#767168]">
@@ -250,7 +257,7 @@ export default function WheelPage({
         </div>
 
         {/* Options list */}
-        <div className="flex flex-col px-[20px] pt-[6px]">
+        <div className="flex flex-col px-[24px] pt-[6px]">
           {options.map((opt, i) => (
             <div
               key={opt.id}
@@ -285,7 +292,7 @@ export default function WheelPage({
         </div>
 
         {/* Add option */}
-        <div className="px-[20px] pt-[6px]">
+        <div className="px-[24px] pt-[6px]">
           <p className="pb-[10px] text-[11px] uppercase tracking-[1.54px] text-[#767168]">OPTIONS</p>
           <div className="flex items-start gap-[8px] pt-[14px]">
             <div className="flex-1 border-b border-[#e5e1d7] pb-[13px] pt-[12px]">

@@ -275,8 +275,7 @@ Get a token via the OTP flow:
                     to_user_id: { type: 'string', format: 'uuid' },
                     amount: { type: 'number', example: 72250 },
                     currency: { type: 'string', example: 'JPY' },
-                    status: { type: 'string', enum: ['pending', 'slip_attached', 'confirmed'] },
-                    slip_url: { type: 'string', nullable: true, example: '/uploads/slips/1234.jpg' },
+                    status: { type: 'string', enum: ['pending', 'confirmed'] },
                     confirmed_at: { type: 'string', format: 'date-time', nullable: true },
                     from_user: { $ref: '#/components/schemas/UserPublic' },
                     to_user: { $ref: '#/components/schemas/UserPublic' },
@@ -289,7 +288,7 @@ Get a token via the OTP flow:
                     user_id: { type: 'string', format: 'uuid' },
                     trip_id: { type: 'string', format: 'uuid' },
                     type: { type: 'string', enum: ['qr', 'promptpay'] },
-                    qr_image_url: { type: 'string', nullable: true, example: '/uploads/qr/abc.png' },
+                    qr_image_url: { type: 'string', nullable: true, example: 'https://example.com/qr/abc.png' },
                     promptpay_number: { type: 'string', nullable: true, example: '092424-5***' },
                 },
             },
@@ -438,7 +437,7 @@ Get a token via the OTP flow:
         { name: 'Members', description: 'Trip membership management' },
         { name: 'Itinerary', description: 'Day-by-day itinerary and activities' },
         { name: 'Expenses', description: 'Expenses, balance calculation, and debt-minimization settlements' },
-        { name: 'Transfers', description: 'Payment slip uploads and organizer confirmations' },
+        { name: 'Transfers', description: 'Transfer statuses and organizer confirmations' },
         { name: 'Payment Methods', description: 'QR code and PromptPay number per trip' },
         { name: 'Availability', description: 'Member date availability for trip planning' },
         { name: 'Polls', description: 'Group voting polls (single choice per person)' },
@@ -1003,44 +1002,12 @@ Get a token via the OTP flow:
         '/trips/{tripId}/transfers': {
             get: {
                 tags: ['Transfers'],
-                summary: 'List transfer slip statuses',
+                summary: 'List transfers',
                 parameters: [tripIdParam],
                 responses: {
                     '200': dataArrayResponse({ $ref: '#/components/schemas/TransferSlip' }),
                     '401': errorResponses['401'],
                     '403': errorResponses['403'],
-                },
-            },
-        },
-        '/trips/{tripId}/transfers/{transferId}/slip': {
-            post: {
-                tags: ['Transfers'],
-                summary: 'Upload payment slip image (sender only)',
-                description: 'The authenticated user must be the `from_user` of the transfer. Accepts multipart/form-data with a `slip` file.',
-                parameters: [
-                    tripIdParam,
-                    { name: 'transferId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'multipart/form-data': {
-                            schema: {
-                                type: 'object',
-                                required: ['slip'],
-                                properties: {
-                                    slip: { type: 'string', format: 'binary', description: 'Slip image file (jpg/png)' },
-                                },
-                            },
-                        },
-                    },
-                },
-                responses: {
-                    '200': dataResponse({ $ref: '#/components/schemas/TransferSlip' }),
-                    '400': errorResponses['400'],
-                    '401': errorResponses['401'],
-                    '403': errorResponses['403'],
-                    '404': errorResponses['404'],
                 },
             },
         },

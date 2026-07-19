@@ -1,7 +1,10 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
+import { PageHeader } from "@/components/page-header";
+import { LoadError } from "@/components/load-error";
+import { useLoad } from "@/lib/use-load";
 import {
   getTrip,
   getItinerary,
@@ -12,6 +15,7 @@ import {
   type ItineraryDay,
   type User,
 } from "@/lib/api";
+import { MemberBottomNav } from "@/components/member-bottom-nav";
 
 
 export default function MemberOverviewPage({
@@ -24,25 +28,17 @@ export default function MemberOverviewPage({
   const [trip, setTrip] = useState<Trip | null>(null);
   const [days, setDays] = useState<ItineraryDay[]>([]);
   const [me, setMe] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    Promise.all([getTrip(tripId), getItinerary(tripId), getMe()])
-      .then(([t, d, u]) => {
-        setTrip(t);
-        setDays(d);
-        setMe(u);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+  const { loading, error: loadError, retry } = useLoad(async () => {
+    const [t, d, u] = await Promise.all([getTrip(tripId), getItinerary(tripId), getMe()]);
+    setTrip(t);
+    setDays(d);
+    setMe(u);
   }, [tripId]);
 
-  const TABS = [
-    { label: "ทริป", icon: "/images/icon-tab-trip.svg", active: true },
-    { label: "วันว่าง", icon: "/images/icon-tab-calendar.svg", active: false, route: `/trips/${tripId}/member/availability` },
-    { label: "บัญชี", icon: "/images/icon-tab-wallet.svg", active: false, route: `/trips/${tripId}/member/wallet` },
-    { label: "อุปกรณ์เสริม", icon: "/images/icon-tab-tools.svg", active: false, route: `/trips/${tripId}/tools` },
-  ];
+  if (loadError) {
+    return <LoadError message={loadError} onRetry={retry} />;
+  }
 
   if (loading || !trip) {
     return (
@@ -61,30 +57,14 @@ export default function MemberOverviewPage({
   const dateStatus =
     trip.date_status === "confirmed" ? "ยืนยันแล้ว" : "ยังไม่ยืนยัน";
 
+  // ยังไม่กำหนดวันเดินทาง → ไม่โชว์วันที่ใต้เลข Day
+  const hasTripDate = Boolean(trip.confirmed_start_date || trip.proposed_start_date);
+
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
       <div className="flex w-full max-w-[420px] flex-col gap-[24px] px-[24px] pb-[100px] pt-[24px]">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-[7px]">
-            <img src="/images/logo.svg" alt="" className="size-[19px]" />
-            <p className="text-[11px] tracking-[0.08px] text-[#767168]">GOGUN</p>
-            <p className="text-[13px] font-medium tracking-[0.08px] text-[#14110d]">ไปกัน</p>
-          </div>
-          {me && (
-            <div className="flex h-[33px] items-center gap-[8px] rounded-[48px] border border-[#edeae2] bg-white p-[7px]">
-              <span
-                className="flex size-[22px] items-center justify-center rounded-[31px] text-[12px] font-medium text-white"
-                style={{ backgroundColor: me.avatar_color }}
-              >
-                {getInitial(me.display_name)}
-              </span>
-              <span className="text-[12px] font-medium tracking-[0.08px] text-[#14110d]">
-                {me.display_name}
-              </span>
-            </div>
-          )}
-        </div>
+        <PageHeader user={me} />
 
         {/* Trip info */}
         <div className="-mt-[4px] flex flex-col gap-[8px]">
@@ -199,7 +179,9 @@ export default function MemberOverviewPage({
             <p className="font-medium text-[#14110d]">อ่านเท่านั้น</p>
           </div>
           <div className="flex flex-col gap-[10px]">
-            {days.map((day, di) => (
+            {days.map((day, di) => {
+              const acts = [...day.activities].sort((a, b) => a.time.localeCompare(b.time));
+              return (
               <div key={day.id}>
                 <div className="flex gap-[25px]">
                   <div className="flex w-[55px] shrink-0 flex-col">
@@ -207,9 +189,11 @@ export default function MemberOverviewPage({
                     <p className="text-[32px] font-light leading-[1.2] text-[#14110d]">
                       {String(day.day_number).padStart(2, "0")}
                     </p>
-                    <p className="text-[15px] tracking-[0.08px] text-[#767168]">
-                      {formatShortDate(day.date)}
-                    </p>
+                    {hasTripDate && (
+                      <p className="text-[15px] tracking-[0.08px] text-[#767168]">
+                        {formatShortDate(day.date)}
+                      </p>
+                    )}
                   </div>
                   <div className="flex flex-1 min-w-0 flex-col gap-[10px]">
                     <p className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">
@@ -217,14 +201,14 @@ export default function MemberOverviewPage({
                     </p>
                     <div className="flex gap-[10px]">
                       <div className="flex w-[38px] shrink-0 flex-col gap-[5px]">
-                        {day.activities.map((ev) => (
+                        {acts.map((ev) => (
                           <p key={ev.id} className="h-[18px] text-[12px] font-light text-[#767168]">
                             {ev.time}
                           </p>
                         ))}
                       </div>
                       <div className="flex flex-1 min-w-0 flex-col gap-[5px]">
-                        {day.activities.map((ev) => (
+                        {acts.map((ev) => (
                           <p
                             key={ev.id}
                             className="h-[18px] truncate text-[12px] font-medium text-[#767168]"
@@ -238,42 +222,13 @@ export default function MemberOverviewPage({
                 </div>
                 {di < days.length - 1 && <div className="mt-[10px] h-px w-full bg-[#e5e1d7]" />}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* Fixed bottom tab bar */}
-      <div className="fixed bottom-[8px] left-1/2 -translate-x-1/2 w-[calc(100%-14px)] max-w-[376px] z-50">
-        <div className="flex h-[62px] items-start rounded-[18px] border border-[#d4cfc2] bg-white pt-[8px]">
-          {TABS.map((tab) => (
-            <button
-              key={tab.label}
-              type="button"
-              onClick={() => tab.route && router.push(tab.route)}
-              className="flex flex-1 flex-col items-center gap-[3px]"
-            >
-              <img
-                src={tab.icon}
-                alt=""
-                className="size-[20px]"
-                style={{ opacity: tab.active ? 1 : 0.45 }}
-              />
-              <p
-                className={`text-[10px] tracking-[0.08px] ${
-                  tab.active ? "text-[#14110d]" : "font-light text-[#767168]"
-                }`}
-              >
-                {tab.label}
-              </p>
-              <div
-                className="size-[3px] rounded-full"
-                style={{ backgroundColor: tab.active ? "#14110d" : "transparent" }}
-              />
-            </button>
-          ))}
-        </div>
-      </div>
+      <MemberBottomNav active="trip" tripId={tripId} />
     </main>
   );
 }

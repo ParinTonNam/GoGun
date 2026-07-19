@@ -382,7 +382,7 @@ function ProfileSheet({ sheet, open, onClose, fieldValue, onFieldChange, onSave,
 
       {/* Sheet */}
       <div
-        className={`fixed bottom-0 left-1/2 z-50 flex max-h-[90vh] min-h-[50vh] w-full max-w-[430px] -translate-x-1/2 flex-col overflow-y-auto rounded-t-[25px] bg-[#f7f5f0] transition-transform duration-300 ease-out ${
+        className={`fixed bottom-0 left-1/2 z-50 flex max-h-[90vh] min-h-[50vh] w-full max-w-[420px] -translate-x-1/2 flex-col overflow-y-auto rounded-t-[25px] bg-[#f7f5f0] transition-transform duration-300 ease-out ${
           open ? "translate-y-0" : "translate-y-full"
         }`}
       >
@@ -547,7 +547,7 @@ export default function ProfilePage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="w-full max-w-[430px] pb-[96px]">
+      <div className="w-full max-w-[420px] pb-[96px]">
         <div className="flex flex-col gap-[24px] px-[24px] pb-[30px] pt-[24px]">
 
           {/* Header */}

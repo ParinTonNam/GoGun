@@ -146,6 +146,7 @@ exports.TripScalarFieldEnum = {
     id: 'id',
     name: 'name',
     destination: 'destination',
+    trip_type: 'trip_type',
     duration_days: 'duration_days',
     proposed_start_date: 'proposed_start_date',
     confirmed_start_date: 'confirmed_start_date',
@@ -205,7 +206,6 @@ exports.TransferSlipScalarFieldEnum = {
     amount: 'amount',
     currency: 'currency',
     status: 'status',
-    slip_url: 'slip_url',
     confirmed_at: 'confirmed_at',
     created_at: 'created_at'
 };

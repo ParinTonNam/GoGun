@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { PageHeader, DEMO_USER } from "@/components/page-header";
 import { MEMBER_COLORS, ORGANIZER_COLOR } from "@/lib/trip";
 
 type Member = {
@@ -81,30 +82,27 @@ export default function MembersPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex min-h-screen w-full max-w-[420px] flex-col pb-[24px] pt-[64px]">
+      <div className="flex min-h-screen w-full max-w-[420px] flex-col pb-[24px] pt-[24px]">
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[18px] pt-[4px] px-[20px]">
-          <button
-            type="button"
-            onClick={() => router.push("/trips/demo")}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="size-[14px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">
-            สมาชิก
-          </p>
-          <button
-            type="button"
-            onClick={() => router.push("/trips/demo/settings")}
-            className="py-[8.5px] text-[13px] font-medium tracking-[0.08px] text-[#e85a2c]"
-          >
-            ตั้งค่า
-          </button>
+        <div className="px-[24px]">
+          <PageHeader
+            title="สมาชิก"
+            backHref="/trips/demo"
+            user={DEMO_USER}
+            right={
+              <button
+                type="button"
+                onClick={() => router.push("/trips/demo/settings")}
+                className="py-[8.5px] text-[13px] font-medium tracking-[0.08px] text-[#e85a2c]"
+              >
+                ตั้งค่า
+              </button>
+            }
+          />
         </div>
 
         {/* Share invite link button */}
-        <div className="px-[20px] pb-[28px]">
+        <div className="px-[24px] pb-[28px]">
           <button
             type="button"
             onClick={() => setShowSheet(true)}
@@ -136,7 +134,7 @@ export default function MembersPage() {
         </div>
 
         {/* Members section */}
-        <div className="flex flex-col gap-[10px] px-[20px] pb-[28px]">
+        <div className="flex flex-col gap-[10px] px-[24px] pb-[28px]">
           <div className="flex items-center justify-between">
             <p className="text-[11px] uppercase tracking-[1.54px] text-[#767168]">MEMBERS</p>
             <p className="text-[12px] tracking-[0.12px] text-[#14110d]">{members.length} คน</p>
@@ -170,7 +168,7 @@ export default function MembersPage() {
         </div>
 
         {/* Add member input */}
-        <div className="px-[20px] pb-[28px]">
+        <div className="px-[24px] pb-[28px]">
           <div className="flex items-center gap-[8px]">
             <div className="flex-1 border-b border-[#e5e1d7] py-[14px]">
               <input
@@ -195,7 +193,7 @@ export default function MembersPage() {
         </div>
 
         {/* Bottom shortcuts */}
-        <div className="mt-auto flex gap-[8px] px-[20px] pt-[24px]">
+        <div className="mt-auto flex gap-[8px] px-[24px] pt-[24px]">
           <button
             type="button"
             onClick={() => router.push("/trips/demo/itinerary")}

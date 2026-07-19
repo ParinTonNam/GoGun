@@ -1,8 +1,11 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getTrip, type Trip } from "@/lib/api";
+import { LoadError } from "@/components/load-error";
+import { useLoad } from "@/lib/use-load";
+import { inviteUrl, inviteLinkLabel } from "@/lib/invite";
 
 type Tab = "link" | "qr";
 
@@ -17,12 +20,12 @@ export default function SharePage({
   const [activeTab, setActiveTab] = useState<Tab>("link");
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    getTrip(tripId).then(setTrip).catch(console.error);
+  const { error: loadError, retry } = useLoad(async () => {
+    setTrip(await getTrip(tripId));
   }, [tripId]);
 
-  const inviteLink = trip ? `gogun.app/t/${trip.invite_code}` : "กำลังโหลด...";
-  const fullUrl = trip ? `https://gogun.app/t/${trip.invite_code}` : "";
+  const inviteLink = trip ? inviteLinkLabel(trip.invite_code) : "กำลังโหลด...";
+  const fullUrl = trip ? inviteUrl(trip.invite_code) : "";
 
   async function copyLink() {
     if (!fullUrl) return;
@@ -46,6 +49,10 @@ export default function SharePage({
       }
     }
     copyLink();
+  }
+
+  if (loadError) {
+    return <LoadError message={loadError} onRetry={retry} />;
   }
 
   return (

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { PageHeader, DEMO_USER } from "@/components/page-header";
 
 type Activity = { id: string; time: string; title: string };
 type Day = { id: string; label: string; activities: Activity[] };
@@ -153,31 +154,28 @@ export default function ItineraryPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[40px] pt-[64px]">
+      <div className="flex w-full max-w-[420px] flex-col pb-[40px] pt-[24px]">
 
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[18px] pt-[4px] px-[20px]">
-          <button
-            type="button"
-            onClick={() => router.push("/trips/demo")}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="h-[10px] w-[6px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">
-            แก้แผนเดินทาง
-          </p>
-          <button
-            type="button"
-            onClick={() => router.push("/trips/demo")}
-            className="py-[8.5px] text-[13px] font-medium tracking-[0.08px] text-[#e85a2c]"
-          >
-            บันทึก
-          </button>
+        <div className="px-[24px]">
+          <PageHeader
+            title="แก้แผนเดินทาง"
+            backHref="/trips/demo"
+            user={DEMO_USER}
+            right={
+              <button
+                type="button"
+                onClick={() => router.push("/trips/demo")}
+                className="py-[8.5px] text-[13px] font-medium tracking-[0.08px] text-[#e85a2c]"
+              >
+                บันทึก
+              </button>
+            }
+          />
         </div>
 
         {/* Days timeline */}
-        <div className="flex flex-col pl-[44px] pr-[20px]">
+        <div className="flex flex-col pl-[44px] pr-[24px]">
           {days.map((day, idx) => (
             <div
               key={day.id}
@@ -321,7 +319,7 @@ export default function ItineraryPage() {
         </div>
 
         {/* Add day area */}
-        <div className="px-[20px] pt-[6px]">
+        <div className="px-[24px] pt-[6px]">
           {addingDay ? (
             <div className="flex items-center gap-[10px] rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] py-[13px]">
               <div className="flex size-[28px] shrink-0 items-center justify-center rounded-[8px] bg-[#f2efe8]">

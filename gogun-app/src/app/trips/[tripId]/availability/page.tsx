@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   getAvailability,
@@ -17,6 +17,9 @@ import {
   type MyAvailability,
   type User,
 } from "@/lib/api";
+import { PageHeader } from "@/components/page-header";
+import { LoadError } from "@/components/load-error";
+import { useLoad } from "@/lib/use-load";
 
 type MyStatus = "available" | "uncertain" | "unavailable";
 
@@ -295,7 +298,6 @@ export default function AvailabilityPage({
   const [view, setView] = useState({ year: now.getFullYear(), month: now.getMonth() });
   const viewYear = view.year;
   const viewMonth = view.month;
-  const [loading, setLoading] = useState(true);
   const [showConfirmSheet, setShowConfirmSheet] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
@@ -313,28 +315,22 @@ export default function AvailabilityPage({
     setJustSaved(false);
   }
 
-  useEffect(() => {
-    Promise.all([getTrip(tripId), getMe()])
-      .then(([t, user]) => {
-        setTrip(t);
-        setMe(user);
-        const startIso = t.confirmed_start_date || t.proposed_start_date;
-        if (startIso) {
-          const d = new Date(startIso);
-          setView({ year: d.getFullYear(), month: d.getMonth() });
-        }
-        setSelectedUserId(user.id);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+  const { loading, error: mainError, retry: retryMain } = useLoad(async () => {
+    const [t, user] = await Promise.all([getTrip(tripId), getMe()]);
+    setTrip(t);
+    setMe(user);
+    const startIso = t.confirmed_start_date || t.proposed_start_date;
+    if (startIso) {
+      const d = new Date(startIso);
+      setView({ year: d.getFullYear(), month: d.getMonth() });
+    }
+    setSelectedUserId(user.id);
   }, [tripId]);
 
   // Aggregate availability is scoped to whichever month is being browsed,
   // not just the trip's originally proposed window — refetch on navigation.
-  useEffect(() => {
-    getAvailability(tripId, monthRangeKeys(viewYear, viewMonth))
-      .then(setDays)
-      .catch(console.error);
+  const { error: monthError, retry: retryMonth } = useLoad(async () => {
+    setDays(await getAvailability(tripId, monthRangeKeys(viewYear, viewMonth)));
   }, [tripId, viewYear, viewMonth]);
 
   const isOrganizer = !!(me && trip && me.id === trip.organizer_id);
@@ -344,23 +340,30 @@ export default function AvailabilityPage({
   const isSelfSelected = !!(me && selectedUserId === me.id);
   const canEditDays = isOrganizer && (isSelfSelected || editingFriend);
 
-  useEffect(() => {
+  const { error: editError, retry: retryEdit } = useLoad(async () => {
     if (!isOrganizer || !selectedUserId) return;
     setEditLoading(true);
-    getMemberAvailability(tripId, selectedUserId)
-      .then((entries: MyAvailability[]) => {
-        const statusMap: Record<string, MyStatus> = {};
-        const dateSet = new Set<string>();
-        for (const e of entries) {
-          statusMap[e.date] = e.status;
-          dateSet.add(e.date);
-        }
-        setEditStatus(statusMap);
-        setEditSavedDates(dateSet);
-      })
-      .catch(console.error)
-      .finally(() => setEditLoading(false));
+    try {
+      const entries: MyAvailability[] = await getMemberAvailability(tripId, selectedUserId);
+      const statusMap: Record<string, MyStatus> = {};
+      const dateSet = new Set<string>();
+      for (const e of entries) {
+        statusMap[e.date] = e.status;
+        dateSet.add(e.date);
+      }
+      setEditStatus(statusMap);
+      setEditSavedDates(dateSet);
+    } finally {
+      setEditLoading(false);
+    }
   }, [tripId, selectedUserId, isOrganizer]);
+
+  const loadError = mainError ?? monthError ?? editError;
+  function retryAll() {
+    retryMain();
+    retryMonth();
+    retryEdit();
+  }
 
   function toggleDay(key: string) {
     if (!canEditDays) return;
@@ -433,6 +436,10 @@ export default function AvailabilityPage({
   const allDays = days.filter((d) => d.variant === "all");
   const presets = groupConsecutiveDays(allDays.map((d) => d.date));
 
+  if (loadError) {
+    return <LoadError message={loadError} onRetry={retryAll} />;
+  }
+
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0]">
@@ -443,17 +450,10 @@ export default function AvailabilityPage({
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[30px] pt-[65px]">
+      <div className="flex w-full max-w-[420px] flex-col pb-[30px] pt-[24px]">
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[18px] pt-[4px] px-[20px]">
-          <button
-            type="button"
-            onClick={() => router.push(`/trips/${tripId}`)}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="size-[14px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">เทียบวันว่าง</p>
+        <div className="px-[24px]">
+          <PageHeader title="เทียบวันว่าง" backHref={`/trips/${tripId}`} user={me} />
         </div>
 
         <div className="flex flex-col gap-[20px]">
@@ -672,7 +672,7 @@ export default function AvailabilityPage({
           )}
 
           {/* Save + Confirm */}
-          <div className="flex flex-col gap-[10px] px-[24px]">
+          <div className="flex flex-col gap-[5px] px-[24px]">
             {isOrganizer && !isSelfSelected && !editingFriend && (
               <button
                 type="button"
@@ -690,8 +690,6 @@ export default function AvailabilityPage({
                 className={
                   justSaved && !saving
                     ? "flex h-[48px] w-full items-center justify-center gap-[6px] rounded-[14px] bg-[#2e8b5c] text-[14px] font-medium tracking-[0.14px] text-white transition-colors"
-                    : isSelfSelected
-                    ? "flex h-[48px] w-full items-center justify-center rounded-[14px] border border-[#d4cfc2] bg-white text-[14px] font-medium tracking-[0.14px] text-[#14110d] transition-colors disabled:opacity-50"
                     : "flex h-[48px] w-full items-center justify-center rounded-[14px] bg-[#14110d] text-[14px] font-medium tracking-[0.14px] text-white transition-colors disabled:opacity-50"
                 }
               >
@@ -712,7 +710,7 @@ export default function AvailabilityPage({
             <button
               type="button"
               onClick={() => setShowConfirmSheet(true)}
-              className="flex h-[48px] w-full items-center justify-center rounded-[14px] bg-[#e85a2c] text-[14px] font-medium tracking-[0.14px] text-white"
+              className="flex h-[48px] w-full items-center justify-center rounded-[14px] border border-[#e85a2c] bg-white text-[14px] font-medium tracking-[0.14px] text-[#e85a2c]"
             >
               ยืนยันวันไป
             </button>

@@ -1,14 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-
-const TABS = [
-  { label: "ทริป",         icon: "/images/icon-tab-trip.svg",     active: false, route: "/trips/demo/member" },
-  { label: "วันว่าง",      icon: "/images/icon-tab-calendar.svg", active: false, route: "/trips/demo/member/availability" },
-  { label: "บัญชี",        icon: "/images/icon-tab-wallet.svg",   active: false, route: "/trips/demo/member/wallet" },
-  { label: "อุปกรณ์เสริม", icon: "/images/icon-tab-tools.svg",   active: true },
-];
+import { PageHeader, DEMO_USER } from "@/components/page-header";
+import { MemberBottomNav } from "@/components/member-bottom-nav";
 
 const OPTION_COLORS = ["#c0613e", "#4f6e7a", "#7b8b57", "#8a6e9e", "#b58a4f", "#5b7c6e"];
 const SIZE = 272;
@@ -151,7 +145,6 @@ const DEFAULT_OPTIONS: Option[] = [
 ];
 
 export default function WheelPage() {
-  const router = useRouter();
   const [options, setOptions] = useState<Option[]>(DEFAULT_OPTIONS);
   const [newText, setNewText] = useState("");
   const [totalDeg, setTotalDeg] = useState(0);
@@ -205,24 +198,23 @@ export default function WheelPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[100px] pt-[65px]">
+      <div className="flex w-full max-w-[420px] flex-col pb-[100px] pt-[24px]">
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[18px] pt-[4px] px-[20px]">
-          <button
-            type="button"
-            onClick={() => router.push("/trips/demo/tools")}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="size-[14px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">กงล้อสุ่ม</p>
-          <p className="text-[11px] font-light tracking-[0.66px] text-[#767168]">
-            {options.length} ตัวเลือก
-          </p>
+        <div className="px-[24px]">
+          <PageHeader
+            title="กงล้อสุ่ม"
+            backHref="/trips/demo/tools"
+            user={DEMO_USER}
+            right={
+              <p className="text-[11px] font-light tracking-[0.66px] text-[#767168]">
+                {options.length} ตัวเลือก
+              </p>
+            }
+          />
         </div>
 
         {/* Wheel + controls */}
-        <div className="flex flex-col items-center px-[20px]">
+        <div className="flex flex-col items-center px-[24px]">
           <SpinWheel options={options} totalDeg={totalDeg} spinning={spinning} />
 
           {/* Status label */}
@@ -250,7 +242,7 @@ export default function WheelPage() {
         </div>
 
         {/* Options list */}
-        <div className="flex flex-col px-[20px] pt-[6px]">
+        <div className="flex flex-col px-[24px] pt-[6px]">
           {options.map((opt, i) => (
             <div
               key={opt.id}
@@ -286,7 +278,7 @@ export default function WheelPage() {
         </div>
 
         {/* Add option */}
-        <div className="px-[20px] pt-[6px]">
+        <div className="px-[24px] pt-[6px]">
           <p className="pb-[10px] text-[11px] uppercase tracking-[1.54px] text-[#767168]">OPTIONS</p>
           <div className="flex items-start gap-[8px] pt-[14px]">
             <div className="flex-1 border-b border-[#e5e1d7] pb-[13px] pt-[12px]">
@@ -310,25 +302,7 @@ export default function WheelPage() {
           </div>
         </div>
       </div>
-      {/* Fixed bottom tab bar */}
-      <div className="fixed bottom-[8px] left-1/2 -translate-x-1/2 z-50 w-[calc(100%-14px)] max-w-[376px]">
-        <div className="flex h-[62px] items-start rounded-[18px] border border-[#d4cfc2] bg-white pt-[8px]">
-          {TABS.map((tab) => (
-            <button
-              key={tab.label}
-              type="button"
-              onClick={() => "route" in tab && tab.route && router.push(tab.route)}
-              className="flex flex-1 flex-col items-center gap-[3px]"
-            >
-              <img src={tab.icon} alt="" className="size-[20px]" style={{ opacity: tab.active ? 1 : 0.45 }} />
-              <p className={`text-[10px] tracking-[0.08px] ${tab.active ? "text-[#14110d]" : "font-light text-[#767168]"}`}>
-                {tab.label}
-              </p>
-              <div className="size-[3px] rounded-full" style={{ backgroundColor: tab.active ? "#14110d" : "transparent" }} />
-            </button>
-          ))}
-        </div>
-      </div>
+      <MemberBottomNav active="tools" />
     </main>
   );
 }

@@ -1,14 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-
-const TABS = [
-  { label: "ทริป",         icon: "/images/icon-tab-trip.svg",     active: false, route: "/trips/demo/member" },
-  { label: "วันว่าง",      icon: "/images/icon-tab-calendar.svg", active: false, route: "/trips/demo/member/availability" },
-  { label: "บัญชี",        icon: "/images/icon-tab-wallet.svg",   active: false, route: "/trips/demo/member/wallet" },
-  { label: "อุปกรณ์เสริม", icon: "/images/icon-tab-tools.svg",   active: true },
-];
+import { PageHeader, DEMO_USER } from "@/components/page-header";
+import { MemberBottomNav } from "@/components/member-bottom-nav";
 
 type MemberId = "ton" | "james" | "nai" | "atif";
 
@@ -55,7 +49,6 @@ function Checkbox({ checked, onToggle }: { checked: boolean; onToggle: () => voi
 }
 
 export default function ChecklistPage() {
-  const router = useRouter();
   const [activeMember, setActiveMember] = useState<MemberId>("james");
   const [items, setItems] = useState(DEFAULT_ITEMS);
   const [checks, setChecks] = useState<Record<MemberId, Set<string>>>(INITIAL_CHECKS);
@@ -100,21 +93,18 @@ export default function ChecklistPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col gap-[24px] pb-[100px] pt-[65px] px-[24px]">
+      <div className="flex w-full max-w-[420px] flex-col gap-[24px] pb-[100px] pt-[24px] px-[24px]">
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[18px] pt-[4px]">
-          <button
-            type="button"
-            onClick={() => router.push("/trips/demo/tools")}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="size-[14px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">เช็คลิสต์</p>
-          <p className="text-[11px] font-light tracking-[0.66px] text-[#767168]">
-            {doneCount}/{items.length}
-          </p>
-        </div>
+        <PageHeader
+          title="เช็คลิสต์"
+          backHref="/trips/demo/tools"
+          user={DEMO_USER}
+          right={
+            <p className="text-[11px] font-light tracking-[0.66px] text-[#767168]">
+              {doneCount}/{items.length}
+            </p>
+          }
+        />
 
         {/* Member filter pills */}
         <div className="flex gap-[8px] overflow-x-auto pb-[12px]">
@@ -212,25 +202,7 @@ export default function ChecklistPage() {
           </div>
         </div>
       </div>
-      {/* Fixed bottom tab bar */}
-      <div className="fixed bottom-[8px] left-1/2 -translate-x-1/2 z-50 w-[calc(100%-14px)] max-w-[376px]">
-        <div className="flex h-[62px] items-start rounded-[18px] border border-[#d4cfc2] bg-white pt-[8px]">
-          {TABS.map((tab) => (
-            <button
-              key={tab.label}
-              type="button"
-              onClick={() => "route" in tab && tab.route && router.push(tab.route)}
-              className="flex flex-1 flex-col items-center gap-[3px]"
-            >
-              <img src={tab.icon} alt="" className="size-[20px]" style={{ opacity: tab.active ? 1 : 0.45 }} />
-              <p className={`text-[10px] tracking-[0.08px] ${tab.active ? "text-[#14110d]" : "font-light text-[#767168]"}`}>
-                {tab.label}
-              </p>
-              <div className="size-[3px] rounded-full" style={{ backgroundColor: tab.active ? "#14110d" : "transparent" }} />
-            </button>
-          ))}
-        </div>
-      </div>
+      <MemberBottomNav active="tools" />
     </main>
   );
 }

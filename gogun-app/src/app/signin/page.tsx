@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { register, saveToken } from "@/lib/api";
@@ -48,7 +48,7 @@ function IconEye({ off }: { off?: boolean }) {
   );
 }
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo");
@@ -206,5 +206,14 @@ export default function SignInPage() {
 
       </div>
     </main>
+  );
+}
+
+export default function SignInPage() {
+  // useSearchParams() ต้องอยู่ใต้ Suspense boundary ไม่งั้น prerender พังทั้งหน้า
+  return (
+    <Suspense>
+      <SignInForm />
+    </Suspense>
   );
 }

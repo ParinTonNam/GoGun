@@ -8,8 +8,6 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
-const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_1 = __importDefault(require("./swagger"));
 const auth_1 = require("./middleware/auth");
@@ -49,21 +47,9 @@ app.use((0, express_rate_limit_1.default)({
 }));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-// Static file serving for uploads. Uploaded files are user content, so force
-// the browser to (a) never MIME-sniff them into executable types and (b) treat
-// them as downloads rather than rendering inline — this neutralises any file
-// that slips past the upload filter (stored-XSS defence in depth).
-const uploadsDir = path_1.default.join(process.cwd(), 'uploads');
-fs_1.default.mkdirSync(path_1.default.join(uploadsDir, 'slips'), { recursive: true });
-fs_1.default.mkdirSync(path_1.default.join(uploadsDir, 'qr'), { recursive: true });
-app.use('/uploads', express_1.default.static(uploadsDir, {
-    setHeaders: (res) => {
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-        res.setHeader('Content-Disposition', 'attachment');
-        res.setHeader('Content-Security-Policy', "default-src 'none'");
-    },
-}));
-// Strict rate limit on auth — login/register are the brute-force surface.
+// Strict rate limit on credential endpoints — login/register/link are the
+// brute-force surface. Must NOT cover /auth/me, which the frontend calls on
+// nearly every page load and would exhaust this limit in normal use.
 const authLimiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000, // 15 min
     max: 20,
@@ -71,8 +57,11 @@ const authLimiter = (0, express_rate_limit_1.default)({
     legacyHeaders: false,
     message: { error: { code: 'RATE_LIMITED', message: 'Too many attempts, try again later' } },
 });
+app.use('/api/v1/auth/login', authLimiter);
+app.use('/api/v1/auth/register', authLimiter);
+app.use('/api/v1/auth/link', authLimiter);
 // Auth routes (per-route auth in the router)
-app.use('/api/v1/auth', authLimiter, auth_2.default);
+app.use('/api/v1/auth', auth_2.default);
 // Trip top-level routes (GET /join/:code is public; rest are per-route guarded)
 app.use('/api/v1/trips', trips_1.default);
 // Trip sub-resources — all require auth + trip membership

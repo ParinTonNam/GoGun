@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { PageHeader, DEMO_USER } from "@/components/page-header";
 
 type CalVariant = "default" | "uncertain" | "some" | "all" | "out";
 
@@ -310,19 +311,10 @@ export default function AvailabilityPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[30px] pt-[65px]">
+      <div className="flex w-full max-w-[420px] flex-col pb-[30px] pt-[24px]">
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[18px] pt-[4px] px-[20px]">
-          <button
-            type="button"
-            onClick={() => router.push("/trips/demo")}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="size-[14px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">
-            เทียบวันว่าง
-          </p>
+        <div className="px-[24px]">
+          <PageHeader title="เทียบวันว่าง" backHref="/trips/demo" user={DEMO_USER} />
         </div>
 
         <div className="flex flex-col gap-[20px]">
@@ -500,7 +492,7 @@ export default function AvailabilityPage() {
             <button
               type="button"
               onClick={() => setShowConfirmSheet(true)}
-              className="flex h-[48px] w-full items-center justify-center rounded-[14px] bg-[#14110d] text-[14px] font-medium tracking-[0.14px] text-[#f7f5f0]"
+              className="flex h-[48px] w-full items-center justify-center rounded-[14px] border border-[#e85a2c] bg-white text-[14px] font-medium tracking-[0.14px] text-[#e85a2c]"
             >
               ยืนยันวันไป
             </button>

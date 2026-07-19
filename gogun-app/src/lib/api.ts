@@ -22,6 +22,16 @@ export class ApiError extends Error {
   }
 }
 
+// 401 จาก endpoint กลุ่มนี้แปลว่ากรอกรหัสผิด ไม่ใช่ session หมดอายุ — อย่า redirect
+const AUTH_PATHS = ["/auth/login", "/auth/register", "/auth/link"]
+
+function redirectToLogin() {
+  clearToken()
+  if (window.location.pathname.startsWith("/login")) return
+  const returnTo = window.location.pathname + window.location.search
+  window.location.replace(`/login?returnTo=${encodeURIComponent(returnTo)}`)
+}
+
 async function req<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken()
   const res = await fetch(`${BASE}${path}`, {
@@ -33,7 +43,18 @@ async function req<T>(path: string, options: RequestInit = {}): Promise<T> {
     },
   })
   const json = await res.json().catch(() => null)
-  if (!res.ok) throw new ApiError(res.status, json?.error?.message ?? "API Error")
+  if (!res.ok) {
+    // มี token แต่โดน 401 = token หมดอายุ/ใช้ไม่ได้ — เคลียร์แล้วพากลับไป login
+    if (
+      res.status === 401 &&
+      token &&
+      typeof window !== "undefined" &&
+      !AUTH_PATHS.some((p) => path.startsWith(p))
+    ) {
+      redirectToLogin()
+    }
+    throw new ApiError(res.status, json?.error?.message ?? "API Error")
+  }
   return json?.data as T
 }
 
@@ -136,15 +157,32 @@ export const updateDay = (
     body: JSON.stringify(body),
   })
 
+export const deleteDay = (tripId: string, dayId: string) =>
+  req(`/trips/${tripId}/itinerary/days/${dayId}`, { method: "DELETE" })
+
 export const swapDays = (tripId: string, dayIdA: string, dayIdB: string) =>
   req(`/trips/${tripId}/itinerary/days/swap`, {
     method: "POST",
     body: JSON.stringify({ day_id_a: dayIdA, day_id_b: dayIdB }),
   })
 
-export const addActivity = (tripId: string, dayId: string, body: { time: string; title: string }) =>
+export const addActivity = (
+  tripId: string,
+  dayId: string,
+  body: { time: string; title: string; sort_order?: number },
+) =>
   req<ItineraryActivity>(`/trips/${tripId}/itinerary/days/${dayId}/activities`, {
     method: "POST",
+    body: JSON.stringify(body),
+  })
+
+export const updateActivity = (
+  tripId: string,
+  actId: string,
+  body: { time?: string; title?: string },
+) =>
+  req<ItineraryActivity>(`/trips/${tripId}/itinerary/activities/${actId}`, {
+    method: "PATCH",
     body: JSON.stringify(body),
   })
 
@@ -344,10 +382,14 @@ export type User = {
   created_at: string
 }
 
+export type TripTypeCode = "one_day" | "overnight" | "long"
+
 export type Trip = {
   id: string
   name: string
   destination: string
+  icon: string | null
+  trip_type: TripTypeCode | null
   duration_days: number
   proposed_start_date: string | null
   confirmed_start_date: string | null
@@ -367,6 +409,8 @@ export type Trip = {
 export type CreateTripBody = {
   name: string
   destination: string
+  icon?: string
+  trip_type?: TripTypeCode
   duration_days: number
   currency: string
   proposed_start_date?: string

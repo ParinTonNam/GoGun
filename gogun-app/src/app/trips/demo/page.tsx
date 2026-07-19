@@ -142,6 +142,7 @@ export default function TripDashboardPage() {
             <div className="flex w-[64px] shrink-0 flex-col items-center gap-[6px] px-[8px]">
               <button
                 type="button"
+                onClick={() => router.push("/trips/demo/members")}
                 className="flex size-[48px] items-center justify-center rounded-[24.5px] border border-[#e5e1d7] bg-white"
               >
                 <img src="/images/icon-member-invite.svg" alt="" className="size-[20px]" />

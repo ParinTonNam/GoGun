@@ -6,12 +6,26 @@ export type Destination = {
 };
 
 export const DESTINATIONS: Destination[] = [
-  { code: "JP", flag: "日", name: "Japan", cities: "Tokyo · Kyoto · Osaka" },
-  { code: "TW", flag: "台", name: "Taiwan", cities: "Taipei · Taichung" },
-  { code: "KR", flag: "韓", name: "South Korea", cities: "Seoul · Busan" },
-  { code: "VN", flag: "越", name: "Vietnam", cities: "Hanoi · Da Nang" },
-  { code: "TH", flag: "ไทย", name: "Thailand", cities: "Bangkok · Chiang Mai" },
-  { code: "EU", flag: "EU", name: "Europe", cities: "Paris · Rome" },
+  { code: "TH", flag: "TH", name: "ในประเทศ", cities: "Bangkok · Chiang Mai" },
+  { code: "JP", flag: "JP", name: "ญี่ปุ่น", cities: "Tokyo · Kyoto · Osaka" },
+  { code: "KR", flag: "KR", name: "เกาหลีใต้", cities: "Seoul · Busan" },
+  { code: "TW", flag: "TW", name: "ไต้หวัน", cities: "Taipei · Taichung" },
+  { code: "CN", flag: "CN", name: "จีน", cities: "Beijing · Shanghai" },
+  { code: "CUSTOM", flag: "✎", name: "กำหนดเอง", cities: "" },
+];
+
+export type TripTypeCode = "one_day" | "overnight" | "long";
+
+export type TripType = {
+  code: TripTypeCode;
+  label: string;
+  defaultDays: number;
+};
+
+export const TRIP_TYPES: TripType[] = [
+  { code: "one_day", label: "เที่ยววันเดียว (One Day Trip)", defaultDays: 1 },
+  { code: "overnight", label: "เที่ยวค้างคืน 2-3 วัน", defaultDays: 3 },
+  { code: "long", label: "ทริปยาว (Weekend Trip)", defaultDays: 5 },
 ];
 
 export type Currency = {
@@ -54,7 +68,9 @@ export type Permissions = {
 
 export type TripFormData = {
   name: string;
+  tripType: TripTypeCode | null;
   destinationCodes: string[];
+  customDestination: string;
   startDate: Date | null;
   endDate: Date | null;
   members: Member[];
@@ -66,7 +82,9 @@ export type TripFormData = {
 export function createInitialTripFormData(): TripFormData {
   return {
     name: "",
+    tripType: null,
     destinationCodes: [],
+    customDestination: "",
     startDate: null,
     endDate: null,
     members: [

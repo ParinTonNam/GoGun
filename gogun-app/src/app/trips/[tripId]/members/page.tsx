@@ -1,16 +1,21 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { use, useState } from "react";
 import {
   getTrip,
+  getMe,
   addMemberByName,
   renameMember,
   removeMember,
   getInitial,
   type Trip,
   type TripMember,
+  type User,
 } from "@/lib/api";
+import { PageHeader } from "@/components/page-header";
+import { LoadError } from "@/components/load-error";
+import { useLoad } from "@/lib/use-load";
+import { inviteUrl, inviteLinkLabel } from "@/lib/invite";
 
 export default function MembersPage({
   params,
@@ -18,9 +23,8 @@ export default function MembersPage({
   params: Promise<{ tripId: string }>;
 }) {
   const { tripId } = use(params);
-  const router = useRouter();
   const [trip, setTrip] = useState<Trip | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [me, setMe] = useState<User | null>(null);
   const [nameInput, setNameInput] = useState("");
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -30,11 +34,10 @@ export default function MembersPage({
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    getTrip(tripId)
-      .then(setTrip)
-      .catch(console.error)
-      .finally(() => setLoading(false));
+  const { loading, error: loadError, retry } = useLoad(async () => {
+    const [t, user] = await Promise.all([getTrip(tripId), getMe()]);
+    setTrip(t);
+    setMe(user);
   }, [tripId]);
 
   async function addMember() {
@@ -82,7 +85,7 @@ export default function MembersPage({
 
   async function copyInviteLink() {
     try {
-      await navigator.clipboard.writeText(`https://gogun.app/t/${trip!.invite_code}`);
+      await navigator.clipboard.writeText(inviteUrl(trip!.invite_code));
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch (e) {
@@ -103,6 +106,10 @@ export default function MembersPage({
     }
   }
 
+  if (loadError) {
+    return <LoadError message={loadError} onRetry={retry} />;
+  }
+
   if (loading || !trip) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0]">
@@ -111,32 +118,22 @@ export default function MembersPage({
     );
   }
 
-  const inviteLink = `gogun.app/t/${trip.invite_code}`;
+  const inviteLink = inviteLinkLabel(trip.invite_code);
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex min-h-screen w-full max-w-[420px] flex-col pb-[24px] pt-[64px]">
+      <div className="flex min-h-screen w-full max-w-[420px] flex-col pb-[24px] pt-[24px]">
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[18px] pt-[4px] px-[20px]">
-          <button
-            type="button"
-            onClick={() => router.push(`/trips/${tripId}`)}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="size-[14px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">สมาชิก</p>
-          <button
-            type="button"
-            onClick={() => router.push(`/trips/${tripId}/settings`)}
-            className="py-[8.5px] text-[13px] font-medium tracking-[0.08px] text-[#e85a2c]"
-          >
-            ตั้งค่า
-          </button>
+        <div className="px-[24px]">
+          <PageHeader
+            title="สมาชิก"
+            backHref={`/trips/${tripId}`}
+            user={me}
+          />
         </div>
 
         {/* Add member input */}
-        <div className="px-[20px] pb-[28px]">
+        <div className="px-[24px] pb-[28px]">
           <div className="flex items-center gap-[8px]">
             <div className="flex-1 border-b border-[#e5e1d7] py-[14px]">
               <input
@@ -161,7 +158,7 @@ export default function MembersPage({
         </div>
 
         {/* Members section */}
-        <div className="flex flex-col gap-[10px] px-[20px] pb-[28px]">
+        <div className="flex flex-col gap-[10px] px-[24px] pb-[28px]">
           <div className="flex items-center justify-between">
             <p className="text-[11px] uppercase tracking-[1.54px] text-[#767168]">MEMBERS</p>
             <p className="text-[12px] tracking-[0.12px] text-[#14110d]">{trip.members.length} คน</p>
@@ -267,7 +264,7 @@ export default function MembersPage({
         </div>
 
         {/* Share invite link (secondary) */}
-        <div className="px-[20px] pb-[28px]">
+        <div className="px-[24px] pb-[28px]">
           <button
             type="button"
             onClick={copyInviteLink}

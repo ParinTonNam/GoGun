@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { MemberBottomNav } from "@/components/member-bottom-nav";
+import { PageHeader, DEMO_USER } from "@/components/page-header";
 
 function ToolIcon({ slug }: { slug: string }) {
   if (slug === "wheel") {
@@ -102,27 +103,13 @@ export default function ToolsHubPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[430px] flex-col gap-[24px] pb-[96px] pt-[24px] px-[24px]">
-        {/* Header — GOGUN logo + user pill */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-[7px]">
-            <img src="/images/logo.svg" alt="" className="size-[19px]" />
-            <p className="text-[11px] tracking-[0.08px] text-[#767168]">GOGUN</p>
-            <p className="text-[13px] font-medium tracking-[0.08px] text-[#14110d]">ไปกัน</p>
-          </div>
-          <div className="flex h-[33px] items-center gap-[8px] rounded-[48px] border border-[#edeae2] bg-white p-[7px]">
-            <span className="flex size-[22px] items-center justify-center rounded-[31px] bg-[#c0613e] text-[12px] font-medium text-white">ต</span>
-            <span className="text-[12px] font-medium tracking-[0.08px] text-[#14110d]">ต้นน้ำ</span>
-          </div>
-        </div>
-
-        {/* Page title */}
-        <div className="flex flex-col gap-[4px] pb-[14px] pt-[4px]">
-          <p className="text-[26px] font-medium tracking-[0.08px] text-[#14110d]">อุปกรณ์เสริม</p>
-          <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">
-            ตัวช่วยให้วางแผนสนุกขึ้น ไม่ต้องเถียงกัน
-          </p>
-        </div>
+      <div className="flex w-full max-w-[420px] flex-col gap-[24px] pb-[96px] pt-[24px] px-[24px]">
+        {/* Header */}
+        <PageHeader
+          title="อุปกรณ์เสริม"
+          subtitle="ตัวช่วยให้วางแผนสนุกขึ้น ไม่ต้องเถียงกัน"
+          user={DEMO_USER}
+        />
 
         {/* 2×2 grid */}
         <div className="grid grid-cols-2 gap-[8px]">

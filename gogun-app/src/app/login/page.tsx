@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { login, saveToken } from "@/lib/api";
@@ -39,7 +39,7 @@ function IconEye({ off }: { off?: boolean }) {
   );
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo");
@@ -155,5 +155,14 @@ export default function LoginPage() {
 
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  // useSearchParams() ต้องอยู่ใต้ Suspense boundary ไม่งั้น prerender พังทั้งหน้า
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

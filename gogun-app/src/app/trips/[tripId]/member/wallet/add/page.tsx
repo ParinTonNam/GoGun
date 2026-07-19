@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   getTrip,
@@ -11,6 +11,8 @@ import {
   type TripMember,
   type User,
 } from "@/lib/api";
+import { LoadError } from "@/components/load-error";
+import { useLoad } from "@/lib/use-load";
 
 const CATEGORIES: { id: string; label: string; icon: string }[] = [
   { id: "flight",    label: "เครื่องบิน",   icon: "/images/icon-expense-plane.svg"  },
@@ -72,7 +74,6 @@ export default function AddExpensePage({
   const router = useRouter();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [me, setMe] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -82,17 +83,13 @@ export default function AddExpensePage({
   const [paidBy, setPaidBy] = useState<string | null>(null);
   const [splitAmong, setSplitAmong] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    Promise.all([getTrip(tripId), getMe()])
-      .then(([t, user]) => {
-        setTrip(t);
-        setMe(user);
-        const joined = t.members.filter((m) => m.status === "joined").map((m) => m.user_id);
-        setPaidBy(user.id);
-        setSplitAmong(new Set(joined));
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+  const { loading, error: loadError, retry } = useLoad(async () => {
+    const [t, user] = await Promise.all([getTrip(tripId), getMe()]);
+    setTrip(t);
+    setMe(user);
+    const joined = t.members.filter((m) => m.status === "joined").map((m) => m.user_id);
+    setPaidBy(user.id);
+    setSplitAmong(new Set(joined));
   }, [tripId]);
 
   const members = trip?.members.filter((m) => m.status === "joined") ?? [];
@@ -133,6 +130,10 @@ export default function AddExpensePage({
     }
   }
 
+  if (loadError) {
+    return <LoadError message={loadError} onRetry={retry} />;
+  }
+
   if (loading || !trip || !me) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0]">
@@ -143,7 +144,7 @@ export default function AddExpensePage({
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[430px] flex-col gap-[28px] pb-[48px] pt-[20px]">
+      <div className="flex w-full max-w-[420px] flex-col gap-[28px] pb-[48px] pt-[20px]">
 
         {/* Header */}
         <div className="flex items-center gap-[12px] px-[24px]">

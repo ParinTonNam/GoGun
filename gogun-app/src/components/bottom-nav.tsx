@@ -51,7 +51,7 @@ export function BottomNav({ active }: { active: Tab }) {
   ];
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50">
+    <div className="fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 w-full max-w-[420px] z-50">
       <div className="mx-[13px] flex h-[62px] items-start justify-center rounded-[18px] border border-[#d4cfc2] bg-white pt-[8px]">
         {tabs.map((tab) => {
           const isActive = active === tab.id;
@@ -70,9 +70,6 @@ export function BottomNav({ active }: { active: Tab }) {
             </Link>
           );
         })}
-      </div>
-      <div className="flex justify-center py-[8px]">
-        <div className="h-[5px] w-[139px] rounded-full bg-black/25" />
       </div>
     </div>
   );

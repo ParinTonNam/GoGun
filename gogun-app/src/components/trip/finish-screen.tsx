@@ -7,6 +7,7 @@ import {
   slugify,
   type TripFormData,
 } from "@/lib/trip";
+import { inviteUrl, inviteLinkLabel } from "@/lib/invite";
 
 const SHARE_TARGETS: { key: string; label: string; bg: string; icon?: string }[] = [
   { key: "line", label: "LINE", bg: "#06c755", icon: "/images/icon-line.svg" },
@@ -54,11 +55,12 @@ export function FinishScreen({
         .join("-")
     : formData.name;
   const slug = slugify(slugSource) || "trip";
-  const inviteLink = `gogun.app/t/${slug}-x${formData.members.length}`;
+  const inviteCode = `${slug}-x${formData.members.length}`;
+  const inviteLink = inviteLinkLabel(inviteCode);
 
   async function copyLink() {
     try {
-      await navigator.clipboard.writeText(`https://${inviteLink}`);
+      await navigator.clipboard.writeText(inviteUrl(inviteCode));
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
@@ -69,7 +71,7 @@ export function FinishScreen({
   async function share() {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ url: `https://${inviteLink}`, title: tripLabel });
+        await navigator.share({ url: inviteUrl(inviteCode), title: tripLabel });
         return;
       } catch {
         // user cancelled or share failed; fall through to copy

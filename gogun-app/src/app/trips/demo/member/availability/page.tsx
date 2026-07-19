@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MemberBottomNav } from "@/components/member-bottom-nav";
+import { PageHeader, DEMO_USER } from "@/components/page-header";
 
 // ─── types ────────────────────────────────────────────────────────────────────
 type Status = "none" | "available" | "maybe"; // current user's own status
@@ -149,26 +150,16 @@ export default function MemberAvailabilityPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[430px] flex-col pb-[96px] pt-[24px]">
+      <div className="flex w-full max-w-[420px] flex-col pb-[96px] pt-[24px]">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-[24px]">
-          <div className="flex items-center gap-[7px]">
-            <img src="/images/logo.svg" alt="" className="size-[19px]" />
-            <p className="text-[11px] tracking-[0.08px] text-[#767168]">GOGUN</p>
-            <p className="text-[13px] font-medium tracking-[0.08px] text-[#14110d]">ไปกัน</p>
-          </div>
-          <div className="flex h-[33px] items-center gap-[8px] rounded-[48px] border border-[#edeae2] bg-white p-[7px]">
-            <span className="flex size-[22px] items-center justify-center rounded-[31px] bg-[#c0613e] text-[12px] font-medium text-white">
-              ต
-            </span>
-            <span className="text-[12px] font-medium tracking-[0.08px] text-[#14110d]">ต้นน้ำ</span>
-          </div>
+        <div className="px-[24px]">
+          <PageHeader user={DEMO_USER} />
         </div>
 
         {/* Title + subtitle */}
         <div className="flex flex-col gap-[8px] px-[24px] pt-[20px]">
-          <p className="text-[32px] leading-[1.15] tracking-[-0.32px] text-[#14110d]">เทียบวันว่าง</p>
+          <p className="text-[26px] font-medium tracking-[0.08px] text-[#14110d]">เทียบวันว่าง</p>
           <div className="flex items-center gap-[5px] text-[13px] tracking-[0.08px]">
             <span className="text-[#767168]">4/4 คนเลือกแล้ว</span>
             <span className="text-[#b5b0a4]">·</span>

@@ -1,4 +1,5 @@
 import { MemberBottomNav } from "@/components/member-bottom-nav";
+import { PageHeader, DEMO_USER } from "@/components/page-header";
 
 const MEMBERS = [
   { id: "ton",   name: "ต้นน้ำ", initial: "ตน", color: "#c0613e", role: "จัดทริป" },
@@ -88,22 +89,10 @@ const NOTE_ICONS: Record<string, string> = {
 export default function MemberOverviewPage() {
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[430px] flex-col gap-[24px] px-[24px] pb-[96px] pt-[24px]">
+      <div className="flex w-full max-w-[420px] flex-col gap-[24px] px-[24px] pb-[96px] pt-[24px]">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-[7px]">
-            <img src="/images/logo.svg" alt="" className="size-[19px]" />
-            <p className="text-[11px] tracking-[0.08px] text-[#767168]">GOGUN</p>
-            <p className="text-[13px] font-medium tracking-[0.08px] text-[#14110d]">ไปกัน</p>
-          </div>
-          <div className="flex h-[33px] items-center gap-[8px] rounded-[48px] border border-[#edeae2] bg-white p-[7px]">
-            <span className="flex size-[22px] items-center justify-center rounded-[31px] bg-[#c0613e] text-[12px] font-medium text-white">
-              ต
-            </span>
-            <span className="text-[12px] font-medium tracking-[0.08px] text-[#14110d]">ต้นน้ำ</span>
-          </div>
-        </div>
+        <PageHeader user={DEMO_USER} />
 
         {/* Trip info */}
         <div className="flex flex-col gap-[8px]">
@@ -112,7 +101,7 @@ export default function MemberOverviewPage() {
             <span className="text-[#b5b0a4]">·</span>
             <span className="text-[#767168]">Japan</span>
           </div>
-          <p className="text-[32px] font-medium leading-[1.15] tracking-[-0.32px] text-[#14110d]">
+          <p className="text-[26px] font-medium tracking-[0.08px] text-[#14110d]">
             ทริปญี่ปุ่นชมดาว
           </p>
           {/* Date card */}

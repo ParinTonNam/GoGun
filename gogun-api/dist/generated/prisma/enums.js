@@ -9,10 +9,15 @@
 * 🟢 You can import this file directly.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PackingCategory = exports.PollStatus = exports.AvailabilityStatus = exports.TransferStatus = exports.TripMemberStatus = exports.TripMemberRole = exports.DateStatus = void 0;
+exports.PackingCategory = exports.PollStatus = exports.AvailabilityStatus = exports.TransferStatus = exports.TripMemberStatus = exports.TripMemberRole = exports.TripType = exports.DateStatus = void 0;
 exports.DateStatus = {
     proposed: 'proposed',
     confirmed: 'confirmed'
+};
+exports.TripType = {
+    one_day: 'one_day',
+    overnight: 'overnight',
+    long: 'long'
 };
 exports.TripMemberRole = {
     organizer: 'organizer',
@@ -25,7 +30,6 @@ exports.TripMemberStatus = {
 };
 exports.TransferStatus = {
     pending: 'pending',
-    slip_attached: 'slip_attached',
     confirmed: 'confirmed'
 };
 exports.AvailabilityStatus = {

@@ -1,14 +1,27 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getTrip, updateTrip, transferHost, deleteTrip, type Trip, type TripMember } from "@/lib/api";
+import { getTrip, getMe, updateTrip, transferHost, deleteTrip, type Trip, type TripMember, type User } from "@/lib/api";
+import { PageHeader } from "@/components/page-header";
+import { LoadError } from "@/components/load-error";
+import { notifyError, useLoad } from "@/lib/use-load";
+import { inviteUrl, inviteLinkLabel } from "@/lib/invite";
 
 /* ─── Types ─── */
-type SheetType = "name" | "date" | "currency" | "budget" | "transfer" | "delete";
+type SheetType = "icon" | "name" | "date" | "currency" | "budget" | "transfer" | "delete";
 
 /* ─── Constants ─── */
 const CURRENCIES = ["THB", "JPY", "USD", "EUR", "KRW", "SGD", "CNY", "GBP", "AUD"];
+
+const TRIP_ICONS = [
+  "🏖️", "🏝️", "⛰️", "🏔️", "🏕️", "🌊",
+  "🌅", "🌸", "🌴", "❄️", "🗼", "🏯",
+  "⛩️", "🛕", "🕌", "🏙️", "🎡", "🎢",
+  "🍜", "🍣", "☕", "🍺", "🎉", "🎂",
+  "✈️", "🚂", "🚗", "⛵", "🚴", "🎒",
+  "📷", "🎣", "⚽", "🐘", "🦈", "🌋",
+];
 
 /* ─── Small shared components ─── */
 function Toggle({ on, onChange }: { on: boolean; onChange: () => void }) {
@@ -76,6 +89,37 @@ function UnderlineInput({ value, onChange, placeholder, type = "text", inputMode
 }
 
 /* ─── Sheet content components ─── */
+function IconContent({ current, onSave }: { current: string | null; onSave: (v: string | null) => void }) {
+  return (
+    <div className="flex flex-col gap-[16px] px-[24px] pb-[48px] pt-[24px]">
+      <p className="text-[12px] tracking-[0.08px] text-[#767168]">เลือกอิโมจิเป็นไอคอนทริป</p>
+      <div className="grid grid-cols-6 gap-[8px]">
+        {TRIP_ICONS.map((emoji) => (
+          <button
+            key={emoji}
+            type="button"
+            onClick={() => onSave(emoji)}
+            className={`flex aspect-square items-center justify-center rounded-[12px] border text-[22px] transition-colors ${
+              current === emoji ? "border-[#e85a2c] bg-[#fcede3]" : "border-[#e5e1d7] bg-white"
+            }`}
+          >
+            {emoji}
+          </button>
+        ))}
+      </div>
+      {current && (
+        <button
+          type="button"
+          onClick={() => onSave(null)}
+          className="w-full rounded-[14px] border border-[#e5e1d7] bg-white py-[13px] text-[13px] font-light text-[#767168]"
+        >
+          ไม่ใช้ไอคอน
+        </button>
+      )}
+    </div>
+  );
+}
+
 function NameContent({ initialValue, onSave }: { initialValue: string; onSave: (v: string) => void }) {
   const [value, setValue] = useState(initialValue);
   return (
@@ -256,7 +300,7 @@ function DeleteContent({ tripName, onClose, onConfirm }: {
   return (
     <div className="flex flex-col gap-[20px] px-[24px] pb-[48px] pt-[24px]">
       <div className="flex flex-col gap-[8px]">
-        <p className="text-[16px] font-medium text-[#14110d]">ลบทริป "{tripName}"?</p>
+        <p className="text-[16px] font-medium text-[#14110d]">ลบทริป &quot;{tripName}&quot;?</p>
         <p className="text-[13px] font-light leading-[1.6] text-[#767168]">
           ข้อมูลทั้งหมดในทริปนี้จะถูกลบถาวร ได้แก่ ค่าใช้จ่าย แผนเดินทาง และสมาชิกทั้งหมด{" "}
           <span className="text-[#e85a2c]">ไม่สามารถกู้คืนได้</span>
@@ -294,6 +338,7 @@ function DeleteContent({ tripName, onClose, onConfirm }: {
 
 /* ─── Sheet titles & nav ─── */
 const SHEET_TITLE: Record<SheetType, string> = {
+  icon:     "ไอคอนทริป",
   name:     "ชื่อทริป",
   date:     "วันที่",
   currency: "สกุลเงินหลัก",
@@ -315,7 +360,7 @@ function SettingsSheet({ sheet, open, onClose, children }: {
         onClick={onClose}
       />
       <div
-        className={`fixed bottom-0 left-1/2 z-50 flex max-h-[90vh] min-h-[50vh] w-full max-w-[430px] -translate-x-1/2 flex-col overflow-y-auto rounded-t-[25px] bg-[#f7f5f0] transition-transform duration-300 ease-out ${open ? "translate-y-0" : "translate-y-full"}`}
+        className={`fixed bottom-0 left-1/2 z-50 flex max-h-[90vh] min-h-[50vh] w-full max-w-[420px] -translate-x-1/2 flex-col overflow-y-auto rounded-t-[25px] bg-[#f7f5f0] transition-transform duration-300 ease-out ${open ? "translate-y-0" : "translate-y-full"}`}
       >
         {/* Drag handle */}
         <div className="flex shrink-0 justify-center pb-[2px] pt-[10px]">
@@ -344,6 +389,7 @@ export default function TripSettingsPage({ params }: { params: Promise<{ tripId:
   const { tripId } = use(params);
   const router = useRouter();
   const [trip, setTrip] = useState<Trip | null>(null);
+  const [me, setMe] = useState<User | null>(null);
   const [copied, setCopied] = useState(false);
   const [activeSheet, setActiveSheet] = useState<SheetType | null>(null);
   const [displaySheet, setDisplaySheet] = useState<SheetType | null>(null);
@@ -355,9 +401,14 @@ export default function TripSettingsPage({ params }: { params: Promise<{ tripId:
     notifyWeather:   true,
   });
   const [permissionSaving, setPermissionSaving] = useState<string | null>(null);
+  // สิทธิ์สมาชิกยังไม่ enforce จริงฝั่ง API (settings เก็บค่าได้ แต่ route ไม่เช็ค)
+  // ซ่อน toggle ไว้ก่อน deploy กันเข้าใจผิดว่าปิดสิทธิ์แล้วปลอดภัย — เปิดกลับเมื่อ enforce เสร็จ
+  const SHOW_MEMBER_PERMISSIONS = false;
 
-  useEffect(() => {
-    getTrip(tripId).then(setTrip).catch(console.error);
+  const { error: loadError, retry } = useLoad(async () => {
+    const [t, user] = await Promise.all([getTrip(tripId), getMe()]);
+    setTrip(t);
+    setMe(user);
   }, [tripId]);
 
   function toggleNotify(key: keyof typeof notifyToggles) {
@@ -372,7 +423,7 @@ export default function TripSettingsPage({ params }: { params: Promise<{ tripId:
       const updated = await updateTrip(tripId, { [key]: next } as Partial<Trip>);
       setTrip(updated);
     } catch (e) {
-      console.error(e);
+      notifyError(e);
     } finally {
       setPermissionSaving(null);
     }
@@ -391,27 +442,33 @@ export default function TripSettingsPage({ params }: { params: Promise<{ tripId:
   async function copyLink() {
     if (!trip) return;
     try {
-      await navigator.clipboard.writeText(`https://gogun.app/t/${trip.invite_code}`);
+      await navigator.clipboard.writeText(inviteUrl(trip.invite_code));
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch { /* clipboard unavailable */ }
   }
 
+  async function saveIcon(icon: string | null) {
+    const updated = await updateTrip(tripId, { icon } as Partial<Trip>).catch(notifyError);
+    if (updated) setTrip(updated);
+    closeSheet();
+  }
+
   async function saveName(name: string) {
     if (!name.trim()) return;
-    const updated = await updateTrip(tripId, { name: name.trim() }).catch(console.error);
+    const updated = await updateTrip(tripId, { name: name.trim() }).catch(notifyError);
     if (updated) setTrip(updated);
     closeSheet();
   }
 
   async function saveDate(status: "proposed" | "confirmed") {
-    const updated = await updateTrip(tripId, { date_status: status }).catch(console.error);
+    const updated = await updateTrip(tripId, { date_status: status }).catch(notifyError);
     if (updated) setTrip(updated);
     closeSheet();
   }
 
   async function saveCurrency(currency: string) {
-    const updated = await updateTrip(tripId, { currency }).catch(console.error);
+    const updated = await updateTrip(tripId, { currency }).catch(notifyError);
     if (updated) setTrip(updated);
     closeSheet();
   }
@@ -419,46 +476,70 @@ export default function TripSettingsPage({ params }: { params: Promise<{ tripId:
   async function saveBudget(value: string) {
     const updated = await updateTrip(tripId, {
       budget_per_person: value.trim() === "" ? null : Number(value),
-    } as Partial<Trip>).catch(console.error);
+    } as Partial<Trip>).catch(notifyError);
     if (updated) setTrip(updated);
     closeSheet();
   }
 
   async function handleTransfer(userId: string) {
-    await transferHost(tripId, userId);
+    try {
+      await transferHost(tripId, userId);
+    } catch (e) {
+      notifyError(e, "โอนสิทธิ์ผู้จัดทริปไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+      return;
+    }
     closeSheet();
     router.replace(`/trips/${tripId}/member`);
   }
 
   async function handleDelete() {
-    await deleteTrip(tripId).catch(console.error);
+    try {
+      await deleteTrip(tripId);
+    } catch (e) {
+      notifyError(e, "ลบทริปไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+      return;
+    }
     router.replace("/trips");
   }
 
-  const inviteLink = trip ? `gogun.app/t/${trip.invite_code}` : "กำลังโหลด...";
+  const inviteLink = trip ? inviteLinkLabel(trip.invite_code) : "กำลังโหลด...";
+
+  if (loadError) {
+    return <LoadError message={loadError} onRetry={retry} />;
+  }
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[24px] pt-[64px]">
+      <div className="flex w-full max-w-[420px] flex-col pb-[24px] pt-[24px]">
 
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[18px] pt-[4px] px-[20px]">
-          <button
-            type="button"
-            onClick={() => router.push(`/trips/${tripId}`)}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="size-[14px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">ตั้งค่าทริป</p>
+        <div className="px-[24px]">
+          <PageHeader title="ตั้งค่าทริป" backHref={`/trips/${tripId}`} user={me} />
         </div>
 
         {/* Content */}
-        <div className="flex flex-col gap-[18px] px-[20px]">
+        <div className="flex flex-col gap-[18px] px-[24px]">
 
           {/* ข้อมูลทริป */}
           <div className="overflow-hidden rounded-[16px] border border-[#e5e1d7] bg-white">
             <SectionLabel title="ข้อมูลทริป" />
+
+            <button type="button" onClick={() => openSheet("icon")} className="flex h-[57px] w-full items-center gap-[12px] border-b border-[#e5e1d7] px-[16px] text-left">
+              <div className="flex size-[30px] shrink-0 items-center justify-center rounded-[8px] bg-[#f2efe8]">
+                {trip?.icon ? (
+                  <span className="text-[16px]">{trip.icon}</span>
+                ) : (
+                  <span className="text-[13px] font-medium text-[#e85a2c]">
+                    {trip?.destination?.trim().slice(0, 1) ?? "•"}
+                  </span>
+                )}
+              </div>
+              <p className="flex-1 text-[14px] tracking-[0.08px] text-[#14110d]">ไอคอนทริป</p>
+              <p className="shrink-0 text-[13px] font-light tracking-[0.08px] text-[#767168]">
+                {trip?.icon ?? "ไม่ตั้ง"}
+              </p>
+              <Chevron />
+            </button>
 
             <button type="button" onClick={() => openSheet("name")} className="flex h-[57px] w-full items-center gap-[12px] border-b border-[#e5e1d7] px-[16px] text-left">
               <div className="flex size-[30px] shrink-0 items-center justify-center rounded-[8px] bg-[#f2efe8]">
@@ -513,7 +594,8 @@ export default function TripSettingsPage({ params }: { params: Promise<{ tripId:
             </button>
           </div>
 
-          {/* สิทธิ์สมาชิก */}
+          {/* สิทธิ์สมาชิก — ซ่อนไว้จนกว่า API จะ enforce จริง (ดู SHOW_MEMBER_PERMISSIONS) */}
+          {SHOW_MEMBER_PERMISSIONS && (
           <div className="overflow-hidden rounded-[16px] border border-[#e5e1d7] bg-white">
             <SectionLabel title="สิทธิ์สมาชิก" />
             <div className="flex items-center gap-[12px] border-b border-[#e5e1d7] px-[16px] py-[13px]">
@@ -547,6 +629,7 @@ export default function TripSettingsPage({ params }: { params: Promise<{ tripId:
               />
             </div>
           </div>
+          )}
 
           {/* การแจ้งเตือน */}
           <div className="overflow-hidden rounded-[16px] border border-[#e5e1d7] bg-white">
@@ -631,6 +714,7 @@ export default function TripSettingsPage({ params }: { params: Promise<{ tripId:
 
       {/* Bottom sheets */}
       <SettingsSheet sheet={displaySheet} open={activeSheet !== null} onClose={closeSheet}>
+        {displaySheet === "icon"     && <IconContent     current={trip?.icon ?? null} onSave={saveIcon} />}
         {displaySheet === "name"     && <NameContent     initialValue={trip?.name ?? ""} onSave={saveName} />}
         {displaySheet === "date"     && trip && <DateContent trip={trip} onSave={saveDate} />}
         {displaySheet === "currency" && <CurrencyContent initialValue={trip?.currency ?? "THB"} onSave={saveCurrency} />}

@@ -2,13 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const TABS = [
-  { label: "ทริป",         icon: "/images/icon-tab-trip.svg",     active: false, route: "/trips/demo/member" },
-  { label: "วันว่าง",      icon: "/images/icon-tab-calendar.svg", active: false, route: "/trips/demo/member/availability" },
-  { label: "บัญชี",        icon: "/images/icon-tab-wallet.svg",   active: false, route: "/trips/demo/member/wallet" },
-  { label: "อุปกรณ์เสริม", icon: "/images/icon-tab-tools.svg",   active: true },
-];
+import { PageHeader, DEMO_USER } from "@/components/page-header";
+import { MemberBottomNav } from "@/components/member-bottom-nav";
 
 type Voter = "ton" | "james" | "nai" | "atif";
 
@@ -192,27 +187,24 @@ export default function VotePage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[100px] pt-[65px] px-[24px]">
+      <div className="flex w-full max-w-[420px] flex-col pb-[100px] pt-[24px] px-[24px]">
         {/* Header */}
-        <div className="flex items-center gap-[12px] pb-[22px] pt-[4px]">
-          <button
-            type="button"
-            onClick={() => router.push("/trips/demo/tools")}
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-          >
-            <img src="/images/icon-chevron-left.svg" alt="" className="h-[10px] w-[6px]" />
-          </button>
-          <p className="flex-1 text-[22px] font-medium tracking-[0.08px] text-[#14110d]">โหวต</p>
-          <button
-            type="button"
-            onClick={() => router.push("/trips/demo/tools/vote/add")}
-            className="flex size-[30px] items-center justify-center rounded-full bg-[#14110d]"
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M6 1V11M1 6H11" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
+        <PageHeader
+          title="โหวต"
+          backHref="/trips/demo/tools"
+          user={DEMO_USER}
+          right={
+            <button
+              type="button"
+              onClick={() => router.push("/trips/demo/tools/vote/add")}
+              className="flex size-[30px] items-center justify-center rounded-full bg-[#14110d]"
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M6 1V11M1 6H11" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </button>
+          }
+        />
 
         <div className="flex flex-col gap-[28px]">
           {/* Open section */}
@@ -252,25 +244,7 @@ export default function VotePage() {
           )}
         </div>
       </div>
-      {/* Fixed bottom tab bar */}
-      <div className="fixed bottom-[8px] left-1/2 -translate-x-1/2 z-50 w-[calc(100%-14px)] max-w-[376px]">
-        <div className="flex h-[62px] items-start rounded-[18px] border border-[#d4cfc2] bg-white pt-[8px]">
-          {TABS.map((tab) => (
-            <button
-              key={tab.label}
-              type="button"
-              onClick={() => "route" in tab && tab.route && router.push(tab.route)}
-              className="flex flex-1 flex-col items-center gap-[3px]"
-            >
-              <img src={tab.icon} alt="" className="size-[20px]" style={{ opacity: tab.active ? 1 : 0.45 }} />
-              <p className={`text-[10px] tracking-[0.08px] ${tab.active ? "text-[#14110d]" : "font-light text-[#767168]"}`}>
-                {tab.label}
-              </p>
-              <div className="size-[3px] rounded-full" style={{ backgroundColor: tab.active ? "#14110d" : "transparent" }} />
-            </button>
-          ))}
-        </div>
-      </div>
+      <MemberBottomNav active="tools" />
     </main>
   );
 }

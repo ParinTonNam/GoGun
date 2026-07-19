@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getPolls, getChecklist, getPacking, getWheel, getMe, getTrip, type User, type Trip } from "@/lib/api";
+import { PageHeader } from "@/components/page-header";
 import { MemberBottomNav } from "@/components/member-bottom-nav";
 
 function ToolIcon({ slug }: { slug: string }) {
@@ -139,56 +140,23 @@ export default function ToolsHubPage({
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
       <div className={`flex w-full max-w-[420px] flex-col pt-[24px] px-[24px] ${isOrganizer ? "pb-[40px]" : "pb-[100px]"}`}>
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-[7px]">
-            <img src="/images/logo.svg" alt="" className="size-[19px]" />
-            <p className="text-[11px] tracking-[0.08px] text-[#767168]">GOGUN</p>
-            <p className="text-[13px] font-medium tracking-[0.08px] text-[#14110d]">ไปกัน</p>
-          </div>
-          {me && (
-            <div className="flex h-[33px] items-center gap-[8px] rounded-[48px] border border-[#edeae2] bg-white p-[7px]">
-              <span
-                className="flex size-[22px] items-center justify-center rounded-[31px] text-[12px] font-medium text-white"
-                style={{ backgroundColor: me.avatar_color }}
-              >
-                {me.display_name.slice(0, 1)}
-              </span>
-              <span className="text-[12px] font-medium tracking-[0.08px] text-[#14110d]">
-                {me.display_name}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Title */}
-        <div className="flex flex-col gap-[6px] pb-[14px] pt-[20px]">
-          <div className="flex items-center gap-[12px]">
-            {isOrganizer && (
-              <button
-                type="button"
-                onClick={() => router.push(backHref)}
-                className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
-              >
-                <img src="/images/icon-chevron-left.svg" alt="" className="h-[10px] w-[6px] object-contain" />
-              </button>
-            )}
-            <p className="text-[26px] font-medium tracking-[0.08px] text-[#14110d]">อุปกรณ์เสริม</p>
-          </div>
-          <p className={`text-[12px] font-light tracking-[0.08px] text-[#767168] ${isOrganizer ? "pl-[48px]" : ""}`}>
-            ตัวช่วยให้วางแผนสนุกขึ้น ไม่ต้องเถียงกัน
-          </p>
-        </div>
+        <PageHeader
+          title="อุปกรณ์เสริม"
+          subtitle="ตัวช่วยให้วางแผนสนุกขึ้น ไม่ต้องเถียงกัน"
+          backHref={isOrganizer ? backHref : undefined}
+          user={me}
+        />
 
         {/* 2×2 grid */}
         <div className="flex flex-col gap-[5px] pt-[24px]">
           {[TOOLS.slice(0, 2), TOOLS.slice(2, 4)].map((row, ri) => (
-            <div key={ri} className="flex items-stretch justify-between">
+            <div key={ri} className="flex items-stretch gap-[5px]">
               {row.map((tool) => (
                 <button
                   key={tool.route}
                   type="button"
                   onClick={() => router.push(tool.route)}
-                  className="flex w-[175px] flex-col gap-[12px] rounded-[16px] border border-[#e5e1d7] bg-white pb-[14px] pt-[15px] px-[15px] text-left"
+                  className="flex flex-1 flex-col gap-[12px] rounded-[16px] border border-[#e5e1d7] bg-white pb-[14px] pt-[15px] px-[15px] text-left"
                 >
                   <div className="flex size-[32px] shrink-0 items-center justify-center rounded-[10px] bg-[#f2efe8]">
                     <ToolIcon slug={tool.icon} />
