@@ -5,12 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const google_auth_library_1 = require("google-auth-library");
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const jwt_1 = require("../lib/jwt");
 const auth_1 = require("../middleware/auth");
 const response_1 = require("../lib/response");
 const router = (0, express_1.Router)();
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const googleClient = new google_auth_library_1.OAuth2Client();
 router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
     if (!username?.trim() || !email?.trim() || !password)
@@ -49,8 +51,52 @@ router.post('/login', async (req, res) => {
     const user = await prisma_1.default.user.findFirst({
         where: { OR: [{ username: identifier }, { email: identifier.toLowerCase() }] },
     });
-    if (!user || !(await bcrypt_1.default.compare(password, user.password_hash)))
+    // password_hash is null for Google-only accounts — they can't password-login
+    if (!user || !user.password_hash || !(await bcrypt_1.default.compare(password, user.password_hash)))
         return (0, response_1.err)(res, 401, 'UNAUTHORIZED', 'Invalid username or password');
+    const token = (0, jwt_1.signToken)(user.id);
+    return (0, response_1.ok)(res, { token, user: serializeUser(user) });
+});
+// Sign in with Google: the app sends the ID token from Google Identity
+// Services; we verify it with Google, then find-or-create the user and issue
+// our own JWT. An existing account with the same (Google-verified) email is
+// auto-linked rather than duplicated.
+router.post('/google', async (req, res) => {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (!clientId)
+        return (0, response_1.err)(res, 503, 'NOT_CONFIGURED', 'Google sign-in is not configured on this server');
+    const { credential } = req.body;
+    if (!credential)
+        return (0, response_1.err)(res, 400, 'VALIDATION_ERROR', 'credential is required');
+    let payload;
+    try {
+        const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: clientId });
+        payload = ticket.getPayload();
+    }
+    catch {
+        return (0, response_1.err)(res, 401, 'UNAUTHORIZED', 'Invalid Google credential');
+    }
+    if (!payload?.sub || !payload.email || !payload.email_verified)
+        return (0, response_1.err)(res, 401, 'UNAUTHORIZED', 'Google account has no verified email');
+    const email = payload.email.toLowerCase();
+    let user = await prisma_1.default.user.findUnique({ where: { google_id: payload.sub } });
+    if (!user) {
+        const existing = await prisma_1.default.user.findUnique({ where: { email } });
+        user = existing
+            ? await prisma_1.default.user.update({
+                where: { id: existing.id },
+                data: { google_id: payload.sub, is_guest: false },
+            })
+            : await prisma_1.default.user.create({
+                data: {
+                    username: await availableUsername(email),
+                    email,
+                    google_id: payload.sub,
+                    display_name: payload.name?.trim() || email.split('@')[0],
+                    avatar_color: randomColor(),
+                },
+            });
+    }
     const token = (0, jwt_1.signToken)(user.id);
     return (0, response_1.ok)(res, { token, user: serializeUser(user) });
 });
@@ -114,6 +160,16 @@ function serializeUser(user) {
         is_guest: user.is_guest,
         created_at: user.created_at,
     };
+}
+// Google users never picked a username — derive one from the email local part,
+// suffixing random digits until it's free.
+async function availableUsername(email) {
+    const base = email.split('@')[0].toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 24) || 'user';
+    for (let attempt = 0;; attempt++) {
+        const candidate = attempt === 0 ? base : `${base}${Math.floor(1000 + Math.random() * 9000)}`;
+        if (!(await prisma_1.default.user.findUnique({ where: { username: candidate } })))
+            return candidate;
+    }
 }
 const COLORS = [
     '#c0613e', '#4f6e7a', '#7b8b57', '#8a6e9e',

@@ -3,7 +3,8 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { register, saveToken } from "@/lib/api";
+import { googleLogin, register, saveToken } from "@/lib/api";
+import GoogleSignInButton from "@/components/google-signin-button";
 
 function IconUser() {
   return (
@@ -78,6 +79,20 @@ function SignInForm() {
     setLoading(true);
     try {
       const { token } = await register(username.trim(), email.trim(), password);
+      saveToken(token);
+      router.push(returnTo ?? "/trips");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "เกิดข้อผิดพลาด กรุณาลองใหม่");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleGoogleCredential(credential: string) {
+    setError("");
+    setLoading(true);
+    try {
+      const { token } = await googleLogin(credential);
       saveToken(token);
       router.push(returnTo ?? "/trips");
     } catch (e: unknown) {
@@ -192,6 +207,9 @@ function SignInForm() {
           <span className="text-[12px] font-light tracking-[0.5px] text-[#b5b0a4]">หรือ</span>
           <div className="h-px flex-1 bg-[#e5e1d7]" />
         </div>
+
+        {/* Google */}
+        <GoogleSignInButton onCredential={handleGoogleCredential} />
 
         {/* Login link */}
         <div className="flex items-center gap-[5px] text-[13px]">

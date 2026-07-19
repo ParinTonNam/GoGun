@@ -83,9 +83,6 @@ export default function TripsPage() {
   const activeTrips = trips.filter((t) => !isTripPast(t));
   const pastTrips = trips.filter((t) => isTripPast(t));
 
-  const displayName = user?.display_name ?? "";
-  const avatarColor = user?.avatar_color ?? "#c0613e";
-
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
       <div className="w-full max-w-[420px] pb-[96px]">
@@ -145,32 +142,32 @@ export default function TripsPage() {
           </div>
         ) : (
           /* ── Empty state ── */
-          <div className="flex min-h-screen flex-col items-center justify-center gap-[24px] px-[24px] pb-[96px]">
-            <div className="flex w-[171px] flex-col items-center gap-[18px] px-[30px] pb-[18px] pt-[19px]">
-              <div
-                className="flex size-[110px] items-center justify-center rounded-full"
-                style={{ backgroundColor: avatarColor }}
-              >
-                <span className="text-[20px] font-medium text-white">
-                  {displayName.slice(0, 2)}
-                </span>
+          <div className="flex min-h-screen flex-col px-[24px] pb-[96px] pt-[24px]">
+            <PageHeader user={user} />
+            <div className="flex flex-1 flex-col items-center justify-center gap-[28px]">
+              <img src="/images/mascot.svg" alt="" className="size-[150px] object-contain" />
+              <div className="flex flex-col items-center gap-[10px] text-center">
+                <p className="text-[24px] font-medium tracking-[0.08px] text-[#14110d]">ยังไม่มีทริป</p>
+                <p className="text-[13.5px] font-light leading-[1.7] text-[#767168]">
+                  เริ่มต้นสร้างทริปแล้วเชิญเพื่อนเข้าร่วม
+                  <br />
+                  ไม่ต้องสมัครสมาชิก ใช้ลิงก์เดียวจบ
+                </p>
               </div>
-              <p className="text-[24px] font-medium tracking-[0.08px] text-[#14110d]">ยังไม่มีทริป</p>
-              <div className="text-center text-[13px] font-light uppercase leading-normal text-[#767168]">
-                <p>เริ่มต้นโดยการสร้างทริปแล้วเชิญเพื่อนเข้าร่วม</p>
-                <p>ไม่ต้องสมัครสมาชิก ใช้ลิงก์เดียวจบ</p>
-              </div>
-            </div>
-            <div className="flex flex-col items-center gap-[10px]">
-              <Link
-                href="/trips/new"
-                className="flex w-[258px] items-center justify-center gap-[10px] rounded-[18px] border border-[#e5e1d7] bg-[#e85a2c] px-[57.5px] py-[15px]"
-              >
-                <img src="/images/icon-plus.svg" alt="" className="size-[20px]" />
-                <span className="text-[15px] font-medium tracking-[0.08px] text-white">สร้างทริปใหม่</span>
-              </Link>
-              <div className="flex w-[171px] items-center justify-center rounded-[18px] border border-[#e5e1d7] px-[57.5px] py-[15px]">
-                <span className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">เริ่มทริปกันเลย</span>
+              <div className="flex w-full max-w-[280px] flex-col gap-[10px]">
+                <Link
+                  href="/trips/new"
+                  className="flex items-center justify-center gap-[10px] rounded-[18px] bg-[#e85a2c] py-[15px]"
+                >
+                  <img src="/images/icon-plus.svg" alt="" className="size-[20px]" />
+                  <span className="text-[15px] font-medium tracking-[0.08px] text-white">สร้างทริปใหม่</span>
+                </Link>
+                <Link
+                  href="/recommend"
+                  className="flex items-center justify-center rounded-[18px] border border-[#e5e1d7] bg-white py-[15px]"
+                >
+                  <span className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">แนะนำทริป</span>
+                </Link>
               </div>
             </div>
           </div>

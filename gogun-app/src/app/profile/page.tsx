@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BottomNav } from "@/components/bottom-nav";
-import { NotificationToggle } from "@/components/notification-toggle";
 import { getMe, getMyTrips, updateMe, clearToken, type User, type Trip } from "@/lib/api";
 
 /* ─── Types ─── */
-type SheetType = "name" | "email" | "phone" | "payment" | "qr" | "language" | "help";
+type SheetType = "name" | "email" | "phone" | "language" | "help";
 
 /* ─── Constants ─── */
 const IC = "#767168";
@@ -21,41 +20,11 @@ function formatThaiPhone(raw: string): string {
     .join("-");
 }
 
-function isPhoneLikeDigits(digits: string): boolean {
-  return digits.startsWith("0") && digits.length <= 10;
-}
-
-function formatThaiId(raw: string): string {
-  const digits = raw.replace(/\D/g, "").slice(0, 13);
-  return [digits.slice(0, 1), digits.slice(1, 5), digits.slice(5, 10), digits.slice(10, 12), digits.slice(12, 13)]
-    .filter(Boolean)
-    .join("-");
-}
-
-// PromptPay accepts either a phone number or a 13-digit national ID —
-// format as a phone while under 10 digits, switch to ID grouping past that.
-function formatPromptPayNumber(raw: string): string {
-  const digits = raw.replace(/\D/g, "");
-  return digits.length > 10 ? formatThaiId(digits) : formatThaiPhone(digits);
-}
-
-// Catch the case where a phone number was typed into the bank account
-// field (some banks link transfers to a phone-linked PromptPay account)
-// instead of forcing the generic bank account grouping onto it.
-function formatBankAccountNumber(raw: string): string {
-  const digits = raw.replace(/\D/g, "");
-  if (isPhoneLikeDigits(digits)) return formatThaiPhone(digits);
-  const d = digits.slice(0, 10);
-  return [d.slice(0, 3), d.slice(3, 4), d.slice(4, 9), d.slice(9, 10)].filter(Boolean).join("-");
-}
-
 const FIELD_CONFIG = {
   name:  { label: "ชื่อที่แสดง",    placeholder: "ชื่อเล่น เช่น ฟ้า, ปอนด์", helper: "ชื่อนี้จะแสดงให้เพื่อร่วมทริปเห็น", inputMode: "text"    as const, type: "text"  },
   email: { label: "อีเมล",          placeholder: "อีเมลของคุณ",               helper: "ใช้สำหรับติดต่อและแจ้งเตือน",           inputMode: "email"   as const, type: "email" },
   phone: { label: "เบอร์โทร",       placeholder: "09X-XXX-XXXX",              helper: "เบอร์โทรศัพท์มือถือของคุณ",             inputMode: "tel"     as const, type: "tel"   },
 } as const;
-
-const BANKS = ["กสิกรไทย","กรุงเทพ","กรุงไทย","ไทยพาณิชย์","กรุงศรีอยุธยา","ทหารไทยธนชาต","ออมสิน","ธ.ก.ส.","อาคารสงเคราะห์"];
 
 const LANGUAGES = [
   { id: "th", label: "ภาษาไทย", sub: "Thai" },
@@ -66,7 +35,6 @@ const FAQ = [
   { q: "วิธีสร้างทริปใหม่",        a: "ไปที่หน้า 'จัดการทริป' แล้วกดปุ่ม 'สร้างทริปใหม่' ที่มุมขวาบน จากนั้นทำตามขั้นตอน 4 ขั้น ได้แก่ ตั้งชื่อ วันที่ สมาชิก และสกุลเงิน" },
   { q: "วิธีเชิญเพื่อนเข้าทริป",   a: "เปิดทริปที่ต้องการ แล้วกดปุ่ม 'เชิญ' หรือ 'แชร์ลิงก์' เพื่อนไม่จำเป็นต้องมีบัญชีก็เข้าร่วมได้ทันที" },
   { q: "วิธีบันทึกค่าใช้จ่าย",     a: "เข้าไปในทริป กดปุ่ม '+' เพื่อเพิ่มรายการ ระบุจำนวนเงิน หมวดหมู่ และผู้จ่าย ระบบจะคำนวณส่วนแบ่งให้อัตโนมัติ" },
-  { q: "วิธีตั้งค่าพร้อมเพย์รับเงิน", a: "ไปที่ 'โปรไฟล์' → 'การชำระเงิน' → 'พร้อมเพย์ / บัญชีที่โอน' แล้วกรอกเบอร์โทรหรือเลขบัตรประชาชน" },
   { q: "ข้อมูลของฉันปลอดภัยไหม",   a: "ข้อมูลทั้งหมดเข้ารหัสด้วย TLS และจัดเก็บบนเซิร์ฟเวอร์ที่ได้มาตรฐาน เราไม่เปิดเผยข้อมูลให้บุคคลภายนอกในทุกกรณี" },
 ];
 
@@ -80,8 +48,6 @@ const SHEET_TITLE: Record<SheetType, string> = {
   name:     "ชื่อที่แสดง",
   email:    "อีเมล",
   phone:    "เบอร์โทร",
-  payment:  "พร้อมเพย์ / บัญชีที่โอน",
-  qr:       "QR รับเงิน",
   language: "ภาษา",
   help:     "ช่วยเหลือ & ติดต่อ",
 };
@@ -95,15 +61,6 @@ function IconEmail() {
 }
 function IconPhone() {
   return <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6.62 10.79C8.06 13.62 10.38 15.94 13.21 17.38L15.41 15.18C15.68 14.91 16.08 14.82 16.43 14.94C17.55 15.31 18.76 15.51 20 15.51C20.55 15.51 21 15.96 21 16.51V20C21 20.55 20.55 21 20 21C10.61 21 3 13.39 3 4C3 3.45 3.45 3 4 3H7.5C8.05 3 8.5 3.45 8.5 4C8.5 5.25 8.7 6.45 9.07 7.57C9.18 7.92 9.1 8.31 8.82 8.59L6.62 10.79Z" fill={IC}/></svg>;
-}
-function IconPayment() {
-  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke={IC} strokeWidth="1.5"/><path d="M2 10H22" stroke={IC} strokeWidth="1.5"/><rect x="5" y="13" width="4" height="2" rx="0.5" fill={IC}/></svg>;
-}
-function IconQR() {
-  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 11H11V3H3V11ZM5 5H9V9H5V5ZM3 21H11V13H3V21ZM5 15H9V19H5V15ZM13 3V11H21V3H13ZM19 9H15V5H19V9ZM13 13H15V15H13V13ZM15 15H17V17H15V15ZM13 17H15V19H13V17ZM17 17H19V19H17V17ZM19 19H21V21H19V19ZM15 19H17V21H15V19ZM17 13H19V15H17V13ZM19 15H21V17H19V15Z" fill={IC}/></svg>;
-}
-function IconBell() {
-  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke={IC} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6981 21.5547 10.4458 21.3031 10.27 21" stroke={IC} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
 function IconGlobe() {
   return <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke={IC} strokeWidth="1.5"/><path d="M12 3C12 3 9 7 9 12C9 17 12 21 12 21" stroke={IC} strokeWidth="1.5"/><path d="M12 3C12 3 15 7 15 12C15 17 12 21 12 21" stroke={IC} strokeWidth="1.5"/><path d="M3 12H21" stroke={IC} strokeWidth="1.5"/><path d="M4.5 7.5H19.5M4.5 16.5H19.5" stroke={IC} strokeWidth="1.5"/></svg>;
@@ -120,9 +77,6 @@ function ChevronLeft() {
 function ChevronRight() {
   return <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke={IC} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
-function ChevronDown({ up }: { up?: boolean }) {
-  return <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d={up ? "M1 5L5 1L9 5" : "M1 1L5 5L9 1"} stroke="#767168" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-}
 function ChevronAccordion({ up }: { up: boolean }) {
   return <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className="shrink-0"><path d={up ? "M1 5L5 1L9 5" : "M1 1L5 5L9 1"} stroke="#767168" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
@@ -132,34 +86,6 @@ function ClearIcon() {
 function Checkmark() {
   return <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M1 6L6 11L15 1" stroke="#e85a2c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
-function UploadIcon() {
-  return <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M20 26V14M14 20l6-6 6 6" stroke="#b5b0a4" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 30h16" stroke="#b5b0a4" strokeWidth="1.8" strokeLinecap="round"/></svg>;
-}
-
-/* ─── Shared sub-components ─── */
-function UnderlineInput({ value, onChange, placeholder, type = "text", inputMode, autoFocus, maxLength }: {
-  value: string; onChange: (v: string) => void; placeholder: string;
-  type?: string; inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]; autoFocus?: boolean; maxLength?: number;
-}) {
-  const [focused, setFocused] = useState(false);
-  return (
-    <div className={`border-b pb-[15px] pt-[14px] ${focused || value ? "border-[#e85a2c]" : "border-[#e5e1d7]"}`}>
-      <input
-        autoFocus={autoFocus}
-        type={type}
-        inputMode={inputMode}
-        maxLength={maxLength}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        placeholder={placeholder}
-        className="w-full bg-transparent text-[17px] text-[#14110d] outline-none placeholder:text-[#b5b0a4]"
-      />
-    </div>
-  );
-}
-
 /* ─── Sheet content components ─── */
 function FieldContent({ field, value, onChange, error }: {
   field: "name" | "email" | "phone";
@@ -195,103 +121,6 @@ function FieldContent({ field, value, onChange, error }: {
       ) : (
         <p className="text-[12px] tracking-[0.08px] text-[#767168]">{config.helper}</p>
       )}
-    </div>
-  );
-}
-
-function PaymentContent() {
-  const [mode, setMode] = useState<"promptpay" | "bank">("promptpay");
-  const [number, setNumber] = useState("");
-  const [bank, setBank] = useState("");
-  const [accountNo, setAccountNo] = useState("");
-  const [bankOpen, setBankOpen] = useState(false);
-
-  return (
-    <div className="flex flex-col gap-[24px] px-[24px] pb-[48px] pt-[24px]">
-      <div className="flex rounded-[14px] border border-[#e5e1d7] bg-white p-[4px]">
-        <button type="button" onClick={() => setMode("promptpay")} className={`flex-1 rounded-[10px] py-[10px] text-[13px] font-medium transition-colors ${mode === "promptpay" ? "bg-[#14110d] text-white" : "text-[#767168]"}`}>พร้อมเพย์</button>
-        <button type="button" onClick={() => setMode("bank")}      className={`flex-1 rounded-[10px] py-[10px] text-[13px] font-medium transition-colors ${mode === "bank"      ? "bg-[#14110d] text-white" : "text-[#767168]"}`}>บัญชีธนาคาร</button>
-      </div>
-
-      {mode === "promptpay" ? (
-        <div className="flex flex-col gap-[10px]">
-          <p className="text-[12px] tracking-[0.08px] text-[#767168]">หมายเลขพร้อมเพย์</p>
-          <UnderlineInput
-            value={number}
-            onChange={(v) => setNumber(formatPromptPayNumber(v))}
-            placeholder="เบอร์โทร หรือหมายเลขบัตรประชาชน"
-            inputMode="numeric"
-            maxLength={17}
-          />
-          <p className="text-[12px] tracking-[0.08px] text-[#767168]">เบอร์โทร หรือหมายเลขบัตรประชาชน 13 หลัก</p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-[20px]">
-          <div className="flex flex-col gap-[10px]">
-            <p className="text-[12px] tracking-[0.08px] text-[#767168]">ธนาคาร</p>
-            <button type="button" onClick={() => setBankOpen((o) => !o)} className={`flex items-center justify-between border-b pb-[15px] pt-[14px] ${bankOpen ? "border-[#e85a2c]" : "border-[#e5e1d7]"}`}>
-              <span className={`text-[17px] ${bank ? "text-[#14110d]" : "text-[#b5b0a4]"}`}>{bank || "เลือกธนาคาร"}</span>
-              <ChevronDown up={bankOpen} />
-            </button>
-            {bankOpen && (
-              <div className="overflow-hidden rounded-[14px] border border-[#e5e1d7] bg-white">
-                {BANKS.map((b, i) => (
-                  <button key={b} type="button" onClick={() => { setBank(b); setBankOpen(false); }} className={`flex w-full items-center justify-between px-[16px] py-[13px] text-[14px] text-[#14110d] ${i < BANKS.length - 1 ? "border-b border-[#e5e1d7]" : ""}`}>
-                    {b}
-                    {bank === b && <Checkmark />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="flex flex-col gap-[10px]">
-            <p className="text-[12px] tracking-[0.08px] text-[#767168]">เลขบัญชี</p>
-            <UnderlineInput
-              value={accountNo}
-              onChange={(v) => setAccountNo(formatBankAccountNumber(v))}
-              placeholder="XXX-X-XXXXX-X"
-              inputMode="numeric"
-              maxLength={13}
-            />
-            <p className="text-[12px] tracking-[0.08px] text-[#767168]">เลขบัญชีธนาคารของคุณ</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function QRContent() {
-  const [preview, setPreview] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setPreview(URL.createObjectURL(file));
-  }
-
-  return (
-    <div className="flex flex-col items-center gap-[24px] px-[24px] pb-[48px] pt-[40px]">
-      <button type="button" onClick={() => inputRef.current?.click()} className="relative flex h-[220px] w-[220px] items-center justify-center overflow-hidden rounded-[24px] border-2 border-dashed border-[#d4cfc2] bg-white">
-        {preview ? (
-          <img src={preview} alt="QR Code" className="size-full object-cover" />
-        ) : (
-          <div className="flex flex-col items-center gap-[10px]">
-            <UploadIcon />
-            <p className="text-[13px] tracking-[0.08px] text-[#b5b0a4]">แตะเพื่ออัปโหลด QR</p>
-          </div>
-        )}
-      </button>
-      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
-      {preview && (
-        <button type="button" onClick={() => { setPreview(null); if (inputRef.current) inputRef.current.value = ""; }} className="rounded-[10px] border border-[#e5e1d7] bg-white px-[20px] py-[10px] text-[13px] tracking-[0.08px] text-[#767168]">
-          เปลี่ยนรูป QR
-        </button>
-      )}
-      <p className="text-center text-[12px] leading-[1.6] tracking-[0.08px] text-[#767168]">
-        อัปโหลด QR Code พร้อมเพย์ของคุณ<br />เพื่อให้เพื่อนร่วมทริปสแกนโอนเงิน
-      </p>
     </div>
   );
 }
@@ -417,8 +246,6 @@ function ProfileSheet({ sheet, open, onClose, fieldValue, onFieldChange, onSave,
         {sheet === "name"  && <FieldContent field="name"  value={fieldValue} onChange={onFieldChange} error={error} />}
         {sheet === "email" && <FieldContent field="email" value={fieldValue} onChange={onFieldChange} error={error || emailFormatError} />}
         {sheet === "phone" && <FieldContent field="phone" value={fieldValue} onChange={onFieldChange} error={error} />}
-        {sheet === "payment"  && <PaymentContent />}
-        {sheet === "qr"       && <QRContent />}
         {sheet === "language" && <LanguageContent />}
         {sheet === "help"     && <HelpContent />}
       </div>
@@ -634,22 +461,8 @@ export default function ProfilePage() {
             <SettingRow icon={<IconPhone />} label="เบอร์โทร"    value={user?.phone ? formatThaiPhone(user.phone) : "—"} onClick={() => openSheet("phone")} divider={false} />
           </SectionCard>
 
-          {/* Payment */}
-          <SectionCard title="การชำระเงิน">
-            <SettingRow icon={<IconPayment />} label="พร้อมเพย์ / บัญชีที่โอน" value="ตั้งค่าแล้ว" onClick={() => openSheet("payment")} />
-            <SettingRow icon={<IconQR />}      label="QR รับเงิน"                value="ดู"          onClick={() => openSheet("qr")} divider={false} />
-          </SectionCard>
-
           {/* Settings */}
           <SectionCard title="การตั้งค่า">
-            <div className="flex items-center gap-[12px] border-b border-[#e5e1d7] px-[16px] py-[13px]">
-              <div className="flex size-[30px] shrink-0 items-center justify-center rounded-[8px] bg-[#f2efe8]"><IconBell /></div>
-              <div className="flex flex-1 flex-col gap-[1px]">
-                <span className="text-[14px] tracking-[0.08px] text-[#14110d]">การแจ้งเตือน</span>
-                <span className="text-[11px] font-light tracking-[0.08px] text-[#767168]">เปิดแจ้งเตือนทุกทริป</span>
-              </div>
-              <NotificationToggle />
-            </div>
             <SettingRow icon={<IconGlobe />}  label="ภาษา"              value="ไทย" onClick={() => openSheet("language")} />
             <SettingRow icon={<IconHelp />}   label="ช่วยเหลือ & ติดต่อ" value="ดู"  onClick={() => openSheet("help")} />
             <SettingRow icon={<IconLogout />} label="ออกจากระบบ" onClick={handleLogout} divider={false}>

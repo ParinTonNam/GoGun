@@ -23,7 +23,7 @@ export class ApiError extends Error {
 }
 
 // 401 จาก endpoint กลุ่มนี้แปลว่ากรอกรหัสผิด ไม่ใช่ session หมดอายุ — อย่า redirect
-const AUTH_PATHS = ["/auth/login", "/auth/register", "/auth/link"]
+const AUTH_PATHS = ["/auth/login", "/auth/register", "/auth/link", "/auth/google"]
 
 function redirectToLogin() {
   clearToken()
@@ -71,10 +71,19 @@ export const login = (username: string, password: string) =>
     body: JSON.stringify({ username, password }),
   })
 
+export const googleLogin = (credential: string) =>
+  req<{ token: string; user: User }>("/auth/google", {
+    method: "POST",
+    body: JSON.stringify({ credential }),
+  })
+
 export const getMe = () => req<User>("/auth/me")
 
 export const linkAccount = (email: string, password: string) =>
   req<User>("/auth/link", { method: "POST", body: JSON.stringify({ email, password }) })
+
+export const googleLinkAccount = (credential: string) =>
+  req<User>("/auth/link/google", { method: "POST", body: JSON.stringify({ credential }) })
 
 export const updateMe = (body: { display_name?: string; email?: string; phone?: string }) =>
   req<User>("/auth/me", { method: "PATCH", body: JSON.stringify(body) })

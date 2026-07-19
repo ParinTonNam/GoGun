@@ -135,15 +135,8 @@ function LoginForm() {
           {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
         </button>
 
-        {/* Divider */}
-        <div className="flex w-full items-center gap-[12px] py-[28px]">
-          <div className="h-px flex-1 bg-[#e5e1d7]" />
-          <span className="text-[12px] font-light tracking-[0.5px] text-[#b5b0a4]">หรือ</span>
-          <div className="h-px flex-1 bg-[#e5e1d7]" />
-        </div>
-
         {/* Register link */}
-        <div className="flex items-center gap-[5px] text-[13px]">
+        <div className="flex items-center gap-[5px] pt-[28px] text-[13px]">
           <span className="font-light tracking-[0.08px] text-[#767168]">ยังไม่มีบัญชี?</span>
           <Link
             href="/signin"

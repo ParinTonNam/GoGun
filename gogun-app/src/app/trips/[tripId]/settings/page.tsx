@@ -393,13 +393,6 @@ export default function TripSettingsPage({ params }: { params: Promise<{ tripId:
   const [copied, setCopied] = useState(false);
   const [activeSheet, setActiveSheet] = useState<SheetType | null>(null);
   const [displaySheet, setDisplaySheet] = useState<SheetType | null>(null);
-  // Notification toggles have no delivery system behind them yet — local-only for now.
-  const [notifyToggles, setNotifyToggles] = useState({
-    notifyNewExpense: true,
-    notifyVote:      true,
-    notifyPacking:   false,
-    notifyWeather:   true,
-  });
   const [permissionSaving, setPermissionSaving] = useState<string | null>(null);
   // สิทธิ์สมาชิกยังไม่ enforce จริงฝั่ง API (settings เก็บค่าได้ แต่ route ไม่เช็ค)
   // ซ่อน toggle ไว้ก่อน deploy กันเข้าใจผิดว่าปิดสิทธิ์แล้วปลอดภัย — เปิดกลับเมื่อ enforce เสร็จ
@@ -410,10 +403,6 @@ export default function TripSettingsPage({ params }: { params: Promise<{ tripId:
     setTrip(t);
     setMe(user);
   }, [tripId]);
-
-  function toggleNotify(key: keyof typeof notifyToggles) {
-    setNotifyToggles((prev) => ({ ...prev, [key]: !prev[key] }));
-  }
 
   async function togglePermission(key: "allow_member_expenses" | "allow_member_itinerary_edit" | "allow_member_invite") {
     if (!trip || permissionSaving) return;
@@ -630,33 +619,6 @@ export default function TripSettingsPage({ params }: { params: Promise<{ tripId:
             </div>
           </div>
           )}
-
-          {/* การแจ้งเตือน */}
-          <div className="overflow-hidden rounded-[16px] border border-[#e5e1d7] bg-white">
-            <SectionLabel title="การแจ้งเตือน" />
-            <div className="flex items-center gap-[12px] border-b border-[#e5e1d7] px-[16px] py-[13px]">
-              <div className="flex flex-1 flex-col gap-px tracking-[0.08px]">
-                <p className="text-[14px] text-[#14110d]">มีค่าใช้จ่ายใหม่</p>
-                <p className="text-[11px] font-light text-[#767168]">ทุกครั้งที่เพื่อนเพิ่มบิล</p>
-              </div>
-              <Toggle on={notifyToggles.notifyNewExpense} onChange={() => toggleNotify("notifyNewExpense")} />
-            </div>
-            <div className="flex items-center gap-[12px] border-b border-[#e5e1d7] px-[16px] py-[13px]">
-              <p className="flex-1 text-[14px] tracking-[0.08px] text-[#14110d]">มีการโหวต</p>
-              <Toggle on={notifyToggles.notifyVote} onChange={() => toggleNotify("notifyVote")} />
-            </div>
-            <div className="flex items-center gap-[12px] border-b border-[#e5e1d7] px-[16px] py-[13px]">
-              <p className="flex-1 text-[14px] tracking-[0.08px] text-[#14110d]">มีรายการ Packing เพิ่ม</p>
-              <Toggle on={notifyToggles.notifyPacking} onChange={() => toggleNotify("notifyPacking")} />
-            </div>
-            <div className="flex items-center gap-[12px] px-[16px] py-[13px]">
-              <div className="flex flex-1 flex-col gap-px tracking-[0.08px]">
-                <p className="text-[14px] text-[#14110d]">สภาพอากาศใกล้วันเดินทาง</p>
-                <p className="text-[11px] font-light text-[#767168]">แจ้ง 3 วันก่อนเดินทาง</p>
-              </div>
-              <Toggle on={notifyToggles.notifyWeather} onChange={() => toggleNotify("notifyWeather")} />
-            </div>
-          </div>
 
           {/* ลิงก์ทริป */}
           <div className="overflow-hidden rounded-[16px] border border-[#e5e1d7] bg-white">

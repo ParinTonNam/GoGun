@@ -74,7 +74,9 @@ model User {
   id            String   @id @default(uuid()) @db.Uuid
   username      String   @unique
   email         String   @unique
-  password_hash String
+  // Nullable: users who sign in with Google may have no password.
+  password_hash String?
+  google_id     String?  @unique
   display_name  String
   avatar_color  String   @default("#c0613e")
   phone         String?

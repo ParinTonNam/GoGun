@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import bcrypt from 'bcrypt'
+import { OAuth2Client } from 'google-auth-library'
 import prisma from '../lib/prisma'
 import { signToken } from '../lib/jwt'
 import { requireAuth } from '../middleware/auth'
@@ -8,6 +9,8 @@ import { ok, err } from '../lib/response'
 const router = Router()
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const googleClient = new OAuth2Client()
 
 router.post('/register', async (req, res) => {
   const { username, email, password } = req.body as {
@@ -60,8 +63,57 @@ router.post('/login', async (req, res) => {
   const user = await prisma.user.findFirst({
     where: { OR: [{ username: identifier }, { email: identifier.toLowerCase() }] },
   })
-  if (!user || !(await bcrypt.compare(password, user.password_hash)))
+  // password_hash is null for Google-only accounts — they can't password-login
+  if (!user || !user.password_hash || !(await bcrypt.compare(password, user.password_hash)))
     return err(res, 401, 'UNAUTHORIZED', 'Invalid username or password')
+
+  const token = signToken(user.id)
+  return ok(res, { token, user: serializeUser(user) })
+})
+
+// Sign in with Google: the app sends the ID token from Google Identity
+// Services; we verify it with Google, then find-or-create the user and issue
+// our own JWT. An existing account with the same (Google-verified) email is
+// auto-linked rather than duplicated.
+router.post('/google', async (req, res) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID
+  if (!clientId)
+    return err(res, 503, 'NOT_CONFIGURED', 'Google sign-in is not configured on this server')
+
+  const { credential } = req.body as { credential?: string }
+  if (!credential)
+    return err(res, 400, 'VALIDATION_ERROR', 'credential is required')
+
+  let payload
+  try {
+    const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: clientId })
+    payload = ticket.getPayload()
+  } catch {
+    return err(res, 401, 'UNAUTHORIZED', 'Invalid Google credential')
+  }
+  if (!payload?.sub || !payload.email || !payload.email_verified)
+    return err(res, 401, 'UNAUTHORIZED', 'Google account has no verified email')
+
+  const email = payload.email.toLowerCase()
+
+  let user = await prisma.user.findUnique({ where: { google_id: payload.sub } })
+  if (!user) {
+    const existing = await prisma.user.findUnique({ where: { email } })
+    user = existing
+      ? await prisma.user.update({
+          where: { id: existing.id },
+          data: { google_id: payload.sub, is_guest: false },
+        })
+      : await prisma.user.create({
+          data: {
+            username: await availableUsername(email),
+            email,
+            google_id: payload.sub,
+            display_name: payload.name?.trim() || email.split('@')[0],
+            avatar_color: randomColor(),
+          },
+        })
+  }
 
   const token = signToken(user.id)
   return ok(res, { token, user: serializeUser(user) })
@@ -95,6 +147,46 @@ router.post('/link', requireAuth, async (req, res) => {
     data: { email: normalized, password_hash, is_guest: false },
   })
 
+  return ok(res, serializeUser(user))
+})
+
+// Link a Google account to a guest account — same effect as /link, but the
+// identity comes from a Google-verified credential instead of email + password.
+// Must update the CURRENT user (who owns trips as a guest); /auth/google would
+// find-or-create a separate account instead.
+router.post('/link/google', requireAuth, async (req, res) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID
+  if (!clientId)
+    return err(res, 503, 'NOT_CONFIGURED', 'Google sign-in is not configured on this server')
+
+  if (!req.user!.is_guest)
+    return err(res, 409, 'CONFLICT', 'This account is already linked to an email')
+
+  const { credential } = req.body as { credential?: string }
+  if (!credential)
+    return err(res, 400, 'VALIDATION_ERROR', 'credential is required')
+
+  let payload
+  try {
+    const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: clientId })
+    payload = ticket.getPayload()
+  } catch {
+    return err(res, 401, 'UNAUTHORIZED', 'Invalid Google credential')
+  }
+  if (!payload?.sub || !payload.email || !payload.email_verified)
+    return err(res, 401, 'UNAUTHORIZED', 'Google account has no verified email')
+
+  const email = payload.email.toLowerCase()
+  const taken = await prisma.user.findFirst({
+    where: { OR: [{ google_id: payload.sub }, { email }], NOT: { id: req.user!.id } },
+  })
+  if (taken)
+    return err(res, 409, 'CONFLICT', 'This Google account is already linked to another user')
+
+  const user = await prisma.user.update({
+    where: { id: req.user!.id },
+    data: { google_id: payload.sub, email, is_guest: false },
+  })
   return ok(res, serializeUser(user))
 })
 
@@ -153,6 +245,17 @@ function serializeUser(user: {
     phone: user.phone,
     is_guest: user.is_guest,
     created_at: user.created_at,
+  }
+}
+
+// Google users never picked a username — derive one from the email local part,
+// suffixing random digits until it's free.
+async function availableUsername(email: string): Promise<string> {
+  const base =
+    email.split('@')[0].toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 24) || 'user'
+  for (let attempt = 0; ; attempt++) {
+    const candidate = attempt === 0 ? base : `${base}${Math.floor(1000 + Math.random() * 9000)}`
+    if (!(await prisma.user.findUnique({ where: { username: candidate } }))) return candidate
   }
 }
 

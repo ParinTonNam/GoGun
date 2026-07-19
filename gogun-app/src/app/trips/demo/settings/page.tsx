@@ -46,10 +46,6 @@ export default function TripSettingsPage() {
     canAddExpenses: true,
     canEditItinerary: true,
     canInvite: false,
-    notifyNewExpense: true,
-    notifyVote: true,
-    notifyPacking: false,
-    notifyWeather: true,
   });
 
   function toggle(key: keyof typeof toggles) {
@@ -177,35 +173,6 @@ export default function TripSettingsPage() {
                 <p className="text-[11px] font-light text-[#767168]">ถ้าปิด มีแค่คุณที่เชิญเพิ่มได้</p>
               </div>
               <Toggle on={toggles.canInvite} onChange={() => toggle("canInvite")} />
-            </div>
-          </div>
-
-          {/* การแจ้งเตือน */}
-          <div className="overflow-hidden rounded-[16px] border border-[#e5e1d7] bg-white">
-            <SectionLabel title="การแจ้งเตือน" />
-            <div className="flex items-center gap-[12px] border-b border-[#e5e1d7] px-[16px] py-[13px]">
-              <div className="flex flex-1 flex-col gap-px tracking-[0.08px]">
-                <p className="text-[14px] text-[#14110d]">มีค่าใช้จ่ายใหม่</p>
-                <p className="text-[11px] font-light text-[#767168]">ทุกครั้งที่เพื่อนเพิ่มบิล</p>
-              </div>
-              <Toggle on={toggles.notifyNewExpense} onChange={() => toggle("notifyNewExpense")} />
-            </div>
-            <div className="flex items-center gap-[12px] border-b border-[#e5e1d7] px-[16px] py-[13px]">
-              <p className="flex-1 text-[14px] tracking-[0.08px] text-[#14110d]">มีการโหวต</p>
-              <Toggle on={toggles.notifyVote} onChange={() => toggle("notifyVote")} />
-            </div>
-            <div className="flex items-center gap-[12px] border-b border-[#e5e1d7] px-[16px] py-[13px]">
-              <p className="flex-1 text-[14px] tracking-[0.08px] text-[#14110d]">
-                มีรายการ Packing เพิ่ม
-              </p>
-              <Toggle on={toggles.notifyPacking} onChange={() => toggle("notifyPacking")} />
-            </div>
-            <div className="flex items-center gap-[12px] px-[16px] py-[13px]">
-              <div className="flex flex-1 flex-col gap-px tracking-[0.08px]">
-                <p className="text-[14px] text-[#14110d]">สภาพอากาศใกล้วันเดินทาง</p>
-                <p className="text-[11px] font-light text-[#767168]">แจ้ง 3 วันก่อนเดินทาง</p>
-              </div>
-              <Toggle on={toggles.notifyWeather} onChange={() => toggle("notifyWeather")} />
             </div>
           </div>
 

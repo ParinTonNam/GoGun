@@ -2,7 +2,8 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getMe, linkAccount, getInitial, type User } from "@/lib/api";
+import { getMe, linkAccount, googleLinkAccount, getInitial, type User } from "@/lib/api";
+import GoogleSignInButton from "@/components/google-signin-button";
 
 function IconEmail() {
   return (
@@ -45,6 +46,8 @@ function LinkAccountContent() {
 
   const [me, setMe] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  // เริ่มจากปุ่มเลือกวิธี (อีเมล / Google) แบบเดียวกับหน้าแรก — กดอีเมลค่อยกางฟอร์ม
+  const [showEmailForm, setShowEmailForm] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -78,6 +81,19 @@ function LinkAccountContent() {
     setSaving(true);
     try {
       await linkAccount(email.trim(), password);
+      setDone(true);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "เกิดข้อผิดพลาด กรุณาลองใหม่");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleGoogleCredential(credential: string) {
+    setError("");
+    setSaving(true);
+    try {
+      await googleLinkAccount(credential);
       setDone(true);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "เกิดข้อผิดพลาด กรุณาลองใหม่");
@@ -134,7 +150,7 @@ function LinkAccountContent() {
               ล็อกชื่อ &ldquo;{me.display_name}&rdquo; เรียบร้อย
             </p>
             <p className="text-[13px] font-light leading-[1.6] text-[#767168]">
-              จากนี้เข้าใช้งานจากเครื่องไหนก็ได้ด้วยอีเมลและรหัสผ่าน
+              จากนี้เข้าใช้งานจากเครื่องไหนก็ได้ด้วยบัญชีที่เชื่อมไว้
               และไม่มีใครเลือกใช้ชื่อนี้จากลิงก์เชิญได้อีก
             </p>
           </div>
@@ -170,77 +186,119 @@ function LinkAccountContent() {
           และเข้าจากเครื่องไหนก็ได้
         </p>
 
-        {/* Form */}
-        <div className="flex w-full flex-col gap-[12px]">
-          <div className="flex h-[52px] w-full items-center gap-[12px] rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] focus-within:border-[#14110d]">
-            <IconEmail />
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 bg-transparent text-[14px] tracking-[0.08px] text-[#14110d] outline-none placeholder:text-[#b5b0a4]"
-            />
-          </div>
+        {showEmailForm ? (
+          <>
+            {/* Email form */}
+            <div className="flex w-full flex-col gap-[12px]">
+              <div className="flex h-[52px] w-full items-center gap-[12px] rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] focus-within:border-[#14110d]">
+                <IconEmail />
+                <input
+                  autoFocus
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 bg-transparent text-[14px] tracking-[0.08px] text-[#14110d] outline-none placeholder:text-[#b5b0a4]"
+                />
+              </div>
 
-          <div className="flex h-[52px] w-full items-center gap-[12px] rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] focus-within:border-[#14110d]">
-            <IconLock />
-            <input
-              type={showPw ? "text" : "password"}
-              placeholder="Password (อย่างน้อย 8 ตัว)"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="flex-1 bg-transparent text-[14px] tracking-[0.08px] text-[#14110d] outline-none placeholder:text-[#b5b0a4]"
-            />
+              <div className="flex h-[52px] w-full items-center gap-[12px] rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] focus-within:border-[#14110d]">
+                <IconLock />
+                <input
+                  type={showPw ? "text" : "password"}
+                  placeholder="Password (อย่างน้อย 8 ตัว)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="flex-1 bg-transparent text-[14px] tracking-[0.08px] text-[#14110d] outline-none placeholder:text-[#b5b0a4]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw((v) => !v)}
+                  className="ml-auto shrink-0"
+                  aria-label={showPw ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+                >
+                  <IconEye off={!showPw} />
+                </button>
+              </div>
+
+              <div className="flex h-[52px] w-full items-center gap-[12px] rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] focus-within:border-[#14110d]">
+                <IconLock />
+                <input
+                  type={showConfirm ? "text" : "password"}
+                  placeholder="ยืนยัน Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleLink()}
+                  className="flex-1 bg-transparent text-[14px] tracking-[0.08px] text-[#14110d] outline-none placeholder:text-[#b5b0a4]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm((v) => !v)}
+                  className="ml-auto shrink-0"
+                  aria-label={showConfirm ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+                >
+                  <IconEye off={!showConfirm} />
+                </button>
+              </div>
+            </div>
+
+            {error && <p className="mt-[8px] w-full text-[12px] text-red-500">{error}</p>}
+
             <button
               type="button"
-              onClick={() => setShowPw((v) => !v)}
-              className="ml-auto shrink-0"
-              aria-label={showPw ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+              onClick={handleLink}
+              disabled={saving}
+              className="mt-[20px] flex h-[52px] w-full items-center justify-center rounded-[18px] bg-[#e85a2c] text-[15px] font-medium tracking-[0.08px] text-white transition-opacity active:opacity-80 disabled:opacity-60"
             >
-              <IconEye off={!showPw} />
+              {saving ? "กำลังเชื่อม..." : "เชื่อมอีเมลและล็อกอิน"}
             </button>
-          </div>
 
-          <div className="flex h-[52px] w-full items-center gap-[12px] rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] focus-within:border-[#14110d]">
-            <IconLock />
-            <input
-              type={showConfirm ? "text" : "password"}
-              placeholder="ยืนยัน Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleLink()}
-              className="flex-1 bg-transparent text-[14px] tracking-[0.08px] text-[#14110d] outline-none placeholder:text-[#b5b0a4]"
-            />
             <button
               type="button"
-              onClick={() => setShowConfirm((v) => !v)}
-              className="ml-auto shrink-0"
-              aria-label={showConfirm ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+              onClick={() => { setShowEmailForm(false); setError(""); }}
+              className="pt-[20px] text-[12px] font-light tracking-[0.08px] text-[#767168] underline underline-offset-2"
             >
-              <IconEye off={!showConfirm} />
+              ย้อนกลับ
             </button>
-          </div>
-        </div>
+          </>
+        ) : (
+          <>
+            {/* Method buttons — same stack pattern as the landing page */}
+            <button
+              type="button"
+              onClick={() => setShowEmailForm(true)}
+              className="flex h-[52px] w-full items-center justify-center rounded-[18px] bg-[#e85a2c] text-[15px] font-medium tracking-[0.08px] text-white transition-opacity active:opacity-80"
+            >
+              เชื่อมอีเมลและล็อกอิน
+            </button>
 
-        {error && <p className="mt-[8px] w-full text-[12px] text-red-500">{error}</p>}
+            {/* Divider */}
+            <div className="flex w-full items-center gap-[12px] py-[20px]">
+              <div className="h-px flex-1 bg-[#e5e1d7]" />
+              <span className="text-[12px] font-light tracking-[0.5px] text-[#b5b0a4]">หรือ</span>
+              <div className="h-px flex-1 bg-[#e5e1d7]" />
+            </div>
 
-        <button
-          type="button"
-          onClick={handleLink}
-          disabled={saving}
-          className="mt-[20px] flex h-[52px] w-full items-center justify-center rounded-[18px] bg-[#e85a2c] text-[15px] font-medium tracking-[0.08px] text-white transition-opacity active:opacity-80 disabled:opacity-60"
-        >
-          {saving ? "กำลังเชื่อม..." : "เชื่อมอีเมลและล็อกอิน"}
-        </button>
+            <GoogleSignInButton
+              variant="styled"
+              label="เชื่อมด้วย Google"
+              onCredential={handleGoogleCredential}
+            />
 
-        <button
-          type="button"
-          onClick={() => router.push(returnTo)}
-          className="pt-[20px] text-[12px] font-light tracking-[0.08px] text-[#767168] underline underline-offset-2"
-        >
-          ไว้ทีหลัง
-        </button>
+            {saving && (
+              <p className="pt-[12px] text-[12px] font-light text-[#767168]">กำลังเชื่อม...</p>
+            )}
+            {error && <p className="pt-[8px] w-full text-center text-[12px] text-red-500">{error}</p>}
+
+            <button
+              type="button"
+              onClick={() => router.push(returnTo)}
+              className="pt-[20px] text-[12px] font-light tracking-[0.08px] text-[#767168] underline underline-offset-2"
+            >
+              ไว้ทีหลัง
+            </button>
+          </>
+        )}
 
       </div>
     </main>
