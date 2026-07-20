@@ -51,7 +51,7 @@ export default function MembersPage({
       setNameInput("");
       setTrip(await getTrip(tripId));
     } catch (e) {
-      // 409 ชื่อซ้ำ → แสดงข้อความจาก API ("มีสมาชิกชื่อนี้ในทริปแล้ว ใช้ชื่ออื่น")
+      // 409 ชื่อซ้ำ → แสดงข้อความจาก API ("มีสมาชิกชื่อนี้ในทริปแล้ว โปรดใช้ชื่ออื่น")
       setAddError(e instanceof Error ? e.message : "เพิ่มสมาชิกไม่สำเร็จ");
     } finally {
       setAdding(false);

@@ -98,7 +98,7 @@ router.post('/add', requireOrganizer, async (req, res) => {
   if (!name) return err(res, 400, 'VALIDATION_ERROR', 'display_name is required')
 
   if (await nameTakenInTrip(param(req, 'tripId'), name))
-    return err(res, 409, 'CONFLICT', 'มีสมาชิกชื่อนี้ในทริปแล้ว ใช้ชื่ออื่น')
+    return err(res, 409, 'CONFLICT', 'มีสมาชิกชื่อนี้ในทริปแล้ว โปรดใช้ชื่ออื่น')
 
   const guestId = randomUUID()
   const password_hash = await bcrypt.hash(randomUUID(), 10)
@@ -148,7 +148,7 @@ router.patch('/:userId', requireOrganizer, async (req, res) => {
     if (!member.user.is_guest)
       return err(res, 403, 'FORBIDDEN', 'Only guest members added by the organizer can be renamed here')
     if (await nameTakenInTrip(param(req, 'tripId'), trimmed, member.user_id))
-      return err(res, 409, 'CONFLICT', 'มีสมาชิกชื่อนี้ในทริปแล้ว ใช้ชื่ออื่น')
+      return err(res, 409, 'CONFLICT', 'มีสมาชิกชื่อนี้ในทริปแล้ว โปรดใช้ชื่ออื่น')
     await prisma.user.update({ where: { id: member.user_id }, data: { display_name: trimmed } })
   }
 
