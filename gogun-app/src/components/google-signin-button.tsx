@@ -1,9 +1,18 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import Script from "next/script";
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+// GIS ต้อง initialize() แค่ครั้งเดียวต่อ session (เรียกซ้ำแล้ว Google เตือนว่า
+// "only the last initialized instance will be used" ทำให้ปุ่มที่ render ไปก่อน
+// หน้านั้นหลุดการเชื่อมกับ callback) — ใช้ module-level flag กันเรียกซ้ำเวลา
+// component นี้ mount ใหม่ทุกครั้งที่เปลี่ยนหน้า (login/signin/link-account/หน้าแรก)
+let gisInitialized = false;
+// callback ต้อง route ไปหน้าที่ mount อยู่ปัจจุบันเสมอ ไม่ใช่หน้าแรกที่เคย
+// initialize ไว้ — เก็บเป็น module-level เพราะ initialize() ผูก callback ครั้งเดียว
+let currentCredentialHandler: ((credential: string) => void) | null = null;
 
 type GoogleAccounts = {
   accounts: {
@@ -51,18 +60,23 @@ export default function GoogleSignInButton({
   label?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  // GIS จับ callback ตอน initialize ครั้งเดียว — ชี้ผ่าน ref กัน closure ค้าง
-  const onCredentialRef = useRef(onCredential);
-  onCredentialRef.current = onCredential;
+
+  // หน้าไหน mount component นี้อยู่ ให้ credential ที่ได้กลับไปหาหน้านั้นเสมอ
+  useEffect(() => {
+    currentCredentialHandler = onCredential;
+  }, [onCredential]);
 
   const init = useCallback(() => {
     const el = containerRef.current;
     const google = window.google;
     if (!el || !google || !CLIENT_ID) return;
-    google.accounts.id.initialize({
-      client_id: CLIENT_ID,
-      callback: (response) => onCredentialRef.current(response.credential),
-    });
+    if (!gisInitialized) {
+      google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: (response) => currentCredentialHandler?.(response.credential),
+      });
+      gisInitialized = true;
+    }
     google.accounts.id.renderButton(el, {
       theme: "outline",
       size: "large",
