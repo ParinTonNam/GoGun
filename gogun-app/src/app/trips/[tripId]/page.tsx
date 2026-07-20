@@ -186,7 +186,7 @@ export default function TripDashboardPage({
         {/* Tasks */}
         <div className="flex w-full flex-col gap-[10px]">
           <div className="flex items-center justify-between">
-            <p className="text-[11px] uppercase text-[#767168]">ต้องจัดการ</p>
+            <p className="text-[13px] tracking-[0.08px] text-[#767168]">ต้องจัดการ</p>
             <p className="text-[12px] font-medium tracking-[0.12px] text-[#e85a2c]">
               {totalTaskCount > 0 ? `${totalTaskCount} รายการ` : "เรียบร้อย"}
             </p>
@@ -232,7 +232,7 @@ export default function TripDashboardPage({
 
         {/* Stats */}
         <div className="flex w-full flex-col gap-[10px]">
-          <p className="text-[11px] uppercase text-[#767168]">ภาพรวม</p>
+          <p className="text-[13px] tracking-[0.08px] text-[#767168]">ภาพรวม</p>
           <div className="grid grid-cols-2 gap-[10px]">
             {stats.map((stat) => (
               <StatCard
@@ -288,9 +288,20 @@ export default function TripDashboardPage({
           </div>
         </div>
 
+        {/* Share invite — แยกออกมาระหว่างสมาชิกกับเครื่องมือจัดการ */}
+        <div className="flex w-full flex-col overflow-hidden rounded-[16px] border border-[#e5e1d7] bg-white">
+          <ToolRow
+            icon={<img src="/images/icon-tool-share.svg" alt="" className="size-[16px]" />}
+            title="แชร์ลิงก์เชิญ"
+            subtitle={copied ? "คัดลอกแล้ว" : inviteLink}
+            showDivider={false}
+            onClick={copyInviteLink}
+          />
+        </div>
+
         {/* Tools */}
         <div id="tools" className="flex w-full flex-col gap-[10px] pb-[4px]">
-          <p className="text-[11px] uppercase text-[#767168]">เครื่องมือจัดการ</p>
+          <p className="text-[13px] tracking-[0.08px] text-[#767168]">เครื่องมือจัดการ</p>
           <div className="flex w-full flex-col overflow-hidden rounded-[16px] border border-[#e5e1d7] bg-white">
             <ToolRow
               icon={<img src="/images/icon-tool-availability.svg" alt="" className="size-[20px]" />}
@@ -307,13 +318,6 @@ export default function TripDashboardPage({
               onClick={() => router.push(`/trips/${tripId}/itinerary`)}
             />
             <ToolRow
-              icon={<img src="/images/icon-tool-accessories.svg" alt="" className="size-[21px]" />}
-              title="อุปกรณ์เสริม"
-              subtitle="เครื่องมือเพิ่มเติม"
-              showDivider
-              onClick={() => router.push(`/trips/${tripId}/tools`)}
-            />
-            <ToolRow
               icon={<img src="/images/icon-tool-expenses.svg" alt="" className="h-[16px] w-[16px]" />}
               title="จัดการค่าใช้จ่าย"
               subtitle={`${currencySymbol}${totalAmount >= 1000 ? Math.round(totalAmount / 1000) + "k" : formatAmount(totalAmount)} รวม`}
@@ -321,11 +325,11 @@ export default function TripDashboardPage({
               onClick={() => router.push(`/trips/${tripId}/member/wallet`)}
             />
             <ToolRow
-              icon={<img src="/images/icon-tool-share.svg" alt="" className="size-[16px]" />}
-              title="แชร์ลิงก์เชิญ"
-              subtitle={copied ? "คัดลอกแล้ว" : inviteLink}
+              icon={<img src="/images/icon-tool-accessories.svg" alt="" className="size-[21px]" />}
+              title="อุปกรณ์เสริม"
+              subtitle="เครื่องมือเพิ่มเติม"
               showDivider
-              onClick={copyInviteLink}
+              onClick={() => router.push(`/trips/${tripId}/tools`)}
             />
             <ToolRow
               icon={<img src="/images/icon-tool-settings.svg" alt="" className="size-[20px]" />}
