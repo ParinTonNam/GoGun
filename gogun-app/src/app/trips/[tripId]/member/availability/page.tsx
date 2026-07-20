@@ -18,6 +18,7 @@ import { MemberBottomNav } from "@/components/member-bottom-nav";
 import { PageHeader } from "@/components/page-header";
 import { LoadError } from "@/components/load-error";
 import { useLoad } from "@/lib/use-load";
+import { useDragPaint } from "@/lib/use-drag-paint";
 
 type MyStatus = "available" | "uncertain" | "unavailable";
 
@@ -46,6 +47,12 @@ function isPastDate(year: number, month: number, date: number): boolean {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return new Date(year, month, date) < today;
+}
+
+// เทียบวันอดีตจาก key "YYYY-MM-DD" ตรง ๆ (สำหรับ drag-paint ที่ทำงานบน key)
+function isPastKey(key: string): boolean {
+  const t = new Date();
+  return key < dateKey(t.getFullYear(), t.getMonth(), t.getDate());
 }
 
 function monthRangeKeys(year: number, month: number): { start: string; end: string } {
@@ -126,17 +133,18 @@ export default function MemberAvailabilityPage({
     retryMonth();
   }
 
-  function toggleDay(date: number, inMonth: boolean) {
-    if (!inMonth || !isSelfSelected) return;
-    if (isPastDate(viewYear, viewMonth, date)) return; // กันเลือกวันที่ผ่านมาแล้ว
-    setJustSaved(false);
-    const key = dateKey(viewYear, viewMonth, date);
-    setMyStatus((prev) => {
-      const cur = prev[key] ?? "unavailable";
-      const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(cur) + 1) % STATUS_CYCLE.length];
-      return { ...prev, [key]: next };
-    });
-  }
+  // ลากทาสีวันว่างได้ทั้งมือถือ/คอม — แตะเดี่ยว = วนสถานะเหมือนเดิม
+  const { onCellPointerDown } = useDragPaint<MyStatus>({
+    paintable: (key) => isSelfSelected && !isPastKey(key),
+    cycleNext: (key) => {
+      const cur = myStatus[key] ?? "unavailable";
+      return STATUS_CYCLE[(STATUS_CYCLE.indexOf(cur) + 1) % STATUS_CYCLE.length];
+    },
+    applyPaint: (key, value) => {
+      setJustSaved(false);
+      setMyStatus((prev) => ({ ...prev, [key]: value }));
+    },
+  });
 
   async function handleSave() {
     setSaving(true);
@@ -321,14 +329,16 @@ export default function MemberAvailabilityPage({
             <div key={rowIdx} className="flex gap-[2px]">
               {grid.slice(rowIdx * 7, rowIdx * 7 + 7).map((cell, colIdx) => {
                 const { bg, text, label } = getCell(cell.date, cell.inMonth);
+                const key = cell.inMonth ? dateKey(viewYear, viewMonth, cell.date) : null;
                 const past = cell.inMonth && isPastDate(viewYear, viewMonth, cell.date);
                 return (
                   <button
                     key={colIdx}
                     type="button"
-                    onClick={() => toggleDay(cell.date, cell.inMonth)}
+                    data-daykey={key ?? undefined}
+                    onPointerDown={key ? onCellPointerDown(key) : undefined}
                     disabled={!cell.inMonth || !isSelfSelected || past}
-                    className="flex size-[49px] flex-col items-center justify-center rounded-[12px]"
+                    className="flex size-[49px] touch-none select-none flex-col items-center justify-center rounded-[12px]"
                     style={{ backgroundColor: bg, opacity: past ? 0.4 : 1 }}
                   >
                     <span className="text-[13px] font-medium tracking-[0.08px]" style={{ color: text }}>

@@ -20,6 +20,7 @@ import {
 import { PageHeader } from "@/components/page-header";
 import { LoadError } from "@/components/load-error";
 import { useLoad } from "@/lib/use-load";
+import { useDragPaint } from "@/lib/use-drag-paint";
 
 type MyStatus = "available" | "uncertain" | "unavailable";
 
@@ -376,16 +377,18 @@ export default function AvailabilityPage({
     retryEdit();
   }
 
-  function toggleDay(key: string) {
-    if (!canEditDays) return;
-    if (isPastKey(key)) return; // กันเลือกวันที่ผ่านมาแล้ว
-    setJustSaved(false);
-    setEditStatus((prev) => {
-      const cur = prev[key] ?? "unavailable";
-      const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(cur) + 1) % STATUS_CYCLE.length];
-      return { ...prev, [key]: next };
-    });
-  }
+  // ลากทาสีวันว่างได้ทั้งมือถือ/คอม — แตะเดี่ยว = วนสถานะเหมือนเดิม
+  const { onCellPointerDown } = useDragPaint<MyStatus>({
+    paintable: (key) => canEditDays && !editLoading && !isPastKey(key),
+    cycleNext: (key) => {
+      const cur = editStatus[key] ?? "unavailable";
+      return STATUS_CYCLE[(STATUS_CYCLE.indexOf(cur) + 1) % STATUS_CYCLE.length];
+    },
+    applyPaint: (key, value) => {
+      setJustSaved(false);
+      setEditStatus((prev) => ({ ...prev, [key]: value }));
+    },
+  });
 
   async function handleSaveEdits() {
     if (!selectedUserId) return;
@@ -599,9 +602,10 @@ export default function AvailabilityPage({
                     <button
                       key={colIdx}
                       type="button"
+                      data-daykey={key ?? undefined}
+                      onPointerDown={key ? onCellPointerDown(key) : undefined}
                       disabled={!cell.inMonth || !canEditDays || editLoading || past}
-                      onClick={() => key && toggleDay(key)}
-                      className="flex size-[49px] shrink-0 flex-col items-center justify-center rounded-[12px]"
+                      className="flex size-[49px] shrink-0 touch-none select-none flex-col items-center justify-center rounded-[12px]"
                       style={{ backgroundColor: s.bg, opacity: past ? 0.4 : 1 }}
                     >
                       <span className="text-[13px] font-medium tracking-[0.08px]" style={{ color: s.text }}>
