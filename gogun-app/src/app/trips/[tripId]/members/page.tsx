@@ -27,6 +27,7 @@ export default function MembersPage({
   const [me, setMe] = useState<User | null>(null);
   const [nameInput, setNameInput] = useState("");
   const [adding, setAdding] = useState(false);
+  const [addError, setAddError] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
@@ -44,12 +45,14 @@ export default function MembersPage({
     const name = nameInput.trim();
     if (!name || adding) return;
     setAdding(true);
+    setAddError("");
     try {
       await addMemberByName(tripId, name);
       setNameInput("");
       setTrip(await getTrip(tripId));
     } catch (e) {
-      console.error(e);
+      // 409 ชื่อซ้ำ → แสดงข้อความจาก API ("มีสมาชิกชื่อนี้ในทริปแล้ว ใช้ชื่ออื่น")
+      setAddError(e instanceof Error ? e.message : "เพิ่มสมาชิกไม่สำเร็จ");
     } finally {
       setAdding(false);
     }
@@ -139,7 +142,7 @@ export default function MembersPage({
               <input
                 type="text"
                 value={nameInput}
-                onChange={(e) => setNameInput(e.target.value)}
+                onChange={(e) => { setNameInput(e.target.value); if (addError) setAddError(""); }}
                 onKeyDown={(e) => e.key === "Enter" && addMember()}
                 placeholder="ชื่อเล่น เช่น ฟ้า, ปอนด์"
                 className="w-full bg-transparent text-[17px] text-[#14110d] outline-none placeholder:text-[#757575]"
@@ -155,6 +158,9 @@ export default function MembersPage({
               <p className="text-[13px] font-medium tracking-[0.13px] text-[#f7f5f0]">เพิ่ม</p>
             </button>
           </div>
+          {addError && (
+            <p className="pt-[8px] text-[12px] tracking-[0.08px] text-red-500">{addError}</p>
+          )}
         </div>
 
         {/* Members section */}
