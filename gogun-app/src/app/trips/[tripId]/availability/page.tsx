@@ -626,41 +626,41 @@ export default function AvailabilityPage({
           {/* Legend */}
           <div className="flex flex-col gap-[8px] px-[24px]">
             {canEditDays ? (
-              <div className="flex flex-wrap items-center gap-[8px] text-[12px] font-light tracking-[0.08px]">
-                <span className="text-[#767168]">แตะวันเพื่อสลับ:</span>
+              <div className="flex flex-wrap items-center gap-[8px] text-[12px] font-medium tracking-[0.08px]">
+                <span className="text-[#14110d]">แตะวันเพื่อสลับ:</span>
                 <span className="inline-flex items-center gap-[4px]">
-                  <span className="size-[14px] rounded-[3px] bg-[#f2efe8]" />
+                  <span className="size-[14px] rounded-[3px] border border-[#d4cfc2] bg-[#f2efe8]" />
                   <span className="text-[#14110d]">ไม่ว่าง</span>
                 </span>
                 <span className="text-[#14110d]">→</span>
                 <span className="inline-flex items-center gap-[4px]">
                   <span className="size-[14px] rounded-[3px] bg-[#e0f0e5]" />
-                  <span className="text-[#2e8b5c]">ว่าง</span>
+                  <span className="text-[#1f6b43]">ว่าง</span>
                 </span>
                 <span className="text-[#14110d]">→</span>
                 <span className="inline-flex items-center gap-[4px]">
                   <span className="size-[14px] rounded-[3px] bg-[#faefcb]" />
-                  <span className="text-[#d9a21b]">ไม่แน่ใจ</span>
+                  <span className="text-[#a8790c]">ไม่แน่ใจ</span>
                 </span>
               </div>
             ) : (
-              <div className="flex flex-wrap items-center gap-[8px] text-[12px] font-light tracking-[0.08px]">
-                <span className="text-[#767168]">ดูวันของเพื่อน:</span>
+              <div className="flex flex-wrap items-center gap-[8px] text-[12px] font-medium tracking-[0.08px]">
+                <span className="text-[#14110d]">ดูวันของเพื่อน:</span>
                 <span className="inline-flex items-center gap-[4px]">
-                  <span className="size-[14px] rounded-[3px] bg-[#f2efe8]" />
+                  <span className="size-[14px] rounded-[3px] border border-[#d4cfc2] bg-[#f2efe8]" />
                   <span className="text-[#14110d]">ไม่ว่าง</span>
                 </span>
                 <span className="inline-flex items-center gap-[4px]">
                   <span className="size-[14px] rounded-[3px] bg-[#e0f0e5]" />
-                  <span className="text-[#2e8b5c]">ว่าง</span>
+                  <span className="text-[#1f6b43]">ว่าง</span>
                 </span>
                 <span className="inline-flex items-center gap-[4px]">
                   <span className="size-[14px] rounded-[3px] bg-[#faefcb]" />
-                  <span className="text-[#d9a21b]">ไม่แน่ใจ</span>
+                  <span className="text-[#a8790c]">ไม่แน่ใจ</span>
                 </span>
               </div>
             )}
-            <div className="flex items-center gap-[8px] text-[12px] font-light tracking-[0.08px]">
+            <div className="flex items-center gap-[8px] text-[12px] font-medium tracking-[0.08px]">
               <span className="size-[14px] shrink-0 rounded-[3px] bg-[#2e8b5c]" />
               <span className="text-[#14110d]">ทุกคนว่างตรงกัน</span>
             </div>
