@@ -40,6 +40,10 @@ const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:3000')
   .filter(Boolean)
 app.use(cors({ origin: allowedOrigins, credentials: true }))
 
+// Health check — registered before the rate limiters so platform probes
+// (Render/Railway/etc.) pinging it frequently never consume the request budget.
+app.get('/health', (_req, res) => res.json({ status: 'ok' }))
+
 // General rate limit — a loose ceiling to blunt abuse/DoS across the API.
 app.use(
   rateLimit({
@@ -65,7 +69,11 @@ const authLimiter = rateLimit({
 })
 app.use('/api/v1/auth/login', authLimiter)
 app.use('/api/v1/auth/register', authLimiter)
+// Covers /auth/link and /auth/link/google (app.use matches by path prefix).
 app.use('/api/v1/auth/link', authLimiter)
+// Unauthenticated + calls Google's token verification on every hit, so it's a
+// brute-force surface that needs the strict limiter of its own.
+app.use('/api/v1/auth/google', authLimiter)
 
 // Auth routes (per-route auth in the router)
 app.use('/api/v1/auth', authRouter)
