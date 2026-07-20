@@ -16,6 +16,19 @@ function randomGuestColor(): string {
   return GUEST_COLORS[Math.floor(Math.random() * GUEST_COLORS.length)]
 }
 
+// ชื่อที่แสดงต้องไม่ซ้ำภายในทริปเดียวกัน (เทียบแบบไม่สนตัวพิมพ์ใหญ่เล็ก)
+// excludeUserId ใช้ตอน rename เพื่อไม่นับตัวสมาชิกเองว่าชนกับตัวเอง
+async function nameTakenInTrip(tripId: string, name: string, excludeUserId?: string) {
+  return prisma.tripMember.findFirst({
+    where: {
+      trip_id: tripId,
+      status: { not: 'declined' },
+      ...(excludeUserId ? { user_id: { not: excludeUserId } } : {}),
+      user: { display_name: { equals: name, mode: 'insensitive' } },
+    },
+  })
+}
+
 // List members
 router.get('/', async (req, res) => {
   const members = await prisma.tripMember.findMany({
@@ -84,6 +97,9 @@ router.post('/add', requireOrganizer, async (req, res) => {
   const name = display_name?.trim()
   if (!name) return err(res, 400, 'VALIDATION_ERROR', 'display_name is required')
 
+  if (await nameTakenInTrip(param(req, 'tripId'), name))
+    return err(res, 409, 'CONFLICT', 'มีสมาชิกชื่อนี้ในทริปแล้ว ใช้ชื่ออื่น')
+
   const guestId = randomUUID()
   const password_hash = await bcrypt.hash(randomUUID(), 10)
   const guest = await prisma.user.create({
@@ -131,6 +147,8 @@ router.patch('/:userId', requireOrganizer, async (req, res) => {
     if (!trimmed) return err(res, 400, 'VALIDATION_ERROR', 'display_name cannot be empty')
     if (!member.user.is_guest)
       return err(res, 403, 'FORBIDDEN', 'Only guest members added by the organizer can be renamed here')
+    if (await nameTakenInTrip(param(req, 'tripId'), trimmed, member.user_id))
+      return err(res, 409, 'CONFLICT', 'มีสมาชิกชื่อนี้ในทริปแล้ว ใช้ชื่ออื่น')
     await prisma.user.update({ where: { id: member.user_id }, data: { display_name: trimmed } })
   }
 

@@ -69,6 +69,12 @@ export function Calendar({
     return day > startDate && day < endDate;
   }
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  function isPast(day: Date) {
+    return day < today;
+  }
+
   return (
     <div className="flex w-full flex-col gap-[4px] rounded-[16px] border border-[#e5e1d7] bg-white p-[15px]">
       <div className="flex items-center justify-between px-[4px] pb-[8px]">
@@ -109,17 +115,21 @@ export function Calendar({
           }
           const selected = isSameDay(day, startDate) || isSameDay(day, endDate);
           const inRange = isInRange(day);
+          const past = isPast(day);
           return (
             <button
               type="button"
               key={i}
               onClick={() => onSelectDay(day)}
+              disabled={past}
               className={`h-[45px] w-full rounded-full text-[12px] tracking-[0.08px] ${
-                selected
-                  ? "bg-[#14110d] font-medium text-white"
-                  : inRange
-                    ? "bg-[#f2efe8] text-[#14110d]"
-                    : "text-[#14110d]"
+                past
+                  ? "cursor-not-allowed text-[#d4cfc2] line-through"
+                  : selected
+                    ? "bg-[#14110d] font-medium text-white"
+                    : inRange
+                      ? "bg-[#f2efe8] text-[#14110d]"
+                      : "text-[#14110d]"
               }`}
             >
               {day.getDate()}

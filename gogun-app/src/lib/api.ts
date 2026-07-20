@@ -106,6 +106,13 @@ export const claimMember = (inviteCode: string, memberId: string) =>
     { method: "POST" },
   )
 
+// รวม guest placeholder เข้ากับบัญชีจริงที่ล็อกอินอยู่ (แก้ปัญหาสมาชิกซ้ำ)
+export const mergeMember = (inviteCode: string, memberId: string) =>
+  req<{ trip_id: string; merged: boolean }>(
+    `/trips/join/${inviteCode}/merge/${memberId}`,
+    { method: "POST" },
+  )
+
 export const getTrip = (tripId: string) =>
   req<Trip>(`/trips/${tripId}`)
 
@@ -210,6 +217,18 @@ export const createExpense = (tripId: string, body: {
   paid_by_user_id: string
   splits: Array<{ user_id: string; amount: number }>
 }) => req<Expense>(`/trips/${tripId}/expenses`, { method: "POST", body: JSON.stringify(body) })
+
+export const updateExpense = (tripId: string, expId: string, body: {
+  name?: string
+  category?: string
+  total_amount?: number
+  currency?: string
+  paid_by_user_id?: string
+  splits?: Array<{ user_id: string; amount: number }>
+}) => req<Expense>(`/trips/${tripId}/expenses/${expId}`, { method: "PATCH", body: JSON.stringify(body) })
+
+export const deleteExpense = (tripId: string, expId: string) =>
+  req<{ deleted: boolean }>(`/trips/${tripId}/expenses/${expId}`, { method: "DELETE" })
 
 export const getBalance = (tripId: string) =>
   req<Balance>(`/trips/${tripId}/expenses/balance`)

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   getTripByInvite,
   claimMember,
+  mergeMember,
   joinTripByInvite,
   getMe,
   saveToken,
@@ -62,6 +63,9 @@ export default function InviteClient({ inviteCode }: { inviteCode: string }) {
     trip?.members.some((m) => m.user_id === me.id && m.status === "joined")
   );
 
+  // ล็อกอินด้วยบัญชีจริง (ไม่ใช่ guest) → กดชื่อ = รวมเข้าบัญชีนี้ ไม่สร้างคนซ้ำ
+  const isRealUser = !!(me && !me.is_guest);
+
   // Guest names stay selectable by anyone with the link until their owner
   // links an email, which locks the name to that account.
   const claimableMembers = trip?.members.filter((m) => m.user.is_guest) ?? [];
@@ -71,6 +75,16 @@ export default function InviteClient({ inviteCode }: { inviteCode: string }) {
     setClaimError("");
     setPageState("joining");
     try {
+      if (isRealUser && trip) {
+        // มีบัญชีจริงอยู่แล้ว → รวม guest slot เข้าบัญชีนี้ (คงตัวตนเดิม ไม่เกิดคนซ้ำ)
+        const result = await mergeMember(inviteCode, memberId);
+        const dest =
+          me?.id === trip.organizer_id
+            ? `/trips/${result.trip_id}`
+            : `/trips/${result.trip_id}/member`;
+        router.push(dest);
+        return;
+      }
       const result = await claimMember(inviteCode, memberId);
       saveToken(result.token);
       const dest =
@@ -218,7 +232,9 @@ export default function InviteClient({ inviteCode }: { inviteCode: string }) {
           <div className="mt-[28px] flex flex-col gap-[4px]">
             <p className="text-[15px] tracking-[0.08px] text-[#14110d]">ใครคือคุณ?</p>
             <p className="pb-[16px] text-[12px] font-light tracking-[0.08px] text-[#767168]">
-              กดชื่อเพื่อเริ่มใช้งาน · ไม่ต้องสมัครสมาชิก
+              {isRealUser
+                ? `กดชื่อของคุณเพื่อรวมเข้ากับบัญชี ${me?.display_name ?? ""} · ไม่เพิ่มคนซ้ำ`
+                : "กดชื่อเพื่อเริ่มใช้งาน · ไม่ต้องสมัครสมาชิก"}
             </p>
             <div className="grid grid-cols-2 gap-[8px]">
               {claimableMembers.map((m) => (
@@ -337,6 +353,22 @@ export default function InviteClient({ inviteCode }: { inviteCode: string }) {
               className="text-center text-[12px] font-light tracking-[0.08px] text-[#767168] underline underline-offset-2"
             >
               ไม่ใช่คุณ? เปลี่ยนคน
+            </button>
+          </div>
+        ) : isLoggedIn && claimableMembers.length > 0 ? (
+          // มีชื่อให้กดอยู่ด้านบน — ดันให้กดชื่อตัวเองก่อน (กันเผลอสร้างคนซ้ำ)
+          // ปุ่มเข้าร่วมแบบคนใหม่เหลือเป็นทางสำรองเล็กๆ
+          <div className="flex flex-col gap-[8px] text-center">
+            <p className="text-[11px] font-light tracking-[0.44px] text-[#b5b0a4]">
+              ไม่มีชื่อของคุณด้านบน?
+            </p>
+            <button
+              type="button"
+              onClick={handleLoginJoin}
+              disabled={pageState === "joining"}
+              className="text-[12px] font-light tracking-[0.08px] text-[#767168] underline underline-offset-2 disabled:opacity-60"
+            >
+              {pageState === "joining" ? "กำลังเข้าร่วม..." : "เข้าร่วมเป็นสมาชิกใหม่"}
             </button>
           </div>
         ) : isLoggedIn ? (

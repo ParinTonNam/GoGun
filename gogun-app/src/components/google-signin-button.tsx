@@ -60,37 +60,59 @@ export default function GoogleSignInButton({
   label?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const retryRef = useRef<number | null>(null);
 
   // หน้าไหน mount component นี้อยู่ ให้ credential ที่ได้กลับไปหาหน้านั้นเสมอ
   useEffect(() => {
     currentCredentialHandler = onCredential;
   }, [onCredential]);
 
-  const init = useCallback(() => {
-    const el = containerRef.current;
-    const google = window.google;
-    if (!el || !google || !CLIENT_ID) return;
-    if (!gisInitialized) {
-      google.accounts.id.initialize({
-        client_id: CLIENT_ID,
-        callback: (response) => currentCredentialHandler?.(response.credential),
+  // render ปุ่ม GIS ลง container — retry จนกว่า (1) script พร้อม และ (2) container
+  // มีความกว้างจริง เพราะปุ่มโปร่งใสของ GIS ต้องเต็มพื้นที่ปุ่มที่เห็น ไม่งั้นจะกด
+  // โดนบ้างไม่โดนบ้าง; เคลียร์ container ก่อน render กัน iframe ซ้อนตอน mount ใหม่
+  const render = useCallback(() => {
+    // function declaration (hoisted) เพื่อ self-reference retry ได้โดยไม่ชน TDZ
+    function attempt(n: number) {
+      const el = containerRef.current;
+      if (!el || !CLIENT_ID) return;
+      const google = window.google;
+      if (!google || el.clientWidth === 0) {
+        if (n < 25) retryRef.current = window.setTimeout(() => attempt(n + 1), 120);
+        return;
+      }
+      if (!gisInitialized) {
+        google.accounts.id.initialize({
+          client_id: CLIENT_ID,
+          callback: (response) => currentCredentialHandler?.(response.credential),
+        });
+        gisInitialized = true;
+      }
+      el.innerHTML = "";
+      google.accounts.id.renderButton(el, {
+        theme: "outline",
+        size: "large",
+        shape: "pill",
+        text: "continue_with",
+        locale: "th",
+        width: Math.min(el.clientWidth, 400),
       });
-      gisInitialized = true;
     }
-    google.accounts.id.renderButton(el, {
-      theme: "outline",
-      size: "large",
-      shape: "pill",
-      text: "continue_with",
-      locale: "th",
-      width: Math.min(el.clientWidth || 360, 400),
-    });
+    attempt(0);
   }, []);
+
+  // เรียกทุกครั้งที่ mount — ครอบเคสที่ GIS script โหลดไว้ก่อนแล้ว (สลับหน้า
+  // login/signin/link-account) ซึ่ง onReady ของ <Script> จะไม่ยิงซ้ำให้
+  useEffect(() => {
+    render();
+    return () => {
+      if (retryRef.current !== null) window.clearTimeout(retryRef.current);
+    };
+  }, [render]);
 
   if (!CLIENT_ID) return null;
 
   const script = (
-    <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onReady={init} />
+    <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onReady={() => render()} />
   );
 
   if (variant === "styled") {

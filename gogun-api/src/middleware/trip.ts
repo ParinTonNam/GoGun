@@ -35,3 +35,25 @@ export function requireOrganizer(
   }
   next()
 }
+
+// แก้ itinerary ได้ถ้าเป็น organizer หรือทริปเปิดสิทธิ์ให้สมาชิกแก้ร่วมกัน
+// (allow_member_itinerary_edit). ใช้แทน requireOrganizer เฉพาะ route แก้ itinerary
+export async function requireItineraryEditor(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  if (req.tripMember?.role === 'organizer') {
+    next()
+    return
+  }
+  const trip = await prisma.trip.findUnique({
+    where: { id: param(req, 'tripId') },
+    select: { allow_member_itinerary_edit: true },
+  })
+  if (!trip?.allow_member_itinerary_edit) {
+    err(res, 403, 'FORBIDDEN', 'Editing the itinerary is limited to the organizer for this trip')
+    return
+  }
+  next()
+}

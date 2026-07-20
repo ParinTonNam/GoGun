@@ -41,11 +41,6 @@ const PERMISSION_ITEMS: {
     title: "แก้แผนเดินทางได้",
     subtitle: "สมาชิกแก้ itinerary ร่วมกัน",
   },
-  {
-    key: "inviteOthers",
-    title: "เชิญคนอื่นเพิ่มได้",
-    subtitle: "ถ้าปิด มีแค่คุณที่เชิญเพิ่มได้",
-  },
 ];
 
 export function StepSettings({
@@ -104,8 +99,8 @@ export function StepSettings({
             {currentCurrency?.symbol}
           </span>
           <input
-            value={formData.budgetPerPerson}
-            onChange={(e) => onChange({ budgetPerPerson: e.target.value })}
+            value={formData.budgetPerPerson ? Number(formData.budgetPerPerson).toLocaleString("en") : ""}
+            onChange={(e) => onChange({ budgetPerPerson: e.target.value.replace(/[^\d]/g, "") })}
             inputMode="numeric"
             placeholder="80,000"
             className="flex-1 bg-transparent text-[22px] font-medium text-[#14110d] placeholder:text-[#757575] focus:outline-none"

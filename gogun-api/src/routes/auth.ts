@@ -37,15 +37,24 @@ router.post('/register', async (req, res) => {
   }
 
   const password_hash = await bcrypt.hash(password, 10)
-  const user = await prisma.user.create({
-    data: {
-      username: username.trim(),
-      email: email.trim().toLowerCase(),
-      password_hash,
-      display_name: username.trim(),
-      avatar_color: randomColor(),
-    },
-  })
+  let user
+  try {
+    user = await prisma.user.create({
+      data: {
+        username: username.trim(),
+        email: email.trim().toLowerCase(),
+        password_hash,
+        display_name: username.trim(),
+        avatar_color: randomColor(),
+      },
+    })
+  } catch (e) {
+    // กัน race: findFirst ด้านบนผ่าน แต่มีคนสมัครชื่อ/อีเมลเดียวกันแทรกก่อน
+    // DB มี unique constraint จะโยน P2002 — ตอบ 409 แทนปล่อยเป็น 500
+    if ((e as { code?: string }).code === 'P2002')
+      return err(res, 409, 'CONFLICT', 'Username or email is already taken')
+    throw e
+  }
 
   const token = signToken(user.id)
   return ok(res, { token, user: serializeUser(user) })
@@ -203,6 +212,22 @@ router.patch('/me', requireAuth, async (req, res) => {
 
   if (display_name !== undefined && !display_name.trim())
     return err(res, 400, 'VALIDATION_ERROR', 'display_name cannot be empty')
+
+  // ชื่อที่แสดงต้องไม่ซ้ำกับเพื่อนร่วมทริป (unique เฉพาะภายในทริป) — หาสมาชิก
+  // คนอื่นที่อยู่ทริปเดียวกับเราแล้วมีชื่อนี้อยู่ ถ้าเจอถือว่าชนกัน
+  if (display_name !== undefined) {
+    const trimmed = display_name.trim()
+    const clash = await prisma.tripMember.findFirst({
+      where: {
+        status: { not: 'declined' },
+        user_id: { not: req.user!.id },
+        user: { display_name: { equals: trimmed, mode: 'insensitive' } },
+        trip: { members: { some: { user_id: req.user!.id, status: { not: 'declined' } } } },
+      },
+    })
+    if (clash)
+      return err(res, 409, 'CONFLICT', 'มีเพื่อนร่วมทริปใช้ชื่อนี้แล้ว เปลี่ยนเป็นชื่ออื่น')
+  }
 
   if (email !== undefined) {
     if (!email.trim())

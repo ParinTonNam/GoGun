@@ -73,6 +73,15 @@ function monthRangeKeys(year: number, month: number): { start: string; end: stri
   return { start: dateKey(year, month, 1), end: dateKey(year, month, daysInMonth) };
 }
 
+// key เป็นรูปแบบ YYYY-MM-DD (แพ็ดศูนย์) เทียบสตริงได้ตรงกับวันปัจจุบัน
+function todayKey(): string {
+  const t = new Date();
+  return dateKey(t.getFullYear(), t.getMonth(), t.getDate());
+}
+function isPastKey(key: string): boolean {
+  return key < todayKey();
+}
+
 function daysBetweenInclusive(startIso: string, endIso: string): number {
   const start = new Date(startIso);
   const end = new Date(endIso);
@@ -128,6 +137,7 @@ function ConfirmDateSheet({
     (customMode && rangeStart !== null && rangeEnd !== null);
 
   function handleDayTap(key: string) {
+    if (isPastKey(key)) return; // ยืนยันวันทริปในอดีตไม่ได้
     if (rangeStart === null || rangeEnd !== null) {
       setRangeStart(key);
       setRangeEnd(null);
@@ -251,14 +261,15 @@ function ConfirmDateSheet({
               {grid.map((cell, idx) => {
                 const key = cell.inMonth ? dateKey(view.year, view.month, cell.date) : null;
                 const s = key ? dayStyle(key) : { bg: "transparent", text: "#b5b0a4", rounded: "" };
+                const past = !!key && isPastKey(key);
                 return (
                   <button
                     key={idx}
                     type="button"
-                    disabled={!cell.inMonth}
+                    disabled={!cell.inMonth || past}
                     onClick={() => key && handleDayTap(key)}
                     className={`flex h-[45px] items-center justify-center text-[12px] font-light ${s.rounded}`}
-                    style={{ backgroundColor: s.bg, color: s.text }}
+                    style={{ backgroundColor: s.bg, color: s.text, opacity: past ? 0.4 : 1 }}
                   >
                     {cell.date}
                   </button>
@@ -367,6 +378,7 @@ export default function AvailabilityPage({
 
   function toggleDay(key: string) {
     if (!canEditDays) return;
+    if (isPastKey(key)) return; // กันเลือกวันที่ผ่านมาแล้ว
     setJustSaved(false);
     setEditStatus((prev) => {
       const cur = prev[key] ?? "unavailable";
@@ -581,15 +593,16 @@ export default function AvailabilityPage({
                   }
 
                   const s = cell.inMonth ? STYLE[variant] : { bg: "transparent", text: "#767168" };
+                  const past = !!key && isPastKey(key);
 
                   return (
                     <button
                       key={colIdx}
                       type="button"
-                      disabled={!cell.inMonth || !canEditDays || editLoading}
+                      disabled={!cell.inMonth || !canEditDays || editLoading || past}
                       onClick={() => key && toggleDay(key)}
                       className="flex size-[49px] shrink-0 flex-col items-center justify-center rounded-[12px]"
-                      style={{ backgroundColor: s.bg }}
+                      style={{ backgroundColor: s.bg, opacity: past ? 0.4 : 1 }}
                     >
                       <span className="text-[13px] font-medium tracking-[0.08px]" style={{ color: s.text }}>
                         {cell.date}

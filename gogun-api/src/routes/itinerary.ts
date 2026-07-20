@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import prisma from '../lib/prisma'
-import { requireOrganizer } from '../middleware/trip'
+import { requireItineraryEditor } from '../middleware/trip'
 import { ok, err } from '../lib/response'
 import { param } from '../lib/params'
 
@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 })
 
 // Swap two days' order (3-step to avoid unique constraint on day_number)
-router.post('/days/swap', requireOrganizer, async (req, res) => {
+router.post('/days/swap', requireItineraryEditor, async (req, res) => {
   const { day_id_a, day_id_b } = req.body as { day_id_a?: string; day_id_b?: string }
   if (!day_id_a || !day_id_b)
     return err(res, 400, 'VALIDATION_ERROR', 'day_id_a and day_id_b are required')
@@ -39,7 +39,7 @@ router.post('/days/swap', requireOrganizer, async (req, res) => {
 })
 
 // Add day
-router.post('/days', requireOrganizer, async (req, res) => {
+router.post('/days', requireItineraryEditor, async (req, res) => {
   const { day_number, date, label } = req.body as {
     day_number?: number
     date?: string
@@ -61,7 +61,7 @@ router.post('/days', requireOrganizer, async (req, res) => {
 })
 
 // Update day
-router.patch('/days/:dayId', requireOrganizer, async (req, res) => {
+router.patch('/days/:dayId', requireItineraryEditor, async (req, res) => {
   const { label, date, day_number } = req.body as {
     label?: string
     date?: string
@@ -85,7 +85,7 @@ router.patch('/days/:dayId', requireOrganizer, async (req, res) => {
 })
 
 // Delete day (cascade deletes its activities) + compact remaining day_numbers
-router.delete('/days/:dayId', requireOrganizer, async (req, res) => {
+router.delete('/days/:dayId', requireItineraryEditor, async (req, res) => {
   const day = await prisma.itineraryDay.findFirst({
     where: { id: param(req, 'dayId'), trip_id: param(req, 'tripId') },
   })
@@ -110,7 +110,7 @@ router.delete('/days/:dayId', requireOrganizer, async (req, res) => {
 })
 
 // Add activity to day
-router.post('/days/:dayId/activities', requireOrganizer, async (req, res) => {
+router.post('/days/:dayId/activities', requireItineraryEditor, async (req, res) => {
   const { time, title, sort_order } = req.body as {
     time?: string
     title?: string
@@ -131,7 +131,7 @@ router.post('/days/:dayId/activities', requireOrganizer, async (req, res) => {
 })
 
 // Edit activity
-router.patch('/activities/:actId', requireOrganizer, async (req, res) => {
+router.patch('/activities/:actId', requireItineraryEditor, async (req, res) => {
   const { time, title, sort_order } = req.body as {
     time?: string
     title?: string
@@ -156,7 +156,7 @@ router.patch('/activities/:actId', requireOrganizer, async (req, res) => {
 })
 
 // Delete activity
-router.delete('/activities/:actId', requireOrganizer, async (req, res) => {
+router.delete('/activities/:actId', requireItineraryEditor, async (req, res) => {
   const activity = await prisma.itineraryActivity.findUnique({
     where: { id: param(req, 'actId') },
     include: { day: true },
@@ -169,7 +169,7 @@ router.delete('/activities/:actId', requireOrganizer, async (req, res) => {
 })
 
 // Reorder activity
-router.patch('/activities/:actId/reorder', requireOrganizer, async (req, res) => {
+router.patch('/activities/:actId/reorder', requireItineraryEditor, async (req, res) => {
   const { sort_order } = req.body as { sort_order?: number }
   if (sort_order === undefined)
     return err(res, 400, 'VALIDATION_ERROR', 'sort_order is required')

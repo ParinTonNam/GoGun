@@ -11,10 +11,19 @@ export function StepMembers({
   onChange: (patch: Partial<TripFormData>) => void;
 }) {
   const [nameInput, setNameInput] = useState("");
+  const [dupError, setDupError] = useState("");
 
   function addMember() {
     const name = nameInput.trim();
     if (!name) return;
+    // กันชื่อซ้ำภายในทริป (ไม่สนตัวพิมพ์ใหญ่เล็ก) รวมถึงชนกับชื่อผู้จัดทริป
+    const taken = formData.members.some(
+      (m) => m.name.trim().toLowerCase() === name.toLowerCase(),
+    );
+    if (taken) {
+      setDupError(`มีชื่อ "${name}" ในทริปแล้ว ใช้ชื่ออื่น`);
+      return;
+    }
     const addedCount = formData.members.length - 1;
     const color = MEMBER_COLORS[addedCount % MEMBER_COLORS.length];
     onChange({
@@ -24,6 +33,7 @@ export function StepMembers({
       ],
     });
     setNameInput("");
+    setDupError("");
   }
 
   return (
@@ -45,7 +55,7 @@ export function StepMembers({
         <div className="flex items-center gap-[8px]">
           <input
             value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
+            onChange={(e) => { setNameInput(e.target.value); if (dupError) setDupError(""); }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -65,6 +75,9 @@ export function StepMembers({
             เพิ่ม
           </button>
         </div>
+        {dupError && (
+          <p className="text-[12px] tracking-[0.08px] text-red-500">{dupError}</p>
+        )}
       </div>
       <div className="flex w-full flex-col">
         {formData.members.map((member, i) => (

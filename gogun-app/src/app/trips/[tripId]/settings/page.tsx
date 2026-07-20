@@ -394,9 +394,6 @@ export default function TripSettingsPage({ params }: { params: Promise<{ tripId:
   const [activeSheet, setActiveSheet] = useState<SheetType | null>(null);
   const [displaySheet, setDisplaySheet] = useState<SheetType | null>(null);
   const [permissionSaving, setPermissionSaving] = useState<string | null>(null);
-  // สิทธิ์สมาชิกยังไม่ enforce จริงฝั่ง API (settings เก็บค่าได้ แต่ route ไม่เช็ค)
-  // ซ่อน toggle ไว้ก่อน deploy กันเข้าใจผิดว่าปิดสิทธิ์แล้วปลอดภัย — เปิดกลับเมื่อ enforce เสร็จ
-  const SHOW_MEMBER_PERMISSIONS = false;
 
   const { error: loadError, retry } = useLoad(async () => {
     const [t, user] = await Promise.all([getTrip(tripId), getMe()]);
@@ -583,38 +580,18 @@ export default function TripSettingsPage({ params }: { params: Promise<{ tripId:
             </button>
           </div>
 
-          {/* สิทธิ์สมาชิก — ซ่อนไว้จนกว่า API จะ enforce จริง (ดู SHOW_MEMBER_PERMISSIONS) */}
-          {SHOW_MEMBER_PERMISSIONS && (
+          {/* สิทธิ์สมาชิก — เฉพาะ organizer ปรับได้ (enforce จริงฝั่ง API แล้ว) */}
+          {me && trip && me.id === trip.organizer_id && (
           <div className="overflow-hidden rounded-[16px] border border-[#e5e1d7] bg-white">
             <SectionLabel title="สิทธิ์สมาชิก" />
-            <div className="flex items-center gap-[12px] border-b border-[#e5e1d7] px-[16px] py-[13px]">
-              <div className="flex flex-1 flex-col gap-px tracking-[0.08px]">
-                <p className="text-[14px] text-[#14110d]">เพิ่มค่าใช้จ่ายเองได้</p>
-                <p className="text-[11px] font-light text-[#767168]">ทุกคนเพิ่มบิลของตัวเองได้</p>
-              </div>
-              <Toggle
-                on={trip?.allow_member_expenses ?? true}
-                onChange={() => togglePermission("allow_member_expenses")}
-              />
-            </div>
-            <div className="flex items-center gap-[12px] border-b border-[#e5e1d7] px-[16px] py-[13px]">
+            <div className="flex items-center gap-[12px] px-[16px] py-[13px]">
               <div className="flex flex-1 flex-col gap-px tracking-[0.08px]">
                 <p className="text-[14px] text-[#14110d]">แก้แผนเดินทางได้</p>
-                <p className="text-[11px] font-light text-[#767168]">สมาชิกแก้ itinerary ร่วมกัน</p>
+                <p className="text-[11px] font-light text-[#767168]">เปิดให้สมาชิกช่วยกันแก้ itinerary</p>
               </div>
               <Toggle
                 on={trip?.allow_member_itinerary_edit ?? true}
                 onChange={() => togglePermission("allow_member_itinerary_edit")}
-              />
-            </div>
-            <div className="flex items-center gap-[12px] px-[16px] py-[13px]">
-              <div className="flex flex-1 flex-col gap-px tracking-[0.08px]">
-                <p className="text-[14px] text-[#14110d]">เชิญคนอื่นเพิ่มได้</p>
-                <p className="text-[11px] font-light text-[#767168]">ถ้าปิด มีแค่คุณที่เชิญเพิ่มได้</p>
-              </div>
-              <Toggle
-                on={trip?.allow_member_invite ?? false}
-                onChange={() => togglePermission("allow_member_invite")}
               />
             </div>
           </div>

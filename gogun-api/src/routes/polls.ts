@@ -22,16 +22,22 @@ router.get('/', async (req, res) => {
     },
     orderBy: { created_at: 'desc' },
   })
-  return ok(res, polls.map(({ votes: myVotes, ...p }) => ({
-    ...p,
-    close_date: p.close_date?.toISOString().slice(0, 10) ?? null,
-    options: p.options.map(({ votes, ...o }) => ({
-      ...o,
-      vote_count: votes.length,
-      voters: votes.map(v => v.user),
-    })),
-    my_vote_option_id: myVotes[0]?.option_id ?? null,
-  })))
+  return ok(res, polls.map(({ votes: myVotes, ...p }) => {
+    // เมื่อโหวตปิดแล้ว ทำเครื่องหมายตัวเลือกที่ชนะ (คะแนนสูงสุดและมากกว่า 0)
+    // ให้เหมือน endpoint รายตัว ไม่งั้นหน้าโหวตจะไม่แสดงผู้ชนะหลังปิด
+    const maxVotes = Math.max(0, ...p.options.map(o => o.votes.length))
+    return {
+      ...p,
+      close_date: p.close_date?.toISOString().slice(0, 10) ?? null,
+      options: p.options.map(({ votes, ...o }) => ({
+        ...o,
+        vote_count: votes.length,
+        voters: votes.map(v => v.user),
+        ...(p.status === 'closed' && { is_winner: votes.length === maxVotes && maxVotes > 0 }),
+      })),
+      my_vote_option_id: myVotes[0]?.option_id ?? null,
+    }
+  }))
 })
 
 // Create poll (organizer only)

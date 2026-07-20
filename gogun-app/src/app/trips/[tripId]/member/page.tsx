@@ -60,6 +60,9 @@ export default function MemberOverviewPage({
   // ยังไม่กำหนดวันเดินทาง → ไม่โชว์วันที่ใต้เลข Day
   const hasTripDate = Boolean(trip.confirmed_start_date || trip.proposed_start_date);
 
+  // แก้ itinerary ได้เมื่อเป็น organizer หรือทริปเปิดสิทธิ์ให้สมาชิกแก้
+  const canEditItinerary = !!(me && (me.id === trip.organizer_id || trip.allow_member_itinerary_edit));
+
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
       <div className="flex w-full max-w-[420px] flex-col gap-[24px] px-[24px] pb-[100px] pt-[24px]">
@@ -176,7 +179,20 @@ export default function MemberOverviewPage({
         <div className="flex flex-col gap-[20px]">
           <div className="flex items-center justify-between text-[13px] tracking-[0.08px]">
             <p className="text-[#767168]">แผนการเดินทาง</p>
-            <p className="font-medium text-[#14110d]">อ่านเท่านั้น</p>
+            {canEditItinerary ? (
+              <button
+                type="button"
+                onClick={() => router.push(`/trips/${tripId}/itinerary`)}
+                className="flex items-center gap-[4px] font-medium text-[#e85a2c]"
+              >
+                แก้ไข
+                <svg width="6" height="10" viewBox="0 0 7 12" fill="none">
+                  <path d="M1 1l5 5-5 5" stroke="#e85a2c" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            ) : (
+              <p className="font-medium text-[#14110d]">อ่านเท่านั้น</p>
+            )}
           </div>
           <div className="flex flex-col gap-[10px]">
             {days.map((day, di) => {

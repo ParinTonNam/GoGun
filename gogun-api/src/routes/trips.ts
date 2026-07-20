@@ -120,6 +120,141 @@ router.post('/join/:invite_code/claim/:memberId', async (req, res) => {
   return ok(res, { token, trip_id: trip.id, member: updated })
 })
 
+// Merge a guest placeholder into the CURRENT (real, logged-in) account.
+// Fixes the "I was pre-added by name, then joining created a second copy of me"
+// duplicate: instead of a parallel membership, the guest slot's trip-scoped data
+// (expenses, splits, transfers, availability, votes, packing/checklist) is
+// reassigned to the caller, the guest membership is removed, and the orphan
+// guest user is deleted. Unique-constraint clashes are resolved in favour of the
+// caller's existing rows so the merge never violates an invariant.
+router.post('/join/:invite_code/merge/:memberId', requireAuth, async (req, res) => {
+  const trip = await prisma.trip.findUnique({
+    where: { invite_code: param(req, 'invite_code') },
+  })
+  if (!trip) return err(res, 404, 'NOT_FOUND', 'Trip not found')
+
+  const guestMember = await prisma.tripMember.findUnique({
+    where: { id: param(req, 'memberId') },
+    include: { user: { select: { id: true, is_guest: true } } },
+  })
+  if (!guestMember || guestMember.trip_id !== trip.id)
+    return err(res, 404, 'NOT_FOUND', 'Member not found')
+  if (!guestMember.user.is_guest)
+    return err(res, 409, 'CONFLICT', 'This name is already linked to an account')
+
+  const realId = req.user!.id
+  const guestId = guestMember.user_id
+  if (realId === guestId)
+    return err(res, 400, 'VALIDATION_ERROR', 'Cannot merge a member into itself')
+
+  await prisma.$transaction(async tx => {
+    // Expense payer — no unique on (trip, payer), safe bulk reassign
+    await tx.expense.updateMany({
+      where: { trip_id: trip.id, paid_by_user_id: guestId },
+      data: { paid_by_user_id: realId },
+    })
+
+    // Expense splits — unique(expense_id, user_id): if the caller already has a
+    // split on the same expense, fold the guest's amount in and drop the guest row
+    const splits = await tx.expenseSplit.findMany({
+      where: { user_id: guestId, expense: { trip_id: trip.id } },
+    })
+    for (const s of splits) {
+      const clash = await tx.expenseSplit.findUnique({
+        where: { expense_id_user_id: { expense_id: s.expense_id, user_id: realId } },
+      })
+      if (clash) {
+        await tx.expenseSplit.update({ where: { id: clash.id }, data: { amount: { increment: s.amount } } })
+        await tx.expenseSplit.delete({ where: { id: s.id } })
+      } else {
+        await tx.expenseSplit.update({ where: { id: s.id }, data: { user_id: realId } })
+      }
+    }
+
+    // Transfer slips — no unique, bulk reassign both directions
+    await tx.transferSlip.updateMany({ where: { trip_id: trip.id, from_user_id: guestId }, data: { from_user_id: realId } })
+    await tx.transferSlip.updateMany({ where: { trip_id: trip.id, to_user_id: guestId }, data: { to_user_id: realId } })
+
+    // Availability — unique(trip, user, date): keep caller's own vote on a clash
+    const avail = await tx.availability.findMany({ where: { trip_id: trip.id, user_id: guestId } })
+    for (const a of avail) {
+      const clash = await tx.availability.findUnique({
+        where: { trip_id_user_id_date: { trip_id: trip.id, user_id: realId, date: a.date } },
+      })
+      if (clash) await tx.availability.delete({ where: { id: a.id } })
+      else await tx.availability.update({ where: { id: a.id }, data: { user_id: realId } })
+    }
+
+    // Poll votes — unique(poll, user): keep caller's own vote on a clash
+    const votes = await tx.pollVote.findMany({ where: { user_id: guestId, poll: { trip_id: trip.id } } })
+    for (const v of votes) {
+      const clash = await tx.pollVote.findUnique({
+        where: { poll_id_user_id: { poll_id: v.poll_id, user_id: realId } },
+      })
+      if (clash) await tx.pollVote.delete({ where: { id: v.id } })
+      else await tx.pollVote.update({ where: { id: v.id }, data: { user_id: realId } })
+    }
+
+    // Packing assignees — PK(item, user)
+    const assignees = await tx.packingItemAssignee.findMany({ where: { user_id: guestId, item: { trip_id: trip.id } } })
+    for (const pa of assignees) {
+      const clash = await tx.packingItemAssignee.findUnique({
+        where: { item_id_user_id: { item_id: pa.item_id, user_id: realId } },
+      })
+      if (clash) await tx.packingItemAssignee.delete({ where: { item_id_user_id: { item_id: pa.item_id, user_id: guestId } } })
+      else await tx.packingItemAssignee.update({ where: { item_id_user_id: { item_id: pa.item_id, user_id: guestId } }, data: { user_id: realId } })
+    }
+
+    // Packing checks — PK(item, user)
+    const packChecks = await tx.packingItemCheck.findMany({ where: { user_id: guestId, item: { trip_id: trip.id } } })
+    for (const c of packChecks) {
+      const clash = await tx.packingItemCheck.findUnique({
+        where: { item_id_user_id: { item_id: c.item_id, user_id: realId } },
+      })
+      if (clash) await tx.packingItemCheck.delete({ where: { item_id_user_id: { item_id: c.item_id, user_id: guestId } } })
+      else await tx.packingItemCheck.update({ where: { item_id_user_id: { item_id: c.item_id, user_id: guestId } }, data: { user_id: realId } })
+    }
+
+    // Checklist checks — PK(item, user)
+    const listChecks = await tx.checklistItemCheck.findMany({ where: { user_id: guestId, item: { trip_id: trip.id } } })
+    for (const c of listChecks) {
+      const clash = await tx.checklistItemCheck.findUnique({
+        where: { item_id_user_id: { item_id: c.item_id, user_id: realId } },
+      })
+      if (clash) await tx.checklistItemCheck.delete({ where: { item_id_user_id: { item_id: c.item_id, user_id: guestId } } })
+      else await tx.checklistItemCheck.update({ where: { item_id_user_id: { item_id: c.item_id, user_id: guestId } }, data: { user_id: realId } })
+    }
+
+    // Memberships — unique(trip, user). If the caller already has a membership,
+    // drop the guest one and make sure the caller is joined; otherwise hand the
+    // guest membership over to the caller.
+    const realMember = await tx.tripMember.findUnique({
+      where: { trip_id_user_id: { trip_id: trip.id, user_id: realId } },
+    })
+    if (realMember) {
+      await tx.tripMember.delete({ where: { id: guestMember.id } })
+      if (realMember.status !== 'joined')
+        await tx.tripMember.update({ where: { id: realMember.id }, data: { status: 'joined', joined_at: new Date() } })
+    } else {
+      await tx.tripMember.update({
+        where: { id: guestMember.id },
+        data: { user_id: realId, status: 'joined', joined_at: guestMember.joined_at ?? new Date() },
+      })
+    }
+  })
+
+  // Guest placeholders belong to a single trip, so after reassigning everything
+  // the account is unreferenced — remove it. Best-effort: if some stray FK still
+  // holds it, leave the orphan rather than fail the (already committed) merge.
+  try {
+    await prisma.user.delete({ where: { id: guestId } })
+  } catch (e) {
+    console.error('merge: could not delete orphan guest user', guestId, e)
+  }
+
+  return ok(res, { trip_id: trip.id, merged: true })
+})
+
 // Create trip
 router.post('/', requireAuth, async (req, res) => {
   const { name, destination, icon, trip_type, duration_days, proposed_start_date, currency } =

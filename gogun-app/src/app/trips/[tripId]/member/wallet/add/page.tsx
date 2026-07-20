@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import {
   getTrip,
   getMe,
+  getExpenses,
   createExpense,
+  updateExpense,
   getInitial,
   type Trip,
   type TripMember,
@@ -76,6 +78,7 @@ export default function AddExpensePage({
   const [me, setMe] = useState<User | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [editId, setEditId] = useState<string | null>(null);
 
   const [category, setCategory] = useState("flight");
   const [name, setName] = useState("");
@@ -84,10 +87,25 @@ export default function AddExpensePage({
   const [splitAmong, setSplitAmong] = useState<Set<string>>(new Set());
 
   const { loading, error: loadError, retry } = useLoad(async () => {
+    const eid = new URLSearchParams(window.location.search).get("edit");
+    setEditId(eid);
+
     const [t, user] = await Promise.all([getTrip(tripId), getMe()]);
     setTrip(t);
     setMe(user);
     const joined = t.members.filter((m) => m.status === "joined").map((m) => m.user_id);
+
+    if (eid) {
+      const existing = (await getExpenses(tripId)).find((e) => e.id === eid);
+      if (existing) {
+        setCategory(existing.category);
+        setName(existing.name);
+        setAmount(String(existing.total_amount));
+        setPaidBy(existing.paid_by.id);
+        setSplitAmong(new Set(existing.splits.map((s) => s.user.id)));
+        return;
+      }
+    }
     setPaidBy(user.id);
     setSplitAmong(new Set(joined));
   }, [tripId]);
@@ -114,15 +132,20 @@ export default function AddExpensePage({
     if (!canSave || !paidBy || !trip) return;
     setSaving(true);
     setError("");
+    const body = {
+      name: name.trim(),
+      category,
+      total_amount: numAmount,
+      currency: trip.currency,
+      paid_by_user_id: paidBy,
+      splits: evenSplit(numAmount, [...splitAmong]),
+    };
     try {
-      await createExpense(tripId, {
-        name: name.trim(),
-        category,
-        total_amount: numAmount,
-        currency: trip.currency,
-        paid_by_user_id: paidBy,
-        splits: evenSplit(numAmount, [...splitAmong]),
-      });
+      if (editId) {
+        await updateExpense(tripId, editId, body);
+      } else {
+        await createExpense(tripId, body);
+      }
       router.push(`/trips/${tripId}/member/wallet`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "บันทึกไม่สำเร็จ");
@@ -156,7 +179,7 @@ export default function AddExpensePage({
             <img src="/images/icon-chevron-left.svg" alt="" className="h-[10px] w-[6px]" />
           </button>
           <p className="text-[20px] font-medium tracking-[0.08px] text-[#14110d]">
-            เพิ่มค่าใช้จ่าย
+            {editId ? "แก้ไขค่าใช้จ่าย" : "เพิ่มค่าใช้จ่าย"}
           </p>
         </div>
 
@@ -285,7 +308,7 @@ export default function AddExpensePage({
                 : "bg-[#e5e1d7] text-[#b5b0a4]"
             }`}
           >
-            {saving ? "กำลังบันทึก..." : "บันทึก"}
+            {saving ? "กำลังบันทึก..." : editId ? "บันทึกการแก้ไข" : "บันทึก"}
           </button>
         </div>
 

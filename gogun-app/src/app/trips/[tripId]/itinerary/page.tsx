@@ -41,6 +41,7 @@ export default function ItineraryPage({
   const [trip, setTrip] = useState<Trip | null>(null);
   const [days, setDays] = useState<ItineraryDay[]>([]);
   const [me, setMe] = useState<User | null>(null);
+  const [editMode, setEditMode] = useState(false);
 
   // Add activity
   const [activeAddDayId, setActiveAddDayId] = useState<string | null>(null);
@@ -72,6 +73,23 @@ export default function ItineraryPage({
 
   async function refresh() {
     setDays(await getItinerary(tripId));
+  }
+
+  // organizer แก้ได้เสมอ; สมาชิกแก้ได้เมื่อทริปเปิดสิทธิ์ allow_member_itinerary_edit
+  const isOrganizer = !!(me && trip && me.id === trip.organizer_id);
+  const canEdit = isOrganizer || !!trip?.allow_member_itinerary_edit;
+
+  function toggleEditMode() {
+    setEditMode((on) => {
+      if (on) {
+        // ออกจากโหมดแก้ไข — เคลียร์ฟอร์ม/สถานะแก้ที่ค้างอยู่
+        setEditActId(null);
+        setActiveAddDayId(null);
+        setEditLabelId(null);
+        setAddingDay(false);
+      }
+      return !on;
+    });
   }
 
   // ── Reorder days ──────────────────────────────────────────────
@@ -231,7 +249,35 @@ export default function ItineraryPage({
       <div className="flex w-full max-w-[420px] flex-col pb-[40px] pt-[24px]">
         {/* Header */}
         <div className="px-[24px]">
-          <PageHeader title="แก้แผนเดินทาง" backHref={`/trips/${tripId}`} user={me} />
+          <PageHeader
+            title="แผนเดินทาง"
+            backHref={`/trips/${tripId}`}
+            user={me}
+            right={
+              canEdit ? (
+                <button
+                  type="button"
+                  onClick={toggleEditMode}
+                  className={`flex h-[32px] items-center gap-[6px] rounded-[10px] px-[12px] text-[12px] font-medium tracking-[0.08px] transition-colors ${
+                    editMode
+                      ? "bg-[#14110d] text-[#f7f5f0]"
+                      : "border border-[#e5e1d7] bg-white text-[#14110d]"
+                  }`}
+                >
+                  {editMode ? (
+                    "เสร็จ"
+                  ) : (
+                    <>
+                      <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                        <path d="M9.5 2.5l2 2L5 11l-2.5.5L3 9l6.5-6.5Z" stroke="#14110d" strokeWidth="1.2" strokeLinejoin="round" />
+                      </svg>
+                      แก้ไข
+                    </>
+                  )}
+                </button>
+              ) : undefined
+            }
+          />
         </div>
 
         {/* Days timeline */}
@@ -241,33 +287,35 @@ export default function ItineraryPage({
               key={day.id}
               className="relative flex gap-[12px] border-b border-[#e5e1d7] pb-[15px] pt-[14px]"
             >
-              {/* Reorder arrows — absolute left */}
-              <div className="absolute left-[-34px] top-[14px] flex flex-col gap-[1px]">
-                <button
-                  type="button"
-                  onClick={() => moveDay(idx, "up")}
-                  disabled={idx === 0}
-                  className={`flex size-[16px] items-center justify-center rounded-[4px] transition-opacity ${
-                    idx === 0 ? "opacity-15" : "opacity-50 active:opacity-100"
-                  }`}
-                >
-                  <svg width="9" height="6" viewBox="0 0 9 6" fill="none">
-                    <path d="M1 5L4.5 1.5L8 5" stroke="#14110d" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => moveDay(idx, "down")}
-                  disabled={idx === days.length - 1}
-                  className={`flex size-[16px] items-center justify-center rounded-[4px] transition-opacity ${
-                    idx === days.length - 1 ? "opacity-15" : "opacity-50 active:opacity-100"
-                  }`}
-                >
-                  <svg width="9" height="6" viewBox="0 0 9 6" fill="none">
-                    <path d="M1 1L4.5 4.5L8 1" stroke="#14110d" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-              </div>
+              {/* Reorder arrows — absolute left (โหมดแก้ไขเท่านั้น) */}
+              {editMode && (
+                <div className="absolute left-[-34px] top-[14px] flex flex-col gap-[1px]">
+                  <button
+                    type="button"
+                    onClick={() => moveDay(idx, "up")}
+                    disabled={idx === 0}
+                    className={`flex size-[16px] items-center justify-center rounded-[4px] transition-opacity ${
+                      idx === 0 ? "opacity-15" : "opacity-50 active:opacity-100"
+                    }`}
+                  >
+                    <svg width="9" height="6" viewBox="0 0 9 6" fill="none">
+                      <path d="M1 5L4.5 1.5L8 5" stroke="#14110d" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveDay(idx, "down")}
+                    disabled={idx === days.length - 1}
+                    className={`flex size-[16px] items-center justify-center rounded-[4px] transition-opacity ${
+                      idx === days.length - 1 ? "opacity-15" : "opacity-50 active:opacity-100"
+                    }`}
+                  >
+                    <svg width="9" height="6" viewBox="0 0 9 6" fill="none">
+                      <path d="M1 1L4.5 4.5L8 1" stroke="#14110d" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                </div>
+              )}
 
               {/* Day number column */}
               <div className="w-[40px] shrink-0">
@@ -284,9 +332,13 @@ export default function ItineraryPage({
 
               {/* Day content */}
               <div className="flex flex-1 flex-col pb-[2px]">
-                {/* Editable day label + delete day */}
+                {/* Day label — แก้/ลบ ได้เฉพาะโหมดแก้ไข */}
                 <div className="mb-[8px] flex h-[32px] items-center gap-[8px]">
-                  {editLabelId === day.id ? (
+                  {!editMode ? (
+                    <p className="flex-1 text-left text-[15px] font-medium text-[#14110d]">
+                      {day.label}
+                    </p>
+                  ) : editLabelId === day.id ? (
                     <input
                       autoFocus
                       type="text"
@@ -305,23 +357,31 @@ export default function ItineraryPage({
                       {day.label}
                     </button>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteDay(day)}
-                    className="shrink-0 p-[6px] opacity-30 active:opacity-80"
-                    aria-label="ลบวัน"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M2.5 3.5h9M5.5 3.5V2.2a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1.3M3.5 3.5l.5 8a1 1 0 0 0 1 .95h4a1 1 0 0 0 1-.95l.5-8" stroke="#c0392b" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </button>
+                  {editMode && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteDay(day)}
+                      className="shrink-0 p-[6px] opacity-30 active:opacity-80"
+                      aria-label="ลบวัน"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2.5 3.5h9M5.5 3.5V2.2a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1.3M3.5 3.5l.5 8a1 1 0 0 0 1 .95h4a1 1 0 0 0 1-.95l.5-8" stroke="#c0392b" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
 
                 {/* Activities — เรียงตามเวลาเสมอ */}
                 {[...day.activities]
                   .sort((a, b) => a.time.localeCompare(b.time))
                   .map((act) =>
-                    editActId === act.id ? (
+                    !editMode ? (
+                      // Read-only row (โหมดดู)
+                      <div key={act.id} className="flex items-center gap-[8px] py-[6px]">
+                        <span className="w-[44px] shrink-0 text-[11.5px] text-[#767168]">{act.time}</span>
+                        <span className="flex-1 text-[13px] text-[#14110d]">{act.title}</span>
+                      </div>
+                    ) : editActId === act.id ? (
                       // Inline edit form
                       <div key={act.id} className="flex items-center gap-[8px] py-[6px]">
                         <div className="w-[52px] shrink-0 border-b border-[#8a8275]">
@@ -390,7 +450,7 @@ export default function ItineraryPage({
                   )}
 
                 {/* Inline add activity form */}
-                {activeAddDayId === day.id && (
+                {editMode && activeAddDayId === day.id && (
                   <div className="flex items-center gap-[8px] py-[6px]">
                     <div className="w-[44px] shrink-0 border-b border-[#8a8275]">
                       <input
@@ -433,7 +493,7 @@ export default function ItineraryPage({
                 )}
 
                 {/* Add activity link — แตะง่ายขึ้น (แถวเต็มความกว้าง) */}
-                {activeAddDayId !== day.id && (
+                {editMode && activeAddDayId !== day.id && (
                   <button
                     type="button"
                     onClick={() => openAdd(day)}
@@ -452,7 +512,8 @@ export default function ItineraryPage({
           ))}
         </div>
 
-        {/* Add day area */}
+        {/* Add day area — โหมดแก้ไขเท่านั้น */}
+        {editMode && (
         <div className="px-[24px] pt-[6px]">
           {addingDay ? (
             <div className="flex items-center gap-[10px] rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] py-[13px]">
@@ -501,6 +562,7 @@ export default function ItineraryPage({
             </button>
           )}
         </div>
+        )}
       </div>
     </main>
   );

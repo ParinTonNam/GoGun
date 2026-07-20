@@ -42,6 +42,12 @@ function dateKey(year: number, month: number, date: number): string {
   return `${year}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
 }
 
+function isPastDate(year: number, month: number, date: number): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return new Date(year, month, date) < today;
+}
+
 function monthRangeKeys(year: number, month: number): { start: string; end: string } {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   return { start: dateKey(year, month, 1), end: dateKey(year, month, daysInMonth) };
@@ -122,6 +128,7 @@ export default function MemberAvailabilityPage({
 
   function toggleDay(date: number, inMonth: boolean) {
     if (!inMonth || !isSelfSelected) return;
+    if (isPastDate(viewYear, viewMonth, date)) return; // กันเลือกวันที่ผ่านมาแล้ว
     setJustSaved(false);
     const key = dateKey(viewYear, viewMonth, date);
     setMyStatus((prev) => {
@@ -314,14 +321,15 @@ export default function MemberAvailabilityPage({
             <div key={rowIdx} className="flex gap-[2px]">
               {grid.slice(rowIdx * 7, rowIdx * 7 + 7).map((cell, colIdx) => {
                 const { bg, text, label } = getCell(cell.date, cell.inMonth);
+                const past = cell.inMonth && isPastDate(viewYear, viewMonth, cell.date);
                 return (
                   <button
                     key={colIdx}
                     type="button"
                     onClick={() => toggleDay(cell.date, cell.inMonth)}
-                    disabled={!cell.inMonth || !isSelfSelected}
+                    disabled={!cell.inMonth || !isSelfSelected || past}
                     className="flex size-[49px] flex-col items-center justify-center rounded-[12px]"
-                    style={{ backgroundColor: bg }}
+                    style={{ backgroundColor: bg, opacity: past ? 0.4 : 1 }}
                   >
                     <span className="text-[13px] font-medium tracking-[0.08px]" style={{ color: text }}>
                       {cell.date}

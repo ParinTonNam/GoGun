@@ -10,6 +10,7 @@ import {
   getMe,
   getTrip,
   getInitial,
+  deleteExpense,
   type Expense,
   type Balance,
   type Settlement,
@@ -18,7 +19,7 @@ import {
 } from "@/lib/api";
 import { MemberBottomNav } from "@/components/member-bottom-nav";
 import { LoadError } from "@/components/load-error";
-import { useLoad } from "@/lib/use-load";
+import { useLoad, notifyError } from "@/lib/use-load";
 
 function AvatarStack({
   users,
@@ -171,15 +172,29 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 function ExpenseDetailSheet({
-  expense, onClose, sym, convert,
+  expense, onClose, sym, convert, onEdit, onDelete,
 }: {
   expense: Expense | null;
   onClose: () => void;
   sym: string;
   convert: (n: number) => string;
+  onEdit: (exp: Expense) => void;
+  onDelete: (exp: Expense) => Promise<void>;
 }) {
   const open = expense !== null;
   const categoryLabel = expense ? (CATEGORY_LABELS[expense.category] ?? "อื่นๆ") : "";
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (!expense || deleting) return;
+    if (!window.confirm(`ลบ "${expense.name}" ออกจากรายการ?`)) return;
+    setDeleting(true);
+    try {
+      await onDelete(expense);
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   return (
     <>
@@ -263,6 +278,31 @@ function ExpenseDetailSheet({
                   {expense.paid_by.display_name}
                 </span>
               </div>
+            </div>
+
+            <div className="flex items-center gap-[10px]">
+              <button
+                type="button"
+                onClick={() => onEdit(expense)}
+                disabled={deleting}
+                className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[14px] border border-[#e5e1d7] bg-white text-[14px] font-medium tracking-[0.08px] text-[#14110d] transition-colors active:bg-[#f2efe8] disabled:opacity-50"
+              >
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <path d="M10.5 1.5L13 4L4.5 12.5L1.5 13L2 10L10.5 1.5Z" stroke="#14110d" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                แก้ไข
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[14px] border border-[#eecfc4] bg-white text-[14px] font-medium tracking-[0.08px] text-[#e85a2c] transition-colors active:bg-[#fbeee7] disabled:opacity-50"
+              >
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <path d="M2 3.5H13M5.5 3.5V2.5C5.5 2 5.9 1.5 6.5 1.5H8.5C9.1 1.5 9.5 2 9.5 2.5V3.5M11.5 3.5V12C11.5 12.6 11.1 13 10.5 13H4.5C3.9 13 3.5 12.6 3.5 12V3.5" stroke="#e85a2c" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                {deleting ? "กำลังลบ..." : "ลบ"}
+              </button>
             </div>
 
           </div>
@@ -422,6 +462,27 @@ export default function MemberWalletPage({
     setMe(user);
     setTrip(t);
   }, [tripId]);
+
+  async function refresh() {
+    const [exp, bal, sets] = await Promise.all([
+      getExpenses(tripId),
+      getBalance(tripId),
+      getSettlements(tripId),
+    ]);
+    setExpenses(exp);
+    setBalance(bal);
+    setSettlements(sets);
+  }
+
+  async function handleDeleteExpense(exp: Expense) {
+    try {
+      await deleteExpense(tripId, exp.id);
+      setDetailExpense(null);
+      await refresh();
+    } catch (e) {
+      notifyError(e, "ลบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+    }
+  }
 
   const myBalance = me && balance
     ? balance.balances.find((b) => b.user_id === me.id)
@@ -611,6 +672,8 @@ export default function MemberWalletPage({
         onClose={() => setDetailExpense(null)}
         sym={displaySym}
         convert={convert}
+        onEdit={(exp) => router.push(`/trips/${tripId}/member/wallet/add?edit=${exp.id}`)}
+        onDelete={handleDeleteExpense}
       />
 
       <CurrencyPickerSheet

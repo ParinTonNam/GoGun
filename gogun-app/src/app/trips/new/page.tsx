@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { WizardHeader } from "@/components/trip/wizard-header";
 import { StepName } from "@/components/trip/step-name";
@@ -8,7 +8,7 @@ import { StepDates } from "@/components/trip/step-dates";
 import { StepMembers } from "@/components/trip/step-members";
 import { StepSettings } from "@/components/trip/step-settings";
 import { createInitialTripFormData, DESTINATIONS, TRIP_TYPES, type TripFormData } from "@/lib/trip";
-import { createTrip } from "@/lib/api";
+import { createTrip, getMe, addMemberByName, updateTrip } from "@/lib/api";
 
 const TOTAL_STEPS = 4;
 
@@ -22,6 +22,20 @@ export default function NewTripPage() {
   function patch(p: Partial<TripFormData>) {
     setFormData((prev) => ({ ...prev, ...p }));
   }
+
+  // แสดงชื่อจริงของผู้จัดทริปในรายชื่อสมาชิก แทน placeholder ที่ hardcode ไว้
+  useEffect(() => {
+    getMe()
+      .then((me) => {
+        setFormData((prev) => ({
+          ...prev,
+          members: prev.members.map((m) =>
+            m.isOrganizer ? { ...m, name: `${me.display_name} (คุณ)` } : m,
+          ),
+        }));
+      })
+      .catch(() => {});
+  }, []);
 
   function goBack() {
     if (step === 1) {
@@ -58,6 +72,24 @@ export default function NewTripPage() {
         currency: formData.currency || "JPY",
         proposed_start_date: formData.startDate ? formData.startDate.toISOString().slice(0, 10) : undefined,
       });
+
+      // ทริปสร้างแล้ว — ที่เหลือ (งบ/สิทธิ์/รายชื่อสมาชิก) เป็น best-effort
+      // ถ้าสเต็ปใดล้มเหลว ยังพาเข้าทริปได้ ผู้ใช้ไปแก้ใน Settings ต่อได้ ไม่สร้างทริปซ้ำ
+      try {
+        await updateTrip(trip.id, {
+          budget_per_person: formData.budgetPerPerson ? Number(formData.budgetPerPerson) : null,
+          allow_member_expenses: formData.permissions.addExpenses,
+          allow_member_itinerary_edit: formData.permissions.editItinerary,
+          allow_member_invite: formData.permissions.inviteOthers,
+        });
+        for (const m of formData.members.filter((mm) => !mm.isOrganizer)) {
+          const name = m.name.trim();
+          if (name) await addMemberByName(trip.id, name);
+        }
+      } catch (postErr) {
+        console.error("บันทึกงบ/สิทธิ์/รายชื่อสมาชิกบางส่วนไม่สำเร็จ", postErr);
+      }
+
       router.push(`/trips/${trip.id}`);
     } catch (e) {
       console.error(e);
