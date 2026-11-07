@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Script from "next/script";
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -44,12 +44,10 @@ function GoogleGLogo() {
 }
 
 // ปุ่ม "Sign in with Google" (Google Identity Services) — ได้ credential แล้ว
-// ส่งต่อให้ parent จัดการเรียก API เอง ถ้าไม่ได้ตั้ง NEXT_PUBLIC_GOOGLE_CLIENT_ID
-// จะไม่แสดงปุ่มเลย
+// ส่งต่อให้ parent จัดการเรียก API เอง
 //
-// variant "official" = ปุ่มหน้าตามาตรฐานของ Google, "styled" = ปุ่มสไตล์เดียวกับ
-// ปุ่มอื่นในแอป โดยซ่อนปุ่มจริงของ GIS แบบโปร่งใสทับไว้เต็มพื้นที่ให้รับคลิกแทน
-// (GIS ไม่มี API ให้ยิง sign-in flow จากปุ่ม custom ตรง ๆ)
+// variant "official" และ "auth" แสดงปุ่มที่ Google render จริง เพื่อให้
+// iframe รับการแตะโดยตรงบนมือถือ
 export default function GoogleSignInButton({
   onCredential,
   variant = "official",
@@ -63,10 +61,14 @@ export default function GoogleSignInButton({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const retryRef = useRef<number | null>(null);
+  const [scriptError, setScriptError] = useState(false);
 
   // หน้าไหน mount component นี้อยู่ ให้ credential ที่ได้กลับไปหาหน้านั้นเสมอ
   useEffect(() => {
     currentCredentialHandler = onCredential;
+    return () => {
+      if (currentCredentialHandler === onCredential) currentCredentialHandler = null;
+    };
   }, [onCredential]);
 
   // render ปุ่ม GIS ลง container — retry จนกว่า (1) script พร้อม และ (2) container
@@ -94,7 +96,7 @@ export default function GoogleSignInButton({
         theme: "outline",
         size: "large",
         shape: variant === "icon" ? "circle" : "pill",
-        ...(variant === "icon" ? { type: "icon" } : { text: "continue_with" }),
+        ...(variant === "icon" ? { type: "icon" } : { text: "signin_with" }),
         locale: "th",
           width: variant === "icon" ? 40 : Math.min(el.clientWidth, 400),
       });
@@ -124,14 +126,12 @@ export default function GoogleSignInButton({
   }
 
   if (variant === "auth") {
+    if (!CLIENT_ID) return <p className="maew-auth-message" role="alert">ยังไม่ได้ตั้งค่า Google Login สำหรับเว็บนี้</p>;
     return (
       <div className="maew-auth-google-button">
-        <button type="button" disabled={!CLIENT_ID} tabIndex={CLIENT_ID ? -1 : undefined}>
-          <GoogleGLogo />
-          <span>{label}</span>
-        </button>
-        {CLIENT_ID && <div className="maew-auth-google-overlay"><div ref={containerRef} /></div>}
-        {CLIENT_ID && <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onReady={() => render()} />}
+        <div ref={containerRef} aria-label={label} />
+        <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onReady={() => render()} onError={() => setScriptError(true)} />
+        {scriptError && <p className="maew-auth-message" role="alert">โหลด Google Login ไม่สำเร็จ กรุณาเปิดเว็บใน Safari หรือ Chrome แล้วลองอีกครั้ง</p>}
       </div>
     );
   }
