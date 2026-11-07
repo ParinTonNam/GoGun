@@ -10,20 +10,10 @@ function cellKeyAt(x: number, y: number): string | null {
   return cell?.dataset.daykey ?? null;
 }
 
-/**
- * Drag-to-paint สำหรับตารางเลือกวันว่าง — ลากนิ้ว/เมาส์ยาว ๆ เพื่อ "ทาสี" หลายวันรวด
- * แทนการกดทีละช่อง ใช้ Pointer Events ชุดเดียวได้ทั้งมือถือและคอม
- *
- * โมเดล: กดที่ช่องแรก → คำนวณสถานะปลายทาง (วน 1 ที ผ่าน cycleNext) แล้วทาสถานะนั้น
- * ให้ทุกช่องที่ลากผ่าน (แตะเดี่ยว = ทาช่องเดียว = เท่ากับวนสถานะ 1 ที เหมือนเดิม)
- *
- * แต่ละ cell ต้องมี attribute `data-daykey="YYYY-MM-DD"` และเรียก `onCellPointerDown(key)`
- * ที่ onPointerDown เพื่อให้ hook หา cell ระหว่างลากด้วย elementFromPoint ได้
- * (บนมือถือ target ของ pointermove ค้างที่ช่องเริ่ม จึงต้องใช้พิกัดจอหา cell จริง)
- */
+/** Paint the explicitly selected status with pointer, keyboard or assistive activation. */
 export function useDragPaint<T extends string>(params: {
   paintable: (key: string) => boolean;
-  cycleNext: (key: string) => T;
+  selectedValue: T;
   applyPaint: (key: string, value: T) => void;
 }) {
   const [dragging, setDragging] = useState(false);
@@ -39,9 +29,9 @@ export function useDragPaint<T extends string>(params: {
 
   const onCellPointerDown = useCallback(
     (key: string) => (e: React.PointerEvent) => {
-      if (!cbRef.current.paintable(key)) return;
+      if (e.button !== 0 || !e.isPrimary || !cbRef.current.paintable(key)) return;
       e.preventDefault(); // กัน text-selection / focus / เริ่ม scroll บนมือถือ
-      const value = cbRef.current.cycleNext(key);
+      const value = cbRef.current.selectedValue;
       paintValueRef.current = value;
       paintedRef.current = new Set([key]);
       cbRef.current.applyPaint(key, value);
@@ -76,5 +66,9 @@ export function useDragPaint<T extends string>(params: {
     };
   }, [dragging]);
 
-  return { dragging, onCellPointerDown };
+  const onCellClick = (key: string) => (e: React.MouseEvent) => {
+    // Pointer presses are already painted; keyboard/assistive activation has detail 0.
+    if (e.detail === 0 && cbRef.current.paintable(key)) cbRef.current.applyPaint(key, cbRef.current.selectedValue);
+  };
+  return { dragging, onCellPointerDown, onCellClick };
 }

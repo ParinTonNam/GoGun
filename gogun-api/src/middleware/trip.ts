@@ -57,3 +57,65 @@ export async function requireItineraryEditor(
   }
   next()
 }
+
+// Requires requireTripMember to run first, as with requireItineraryEditor.
+export async function requireExpenseEditor(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  if (req.tripMember?.role === 'organizer') {
+    next()
+    return
+  }
+  const trip = await prisma.trip.findUnique({
+    where: { id: param(req, 'tripId') },
+    select: { allow_member_expenses: true },
+  })
+  if (!trip?.allow_member_expenses) {
+    err(res, 403, 'FORBIDDEN', 'Editing expenses is limited to the organizer for this trip')
+    return
+  }
+  next()
+}
+
+export async function requirePollCreator(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  if (req.tripMember?.role === 'organizer') {
+    next()
+    return
+  }
+  const trip = await prisma.trip.findUnique({
+    where: { id: param(req, 'tripId') },
+    select: { allow_member_polls: true },
+  })
+  if (trip?.allow_member_polls === false) {
+    err(res, 403, 'FORBIDDEN', 'Creating polls is limited to the organizer for this trip')
+    return
+  }
+  next()
+}
+
+export async function requireQuestCreator(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  if (req.tripMember?.role === 'organizer') {
+    next()
+    return
+  }
+  const trip = await prisma.trip.findUnique({
+    where: { id: param(req, 'tripId') },
+    select: { allow_member_quests: true },
+  })
+  if (trip?.allow_member_quests === false) {
+    err(res, 403, 'FORBIDDEN', 'Starting events is limited to the organizer for this trip')
+    return
+  }
+  next()
+}
+

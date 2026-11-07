@@ -95,6 +95,14 @@ const TOOLS = [
     route: "/trips/demo/tools/checklist",
     icon: "checklist",
   },
+  {
+    title: "??????????",
+    description: "??????????????????????????????????????",
+    badge: "2/4 ??????",
+    badgeColor: "#e85a2c",
+    route: "/trips/demo/tools/quests",
+    icon: "checklist",
+  },
 ] as const;
 
 
@@ -103,7 +111,7 @@ export default function ToolsHubPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col gap-[24px] pb-[96px] pt-[24px] px-[24px]">
+      <div className="demo-page-content flex w-full max-w-[960px] flex-col gap-[24px] pb-[96px] pt-[24px] px-[24px]">
         {/* Header */}
         <PageHeader
           title="อุปกรณ์เสริม"
@@ -127,11 +135,11 @@ export default function ToolsHubPage() {
                 <p className="text-[14.5px] font-medium tracking-[0.08px] text-[#14110d] leading-[17.4px]">
                   {tool.title}
                 </p>
-                <p className="text-[11px] font-light tracking-[0.08px] text-[#767168] leading-[15.4px]">
+                <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168] leading-[15.4px]">
                   {tool.description}
                 </p>
               </div>
-              <p className="text-[10px] font-light uppercase" style={{ color: tool.badgeColor }}>
+              <p className="text-[12px] font-normal uppercase" style={{ color: tool.badgeColor }}>
                 {tool.badge}
               </p>
             </button>

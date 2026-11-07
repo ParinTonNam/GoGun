@@ -1,0 +1,68 @@
+html:has(.maew-auth){scrollbar-gutter:auto}
+.maew-auth{position:relative;isolation:isolate;overflow:hidden;width:100%;min-height:100dvh;margin:0;border-radius:0;color:#14110d;background:#f7f5f0}
+.maew-auth-background{position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(to bottom,#ffeee7 0%,#ffeee7 75.172%,rgba(247,245,240,0) 119.28%),url('/images/figma-scene-bg.png');background-position:center,center bottom;background-size:100% 100%,cover;background-repeat:no-repeat}
+.maew-auth--home{background:linear-gradient(159.602deg,#f7f5f0 3.273%,#ffeee7 46.678%,#ff7237 82.863%)}
+.maew-auth--home .maew-auth-background{background-image:linear-gradient(to bottom,#ffeee7 30.034%,rgba(247,245,240,0) 69.451%),url('/images/figma-scene-bg.png');background-size:100% 100%,cover}
+.maew-auth-header{position:absolute;top:64px;right:20px;left:20px;z-index:4;display:flex;height:33px;align-items:center;justify-content:space-between}
+.maew-auth-brand{display:flex;align-items:center;gap:8.962px;text-decoration:none}
+.maew-auth-brand>img{display:block;flex:none;width:31px;height:29.757px}
+.maew-auth-brand-copy{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:142px;letter-spacing:.1216px}
+.maew-auth-brand-copy strong{display:flex;height:16px;align-items:center;color:#a14a20;font-size:20px;font-weight:400;line-height:1}
+.maew-auth-brand-copy small{color:#973413;font-size:10px;font-weight:300;line-height:normal;white-space:nowrap}
+.maew-auth-language{display:flex;width:77px;height:26px;align-items:center;justify-content:center;padding:3px;border:.5px solid #b5b0a4;border-radius:18px;background:#fcede3}
+.maew-auth-language button{display:grid;width:35px;height:19px;place-items:center;padding:0;border:0;border-radius:18px;background:transparent;color:#767168;font-family:inherit;font-size:11.25px;font-weight:500;line-height:19px;letter-spacing:.06px;cursor:pointer}
+.maew-auth-language button[aria-pressed=true]{background:#e85a2c;color:white}
+.maew-auth-home-copy{position:absolute;top:193px;left:50%;z-index:1;width:min(258px,calc(100% - 40px));transform:translateX(-50%)}
+.maew-auth-home-copy h1{margin:0;color:#14110d;font-size:28px;font-weight:500;line-height:42px;letter-spacing:.08px;white-space:nowrap}
+.maew-auth-home-copy p{margin:6px 0 0;color:#767168;font-size:13px;font-weight:300;line-height:19px}
+.maew-auth-home-actions{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:30px}
+.maew-auth-home-actions>a{display:flex;width:100%;height:52px;align-items:center;justify-content:center;border:1px solid #e5e1d7;border-radius:18px;font-size:15px;font-weight:500;letter-spacing:.08px;text-decoration:none}
+.maew-auth-home-actions .maew-auth-home-login{background:#e85a2c;color:#fff}
+.maew-auth-home-actions .maew-auth-home-register{background:#fff;color:#14110d}
+.maew-auth-home-actions .maew-auth-home-demo{height:22px;border:0;border-radius:0;background:transparent;color:#14110d;text-decoration:underline;text-underline-offset:2px}
+.maew-auth-home-cat{position:absolute;top:473px;left:-7px;z-index:0;width:606px;height:653px;max-width:none;pointer-events:none}
+.maew-auth-content{position:absolute;left:50%;z-index:1;display:flex;width:min(362px,calc(100% - 40px));flex-direction:column;align-items:stretch;gap:18px;transform:translate(-50%,-50%)}
+.maew-auth-content h1{margin:0;font-size:28px;font-weight:500;line-height:42px;letter-spacing:.08px}
+.maew-auth--register .maew-auth-content{top:calc(50% + 7px);gap:16px}
+.maew-auth--register .maew-auth-form,.maew-auth--register .maew-auth-divider{margin-bottom:-6px}
+.maew-auth--login .maew-auth-content{top:calc(50% - 65px);left:calc(50% - 3px)}
+.maew-auth--reset .maew-auth-content{top:calc(50% - 189.5px)}
+.maew-auth--check .maew-auth-content{top:calc(50% - 8.3px);align-items:center;text-align:center}
+.maew-auth-form{display:flex;flex-direction:column;gap:18px}
+.maew-auth-fields{display:flex;flex-direction:column;gap:12px}
+.maew-auth-field{display:flex;flex-direction:column;gap:12px}
+.maew-auth-field label{height:23px;color:#d96843;font-size:15px;font-weight:500;line-height:23px;letter-spacing:-.24px}
+.maew-auth-input{display:flex;height:50px;align-items:center;gap:8px;padding:0 20px;border:1px solid #e5e1d7;border-radius:18px;background:#fff}
+.maew-auth-input:focus-within{border-color:#e85a2c}
+.maew-auth-input>img{display:block;flex:none;width:15px;height:15px}
+.maew-auth-input input{width:100%;min-width:0;padding:0;border:0;outline:0;background:transparent;color:#14110d;font-family:inherit;font-size:12px;font-weight:300;line-height:normal;letter-spacing:.08px}
+.maew-auth-input input::placeholder{color:#767168;opacity:.5}
+.maew-auth-eye{display:grid;width:18px;height:18px;flex:none;place-items:center;padding:0;border:0;background:transparent;cursor:pointer}
+.maew-auth-eye img{width:15px;height:15px}
+.maew-auth-primary{display:flex;width:100%;height:51px;align-items:center;justify-content:center;padding:10px;border:1px solid #e5e1d7;border-radius:59px;background:#e85a2c;color:#fcede3;font-family:inherit;font-size:16px;font-weight:500;line-height:normal;letter-spacing:.08px;text-decoration:none;cursor:pointer}
+.maew-auth-primary:disabled{opacity:.65;cursor:default}
+.maew-auth-google-button{position:relative;width:100%;height:51px}
+.maew-auth-google-button>button{display:flex;width:100%;height:51px;align-items:center;justify-content:center;gap:10px;padding:10px;border:1px solid #e5e1d7;border-radius:59px;background:#fff;color:#e85a2c;font-family:inherit;font-size:16px;font-weight:500;letter-spacing:.08px;cursor:pointer}
+.maew-auth-google-button>button svg{width:25px;height:25px;flex:none}
+.maew-auth-google-button>button:disabled{cursor:default}
+.maew-auth-google-overlay{position:absolute;inset:0;display:flex;align-items:center;overflow:hidden;border-radius:59px;opacity:0}
+.maew-auth-google-overlay>div{display:flex;width:100%;height:100%;align-items:center;justify-content:center;transform:scaleY(1.3)}
+.maew-auth-message{margin:0;color:#aa2f16;font-size:12px;line-height:1.5}
+.maew-auth-divider{display:flex;height:28px;align-items:center;justify-content:center;gap:7px;color:#121333;font-size:11px;font-weight:600;line-height:28px}
+.maew-auth-divider img{display:block;width:98px;height:1px}
+.maew-auth-socials{display:flex;align-items:center;justify-content:center;gap:17px}
+.maew-auth-socials .auth-social-button,.maew-auth-socials .google-icon-signin{display:grid;width:42px;height:42px;place-items:center;padding:0;border:0;border-radius:50%;background:#e85a2c}
+.maew-auth-socials .auth-social-button img{display:block;width:27px;height:27px}
+.maew-auth-socials .google-icon-overlay>div{width:42px;height:42px}
+.maew-auth-footer{display:flex;align-items:center;justify-content:center;gap:5px;margin:0;color:#121333;font-size:11px;font-weight:600;line-height:28px;white-space:nowrap}
+.maew-auth-footer a{color:#e85a2c;font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.maew-auth-forgot{margin-top:-5px;color:#e85a2c;font-size:11px;font-weight:700;line-height:28px}
+.maew-auth-forgot a{color:inherit;text-decoration:none}
+.maew-auth-forgot u{text-underline-offset:2px}
+.maew-auth-description{margin:0;color:#767168;font-size:13px;font-weight:300;line-height:normal}
+.maew-auth--reset .maew-auth-form{gap:18px}
+.maew-auth--reset .maew-auth-input{gap:8px}
+.maew-auth--check .maew-auth-cat{display:block;width:250px;height:234.393px;max-width:none}
+.maew-auth--check h1{width:100%}
+.maew-auth--check .maew-auth-description{width:100%}
+@media(max-width:360px){.maew-auth-header{right:16px;left:16px}.maew-auth-content h1,.maew-auth-home-copy h1{font-size:25px}.maew-auth-footer{font-size:10px;gap:3px}}

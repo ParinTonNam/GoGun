@@ -2,6 +2,8 @@
 
 import { type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useOptionalTripWorkspace } from "@/components/trip-workspace";
 
 export type HeaderUser = { display_name: string; avatar_color: string };
 
@@ -22,30 +24,30 @@ export function PageHeader({
   right?: ReactNode;
 }) {
   const router = useRouter();
+  const workspace = useOptionalTripWorkspace();
 
   return (
     <div className="flex flex-col">
       {/* Logo strip + profile chip */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-[7px]">
-          <img src="/images/logo.svg" alt="" className="size-[19px]" />
-          <p className="text-[11px] tracking-[0.08px] text-[#767168]">GOGUN</p>
-          <p className="text-[13px] font-medium tracking-[0.08px] text-[#14110d]">ไปกัน</p>
+      {!workspace && <div className="app-page-brand-row flex items-center justify-between gap-3">
+        <div className="app-page-brand flex items-center gap-[8px]">
+          <img src="/images/logo.svg" alt="" className="size-[24px]" />
+          <p className="text-[16px] font-semibold text-[#14110d]">GoGun · ไปกัน</p>
         </div>
         {user && (
-          <div className="flex h-[33px] items-center gap-[8px] rounded-[48px] border border-[#edeae2] bg-white p-[7px]">
+          <Link href="/profile" aria-label={`โปรไฟล์ ${user.display_name}`} className="flex min-h-[44px] items-center gap-[8px] rounded-[48px] border border-[#edeae2] bg-white px-[10px] py-[7px]">
             <span
               className="flex size-[22px] items-center justify-center rounded-[31px] text-[12px] font-medium text-white"
               style={{ backgroundColor: user.avatar_color }}
             >
               {user.display_name.trim().slice(0, 1)}
             </span>
-            <span className="text-[12px] font-medium tracking-[0.08px] text-[#14110d]">
+            <span className="text-[14px] font-medium text-[#14110d]">
               {user.display_name}
             </span>
-          </div>
+          </Link>
         )}
-      </div>
+      </div>}
 
       {/* Page title */}
       {title && (
@@ -55,12 +57,13 @@ export function PageHeader({
             <button
               type="button"
               onClick={() => router.push(backHref)}
-              className="flex size-[36px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
+              aria-label="ย้อนกลับ"
+              className="flex size-[44px] shrink-0 items-center justify-center rounded-[18.5px] border border-[#e5e1d7] bg-white"
             >
               <img src="/images/icon-chevron-left.svg" alt="" className="h-[10px] w-[6px] object-contain" />
             </button>
           )}
-          <p className="flex-1 text-[26px] font-medium tracking-[0.08px] text-[#14110d]">{title}</p>
+          <h1 className="min-w-0 flex-1 break-words text-[26px] font-medium tracking-[0.08px] text-[#14110d]">{title}</h1>
           {right}
         </div>
         {subtitle && (

@@ -1,7 +1,15 @@
 import type { TripTypeCode } from "./api";
 
-export type TemplateActivity = { time: string; title: string };
-export type TemplateDay = { label: string; activities: TemplateActivity[] };
+export type TemplateActivity = {
+  time: string;
+  title: string;
+  description?: string;
+};
+
+export type TemplateDay = {
+  label: string;
+  activities: TemplateActivity[];
+};
 
 export type TripTemplate = {
   id: string;
@@ -28,11 +36,392 @@ export type TemplateFilter = (typeof TEMPLATE_FILTERS)[number];
 
 export const TRIP_TEMPLATES: TripTemplate[] = [
   {
+    id: "tokyo-kyoto",
+    name: "ทริปญี่ปุ่นชมใบไม้แดง",
+    destination: "ญี่ปุ่น",
+    emoji: "🍁",
+    meta: "ญี่ปุ่น 5 คน",
+    trip_type: "long",
+    duration_days: 3,
+    currency: "JPY",
+    tags: ["มาแรงช่วงนี้", "ทริปใหญ่ก๊วนเพื่อน", "ทริปต่างประเทศ"],
+    days: [
+      {
+        label: "เดินทาง · โอซาก้า",
+        activities: [
+          {
+            time: "08:00",
+            title: "ออกเดินทางไปญี่ปุ่น",
+            description: "ขึ้นเครื่องบิน เตรียมเริ่มทริปโอซาก้า",
+          },
+          {
+            time: "13:00",
+            title: "ถึงสนามบินคันไซ",
+            description: "ผ่าน ตม. รับกระเป๋า แล้วเข้าเมืองโอซาก้า",
+          },
+          {
+            time: "15:00",
+            title: "เช็กอินโรงแรม",
+            description: "ฝากกระเป๋าและพักผ่อนก่อนออกเที่ยว",
+          },
+          {
+            time: "17:00",
+            title: "กินมื้อเย็นที่โดทงโบริ",
+            description: "ลองทาโกยากิและโอโคโนมิยากิ",
+          },
+          {
+            time: "20:00",
+            title: "เดินเล่นย่านนัมบะ",
+            description: "ช้อปปิ้งและถ่ายรูปป้ายกูลิโกะ",
+          },
+          {
+            time: "22:00",
+            title: "กลับโรงแรมพักผ่อน",
+            description: "เตรียมพร้อมสำหรับเที่ยววันถัดไป",
+          },
+        ],
+      },
+      {
+        label: "เกียวโต · ชมใบไม้แดง",
+        activities: [
+          {
+            time: "08:30",
+            title: "เดินทางไปเกียวโต",
+            description: "นั่งรถไฟจากโอซาก้าไปอาราชิยามะ",
+          },
+          {
+            time: "10:00",
+            title: "สะพานโทเก็ตสึเคียว & ป่าไผ่",
+            description: "ชมใบไม้เปลี่ยนสีริมแม่น้ำและเดินป่าไผ่",
+          },
+          {
+            time: "13:00",
+            title: "มื้อเที่ยงย่านกิออน",
+            description: "เซ็ตอาหารญี่ปุ่นแบบดั้งเดิม",
+          },
+          {
+            time: "15:30",
+            title: "วัดคิโยมิซุเดระ (วัดน้ำใส)",
+            description: "จุดชมวิวใบไม้แดงยอดฮิตของเกียวโต",
+          },
+          {
+            time: "19:00",
+            title: "กลับโอซาก้า · มื้อเย็นอุเมดะ",
+            description: "แวะกินปิ้งย่างยากินิกุก่อนเข้าที่พัก",
+          },
+        ],
+      },
+      {
+        label: "ช้อปปิ้ง · เดินทางกลับ",
+        activities: [
+          {
+            time: "09:30",
+            title: "ตลาดคุโรมง",
+            description: "หาของกินตอนเช้า ซูชิและผลไม้สด",
+          },
+          {
+            time: "12:00",
+            title: "ริงคุ พรีเมียม เอาท์เล็ท",
+            description: "แวะช้อปของฝากใกล้สนามบินคันไซ",
+          },
+          {
+            time: "16:30",
+            title: "เช็กอินสนามบินคันไซ",
+            description: "โหลดกระเป๋าและเตรียมตัวเดินทางกลับ",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "korea-sakura",
+    name: "ทริปเกาหลีชมซากุระ",
+    destination: "เกาหลีใต้",
+    emoji: "🌸",
+    meta: "เกาหลีใต้ 5 คน",
+    trip_type: "long",
+    duration_days: 2,
+    currency: "KRW",
+    tags: ["มาแรงช่วงนี้", "ทริปต่างประเทศ"],
+    days: [
+      {
+        label: "โซล · ยออีโด · ฮงแด",
+        activities: [
+          {
+            time: "08:30",
+            title: "ถึงสนามบินอินชอน",
+            description: "นั่ง AREX เข้าตัวเมืองโซลและฝากกระเป๋า",
+          },
+          {
+            time: "11:00",
+            title: "สวนยออีโด ชมซากุระ",
+            description: "เดินเล่นถ่ายรูปอุโมงค์ดอกพ็อตโกตริมแม่น้ำฮัน",
+          },
+          {
+            time: "14:00",
+            title: "คาเฟ่ย่านยอนนัมดง",
+            description: "แวะจิบกาแฟและขนมเค้กสไตล์เกาหลี",
+          },
+          {
+            time: "18:00",
+            title: "เดินเล่นและกินหมูย่างฮงแด",
+            description: "ช้อปปิ้งเสื้อผ้าและชมสตรีทโชว์ยามค่ำ",
+          },
+        ],
+      },
+      {
+        label: "พระราชวังเคียงบก · เมียงดง",
+        activities: [
+          {
+            time: "09:30",
+            title: "เช่าชุดฮันบก เที่ยวพระราชวังเคียงบก",
+            description: "ถ่ายรูปท่ามกลางต้นซากุระในพระราชวัง",
+          },
+          {
+            time: "13:00",
+            title: "หมู่บ้านบุกชอนฮันอก",
+            description: "เดินชมบ้านโบราณและจุดชมวิวโซล",
+          },
+          {
+            time: "17:00",
+            title: "ช้อปปิ้งสกินแคร์ย่านเมียงดง",
+            description: "ตะลุยสตรีทฟู้ดและซื้อของฝากก่อนกลับ",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "phuket-sea",
+    name: "ทริปทะเลภูเก็ต",
+    destination: "ไทย",
+    emoji: "🏖️",
+    meta: "ไทย 5 คน",
+    trip_type: "overnight",
+    duration_days: 2,
+    currency: "THB",
+    tags: ["มาแรงช่วงนี้", "1 เดย์ทริป", "ทริปใหญ่ก๊วนเพื่อน"],
+    days: [
+      {
+        label: "เมืองเก่าภูเก็ต · แหลมพรหมเทพ",
+        activities: [
+          {
+            time: "09:00",
+            title: "ถึงสนามบินภูเก็ต รับรถเช่า",
+            description: "มุ่งหน้าเข้าตัวเมืองภูเก็ต",
+          },
+          {
+            time: "11:00",
+            title: "ติ่มซำมื้อสาย & ย่านเมืองเก่า",
+            description: "เดินถ่ายรูปตึกชิโนโปรตุกีส ถนนถลาง",
+          },
+          {
+            time: "15:00",
+            title: "เช็กอินที่พักริมหาดกะตะ",
+            description: "พักผ่อนและเดินเล่นชายหาด",
+          },
+          {
+            time: "17:30",
+            title: "ชมพระอาทิตย์ตกแหลมพรหมเทพ",
+            description: "จุดชมวิวทะเลอันดามันยามเย็น",
+          },
+          {
+            time: "19:30",
+            title: "ดินเนอร์ซีฟู้ดสดๆ",
+            description: "กุ้งมังกรและอาหารใต้รสจัดจ้าน",
+          },
+        ],
+      },
+      {
+        label: "ล่องเรือเกาะเฮ · เดินทางกลับ",
+        activities: [
+          {
+            time: "09:00",
+            title: "ลงเรือสปีดโบ๊ทไปเกาะเฮ",
+            description: "ดำน้ำตื้นดูปะการังและพักผ่อนริมหาดน้ำใส",
+          },
+          {
+            time: "14:00",
+            title: "กลับเข้าฝั่ง แวะซื้อของฝาก",
+            description: "น้ำพริกกุ้งเสียบและเต้าส้อเมืองภูเก็ต",
+          },
+          {
+            time: "17:00",
+            title: "เดินทางถึงสนามบินภูเก็ต",
+            description: "คืนรถเช่าและเตรียมบินกลับ",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "switzerland-hike",
+    name: "ทริปสวิตเซอร์แลนด์เดินเขา",
+    destination: "สวิตเซอร์แลนด์",
+    emoji: "🏔️",
+    meta: "สวิตเซอร์แลนด์ 5 คน",
+    trip_type: "long",
+    duration_days: 2,
+    currency: "EUR",
+    tags: ["ทริปใหญ่ก๊วนเพื่อน", "ทริปต่างประเทศ"],
+    days: [
+      {
+        label: "อินเทอร์ลาเคน · เลาเทอร์บรุนเนิน",
+        activities: [
+          {
+            time: "08:00",
+            title: "นั่งรถไฟสายวิวสวยสู่อินเทอร์ลาเคน",
+            description: "ชมวิวทะเลสาบสีเทอร์ควอยซ์สองฝั่ง",
+          },
+          {
+            time: "10:30",
+            title: "หมู่บ้านเลาเทอร์บรุนเนิน",
+            description: "เดินชมหุบเขาน้ำตก 72 แห่งและบ้านไม้สไตล์สวิส",
+          },
+          {
+            time: "14:00",
+            title: "ขึ้นกระเช้าสู่กรินเดลวัลด์ เฟิร์ส",
+            description: "เดินเทรล Bachalpsee และถ่ายรูปวิวเทือกเขาแอลป์",
+          },
+          {
+            time: "18:30",
+            title: "มื้อเย็นฟองดูว์ชีสสวิส",
+            description: "พักผ่อนในชาเลต์กลางหุบเขา",
+          },
+        ],
+      },
+      {
+        label: "เซอร์แมท · แมทเทอร์ฮอร์น",
+        activities: [
+          {
+            time: "08:30",
+            title: "รถไฟขึ้นจุดชมวิว Gornergrat",
+            description: "ชมยอดเขาแมทเทอร์ฮอร์นแบบพาโนรามา",
+          },
+          {
+            time: "12:00",
+            title: "เดินเทรลทะเลสาบ Riffelsee",
+            description: "ถ่ายภาพเงาสะท้อนยอดเขาแมทเทอร์ฮอร์นบนผิวน้ำ",
+          },
+          {
+            time: "16:00",
+            title: "เดินเล่นหมู่บ้านปลอดรถยนต์เซอร์แมท",
+            description: "แวะซื้อช็อกโกแลตสวิสและของที่ระลึก",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "taiwan-foodie",
+    name: "ทริปไต้หวันตะลุยกิน",
+    destination: "ไต้หวัน",
+    emoji: "🧋",
+    meta: "ไต้หวัน 5 คน",
+    trip_type: "long",
+    duration_days: 2,
+    currency: "THB",
+    tags: ["มาแรงช่วงนี้", "ทริปใหญ่ก๊วนเพื่อน", "ทริปต่างประเทศ"],
+    days: [
+      {
+        label: "ไทเป · ซีเหมินติง · ตลาดกลางคืน",
+        activities: [
+          {
+            time: "09:00",
+            title: "ถึงสนามบินเถาหยวน เข้าเมืองไทเป",
+            description: "นั่งรถไฟด่วนเข้าสถานี Taipei Main Station",
+          },
+          {
+            time: "11:30",
+            title: "บะหมี่อาจง & ชานมไข่มุกต้นตำรับ",
+            description: "ฝากกระเป๋าและเริ่มต้นตะลุยกินย่านซีเหมินติง",
+          },
+          {
+            time: "15:00",
+            title: "อนุสรณ์สถานเจียงไคเชก",
+            description: "ชมพิธีเปลี่ยนเวรยามและแวะคาเฟ่โรงน้ำชา",
+          },
+          {
+            time: "18:30",
+            title: "ตลาดกลางคืนเหราเหอ",
+            description: "ซาลาเปาอบโอ่งพริกไทยดำ ปลาหมึกย่าง และเต้าหู้เหม็น",
+          },
+        ],
+      },
+      {
+        label: "จิ่วเฟิ่น · สือเฟิ่น",
+        activities: [
+          {
+            time: "09:30",
+            title: "ปล่อยโคมลอยที่สือเฟิ่น",
+            description: "เขียนคำอธิษฐานและปล่อยโคมริมทางรถไฟสายเก่า",
+          },
+          {
+            time: "14:00",
+            title: "หมู่บ้านโบราณจิ่วเฟิ่น",
+            description: "กินบัวลอยเผือกหนึบและจิบชาชมวิวทะเลและภูเขา",
+          },
+          {
+            time: "19:00",
+            title: "ชาบูหมาล่าไต้หวัน",
+            description: "บุฟเฟต์เนื้อพรีเมียมและไอศกรีมปิดท้ายทริป",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "singapore-city",
+    name: "ทริปสิงคโปร์เที่ยวเมือง",
+    destination: "สิงคโปร์",
+    emoji: "🦁",
+    meta: "สิงคโปร์ 5 คน",
+    trip_type: "one_day",
+    duration_days: 1,
+    currency: "SGD",
+    tags: ["1 เดย์ทริป", "ทริปต่างประเทศ"],
+    days: [
+      {
+        label: "มารีน่าเบย์ · การ์เด้นส์ บาย เดอะ เบย์",
+        activities: [
+          {
+            time: "09:00",
+            title: "ถึงสนามบินชางงี & น้ำตก Jewel",
+            description: "ถ่ายรูปน้ำตกในร่ม HSBC Rain Vortex",
+          },
+          {
+            time: "11:30",
+            title: "ข้าวมันไก่เทียนเทียน Maxwell Food Centre",
+            description: "มื้อเที่ยงสตรีทฟู้ดชื่อดังย่านไชน่าทาวน์",
+          },
+          {
+            time: "14:30",
+            title: "เมอร์ไลออน พาร์ค & มารีน่าเบย์",
+            description: "จุดเช็กอินแลนด์มาร์กริมอ่าวมารีน่า",
+          },
+          {
+            time: "17:00",
+            title: "Gardens by the Bay",
+            description: "เดินชม Cloud Forest และ Supertree Grove",
+          },
+          {
+            time: "19:45",
+            title: "โชว์แสงสีเสียง Garden Rhapsody",
+            description: "ชมการแสดงไฟใต้ต้นยักษ์ Supertree ยามค่ำคืน",
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const LEGACY_TEMPLATES: TripTemplate[] = [
+  {
     id: "bangsaen",
     name: "One Day Trip บางแสน",
     destination: "บางแสน ชลบุรี",
     emoji: "🏖️",
-    meta: "1 วัน · ชลบุรี · ทะเลใกล้กรุงเทพฯ",
+    meta: "ชลบุรี 5 คน",
     trip_type: "one_day",
     duration_days: 1,
     currency: "THB",
@@ -41,14 +430,10 @@ export const TRIP_TEMPLATES: TripTemplate[] = [
       {
         label: "เที่ยวบางแสน",
         activities: [
-          { time: "07:00", title: "ออกเดินทางจากกรุงเทพฯ" },
-          { time: "09:00", title: "ถึงบางแสน — คาเฟ่ริมทะเล" },
-          { time: "10:30", title: "เดินเล่นชายหาดบางแสน" },
-          { time: "12:00", title: "มื้อเที่ยงอาหารทะเล ตลาดหนองมน" },
-          { time: "14:00", title: "จุดชมวิวเขาสามมุก" },
-          { time: "15:30", title: "สถาบันวิทยาศาสตร์ทางทะเล ม.บูรพา" },
-          { time: "17:00", title: "ชมพระอาทิตย์ตกริมหาด" },
-          { time: "18:30", title: "เดินทางกลับกรุงเทพฯ" },
+          { time: "07:00", title: "ออกเดินทางจากกรุงเทพฯ", description: "นัดรวมตัวและออกเดินทาง" },
+          { time: "09:00", title: "ถึงบางแสน — คาเฟ่ริมทะเล", description: "แวะจิบกาแฟรับลมทะเล" },
+          { time: "12:00", title: "มื้อเที่ยงอาหารทะเล ตลาดหนองมน", description: "ซีฟู้ดสดและของฝากหนองมน" },
+          { time: "17:00", title: "ชมพระอาทิตย์ตกริมหาด", description: "เดินเล่นชายหาดบางแสนยามเย็น" },
         ],
       },
     ],
@@ -58,7 +443,7 @@ export const TRIP_TEMPLATES: TripTemplate[] = [
     name: "ไหว้พระเมืองเก่าอยุธยา",
     destination: "อยุธยา",
     emoji: "🛕",
-    meta: "1 วัน · อยุธยา · ประวัติศาสตร์",
+    meta: "อยุธยา 5 คน",
     trip_type: "one_day",
     duration_days: 1,
     currency: "THB",
@@ -67,170 +452,10 @@ export const TRIP_TEMPLATES: TripTemplate[] = [
       {
         label: "รอบเกาะเมืองอยุธยา",
         activities: [
-          { time: "07:30", title: "ออกเดินทางจากกรุงเทพฯ" },
-          { time: "09:00", title: "วัดมหาธาตุ — เศียรพระในรากไม้" },
-          { time: "10:30", title: "วัดพระศรีสรรเพชญ์" },
-          { time: "12:00", title: "ก๋วยเตี๋ยวเรือ + โรตีสายไหม" },
-          { time: "14:00", title: "วัดไชยวัฒนาราม" },
-          { time: "16:00", title: "ล่องเรือรอบเกาะเมือง" },
-          { time: "18:00", title: "เดินทางกลับกรุงเทพฯ" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "samet",
-    name: "เกาะเสม็ด 2 วัน 1 คืน",
-    destination: "เกาะเสม็ด ระยอง",
-    emoji: "⛵",
-    meta: "2 วัน 1 คืน · ระยอง · ทะเลตะวันออก",
-    trip_type: "overnight",
-    duration_days: 2,
-    currency: "THB",
-    tags: ["มาแรงช่วงนี้", "ทริปใหญ่ก๊วนเพื่อน"],
-    days: [
-      {
-        label: "เดินทาง · หาดทรายแก้ว",
-        activities: [
-          { time: "08:00", title: "ออกเดินทางจากกรุงเทพฯ" },
-          { time: "11:00", title: "ลงเรือที่ท่าบ้านเพ" },
-          { time: "12:00", title: "เช็คอินที่พัก หาดทรายแก้ว" },
-          { time: "15:00", title: "เล่นน้ำ อ่าวไผ่" },
-          { time: "19:00", title: "ดินเนอร์ซีฟู้ดริมหาด" },
-        ],
-      },
-      {
-        label: "ขับรถรอบเกาะ · กลับ",
-        activities: [
-          { time: "09:00", title: "เช่ามอเตอร์ไซค์เที่ยวรอบเกาะ" },
-          { time: "11:00", title: "จุดชมวิวอ่าวปะการัง" },
-          { time: "13:00", title: "เก็บของ เช็คเอาท์" },
-          { time: "14:30", title: "เรือกลับบ้านเพ" },
-          { time: "18:00", title: "ถึงกรุงเทพฯ" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "khaoyai",
-    name: "แคมป์ปิ้งเขาใหญ่",
-    destination: "เขาใหญ่ นครราชสีมา",
-    emoji: "🏕️",
-    meta: "2 วัน 1 คืน · เขาใหญ่ · ธรรมชาติ",
-    trip_type: "overnight",
-    duration_days: 2,
-    currency: "THB",
-    tags: ["ทริปใหญ่ก๊วนเพื่อน"],
-    days: [
-      {
-        label: "เข้าอุทยาน · กางเต็นท์",
-        activities: [
-          { time: "07:00", title: "ออกเดินทางจากกรุงเทพฯ" },
-          { time: "10:00", title: "น้ำตกเหวนรก" },
-          { time: "13:00", title: "จุดชมวิว กม.30" },
-          { time: "16:00", title: "กางเต็นท์ ลานผากล้วยไม้" },
-          { time: "18:30", title: "ปิ้งย่างรอบกองไฟ" },
-        ],
-      },
-      {
-        label: "ส่องสัตว์ · คาเฟ่ · กลับ",
-        activities: [
-          { time: "06:00", title: "ส่องสัตว์ยามเช้า" },
-          { time: "09:00", title: "เก็บเต็นท์ ออกจากอุทยาน" },
-          { time: "11:00", title: "คาเฟ่วิวเขาใหญ่" },
-          { time: "14:00", title: "แวะไร่องุ่น ซื้อของฝาก" },
-          { time: "17:00", title: "เดินทางกลับกรุงเทพฯ" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "chiangmai",
-    name: "เชียงใหม่ 3 วัน 2 คืน",
-    destination: "เชียงใหม่",
-    emoji: "⛰️",
-    meta: "3 วัน 2 คืน · เชียงใหม่ · คาเฟ่และดอย",
-    trip_type: "long",
-    duration_days: 3,
-    currency: "THB",
-    tags: ["มาแรงช่วงนี้", "ทริปใหญ่ก๊วนเพื่อน"],
-    days: [
-      {
-        label: "ตัวเมือง · นิมมาน",
-        activities: [
-          { time: "09:00", title: "ถึงเชียงใหม่ เก็บกระเป๋าที่ที่พัก" },
-          { time: "11:00", title: "วัดพระสิงห์ วัดเจดีย์หลวง" },
-          { time: "14:00", title: "คาเฟ่ย่านนิมมาน" },
-          { time: "18:00", title: "ถนนคนเดิน / กาดหน้ามอ" },
-        ],
-      },
-      {
-        label: "ดอยสุเทพ · แม่ริม",
-        activities: [
-          { time: "08:00", title: "ขึ้นดอยสุเทพ" },
-          { time: "11:00", title: "หมู่บ้านม้งดอยปุย" },
-          { time: "14:00", title: "คาเฟ่แม่ริม" },
-          { time: "18:00", title: "มื้อเย็นข้าวซอยเจ๊กพ่อ" },
-        ],
-      },
-      {
-        label: "ซื้อของฝาก · กลับ",
-        activities: [
-          { time: "09:00", title: "One Nimman ซื้อของฝาก" },
-          { time: "12:00", title: "มื้อเที่ยงก่อนกลับ" },
-          { time: "15:00", title: "เดินทางกลับกรุงเทพฯ" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "tokyo-kyoto",
-    name: "ญี่ปุ่น โตเกียว–เกียวโต",
-    destination: "โตเกียว–เกียวโต ญี่ปุ่น",
-    emoji: "🗼",
-    meta: "5 วัน 4 คืน · ญี่ปุ่น · ซากุระและวัด",
-    trip_type: "long",
-    duration_days: 5,
-    currency: "JPY",
-    tags: ["ทริปต่างประเทศ"],
-    days: [
-      {
-        label: "ลงเครื่อง · Tokyo",
-        activities: [
-          { time: "06:30", title: "Bangkok → Narita" },
-          { time: "16:00", title: "Check-in โรงแรม Shinjuku" },
-          { time: "19:00", title: "เดินเล่น Shinjuku, Omoide Yokocho" },
-        ],
-      },
-      {
-        label: "Tokyo · เก่า → ใหม่",
-        activities: [
-          { time: "09:00", title: "Asakusa, Senso-ji" },
-          { time: "13:00", title: "TeamLab Planets" },
-          { time: "19:00", title: "Akihabara — ดู gachapon" },
-        ],
-      },
-      {
-        label: "Tokyo → Kyoto",
-        activities: [
-          { time: "08:30", title: "Shinkansen สาย Nozomi" },
-          { time: "12:30", title: "Check-in machiya · Gion" },
-          { time: "17:00", title: "เดินเล่น Pontocho" },
-        ],
-      },
-      {
-        label: "Kyoto · วัด, ป่าไผ่",
-        activities: [
-          { time: "07:00", title: "Fushimi Inari (ก่อนคนเยอะ)" },
-          { time: "11:30", title: "Arashiyama, ป่าไผ่" },
-          { time: "18:00", title: "Kaiseki dinner" },
-        ],
-      },
-      {
-        label: "บินกลับ",
-        activities: [
-          { time: "10:30", title: "Kyoto → Kansai Airport" },
-          { time: "15:20", title: "Osaka → Bangkok" },
+          { time: "07:30", title: "ออกเดินทางจากกรุงเทพฯ", description: "มุ่งหน้าสู่จังหวัดพระนครศรีอยุธยา" },
+          { time: "09:00", title: "วัดมหาธาตุ", description: "ชมเศียรพระพุทธรูปในรากไม้" },
+          { time: "12:00", title: "ก๋วยเตี๋ยวเรือ + โรตีสายไหม", description: "แวะพักมื้อเที่ยงริมน้ำ" },
+          { time: "16:00", title: "วัดไชยวัฒนาราม", description: "ถ่ายรูปโบราณสถานยามเย็นก่อนกลับ" },
         ],
       },
     ],
@@ -238,5 +463,8 @@ export const TRIP_TEMPLATES: TripTemplate[] = [
 ];
 
 export function getTemplate(id: string): TripTemplate | undefined {
-  return TRIP_TEMPLATES.find((t) => t.id === id);
+  return (
+    TRIP_TEMPLATES.find((t) => t.id === id) ||
+    LEGACY_TEMPLATES.find((t) => t.id === id)
+  );
 }

@@ -1,0 +1,44 @@
+.maew-invite-page{min-height:100dvh;isolation:isolate;background:#f7f5f0;color:#14110d}
+.maew-invite-page::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,#ffeee7 14%,rgba(251,241,235,.7) 60%,rgba(249,243,238,.8) 78%,rgba(247,245,240,.2)),url('/images/figma-scene-bg.png') center bottom/cover no-repeat}
+.maew-invite-content{position:relative;width:min(100%,402px);min-height:100dvh;margin-inline:auto;padding:55px 20px calc(55px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:13px}
+.maew-invite-brand{height:49px;display:flex;align-items:center;flex:none}
+.maew-invite-hero{position:relative;min-height:159px;margin-inline:-7px;padding:27px 17px 12px;border-radius:14px;background-position:center center;background-size:cover;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;color:#fff}
+.maew-invite-hero h1{margin:0;font-size:23px;font-weight:500;line-height:1.5;letter-spacing:.05px}
+.maew-invite-hero h1 span{display:inline-block;max-width:100%;overflow-wrap:anywhere}
+.maew-invite-hero-meta{display:flex;align-items:center;gap:17px;font-size:17px;font-weight:400;line-height:1.2}
+.maew-invite-status{height:26px;display:inline-flex;align-items:center;padding:0 10px;border:1px solid #e5e1d7;border-radius:18px;background:#fcede3;color:#e85a2c;font-size:12px;font-weight:400;white-space:nowrap}
+.maew-invite-card{width:100%;padding:20px 17px;border-radius:14px;background:#fff}
+.maew-invite-card h2{margin:0;color:#e85a2c;font-size:24px;font-weight:500;line-height:1.35;letter-spacing:.05px}
+.maew-invite-choice{display:flex;flex-direction:column;gap:20px}
+.maew-invite-options{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.maew-invite-option{min-width:0;height:78px;padding:10px 5px;border:1px solid #e5e1d7;border-radius:14px;background:#fff;color:#14110d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;font:inherit;text-align:center}
+.maew-invite-option[aria-pressed=true]{border:2px solid #5b5b5b}
+.maew-invite-option strong{font-size:16px;font-weight:500;line-height:1.1}
+.maew-invite-option small{font-size:13px;font-weight:400;line-height:1.2}
+.maew-invite-mode-content{width:100%;display:flex;flex-direction:column;gap:17px}
+.maew-invite-hint{margin:0;color:#767168;font-size:12px;font-weight:300;line-height:1.5}
+.maew-invite-hint strong{color:#14110d;font-weight:500}
+.maew-invite-primary{width:100%;min-height:51px;padding:10px 16px;border:1px solid #e5e1d7;border-radius:59px;background:#e85a2c;color:#fff;display:inline-flex;align-items:center;justify-content:center;font:inherit;font-size:16px;font-weight:500;text-align:center;text-decoration:none;cursor:pointer}
+.maew-invite-primary:hover:not(:disabled){background:#d44f25;color:#fff}
+.maew-invite-primary:disabled{opacity:.55;cursor:not-allowed}
+.maew-invite-signup{margin:0;text-align:center;font-size:11px;line-height:1.5}
+.maew-invite-signup a,.maew-invite-account-link{color:#e85a2c;font-weight:500;text-decoration:underline}
+.maew-invite-account-link{text-align:center;font-size:12px}
+.maew-invite-field{display:flex;flex-direction:column;gap:10px;color:#d96843;font-size:14px;font-weight:500}
+.maew-invite-field span small{margin-left:12px;color:#e6a390;font-size:12px;font-weight:400}
+.maew-invite-field input,.maew-invite-field select{width:100%;height:52px;padding:0 20px;border:1px solid #e5e1d7;border-radius:18px;background:#fff;color:#14110d;font:inherit;font-size:14px;font-weight:400}
+.maew-invite-field input::placeholder{color:#a19d96}
+.maew-invite-field select:focus,.maew-invite-field input:focus,.maew-invite-option:focus-visible,.maew-invite-primary:focus-visible{outline:2px solid #d96843;outline-offset:2px}
+.maew-invite-guest-form{gap:20px}
+.maew-invite-form-error{margin:0;color:#a93325;font-size:13px}
+.maew-invite-back{align-self:center;padding:4px 10px;border:0;background:transparent;color:#767168;font:inherit;font-size:13px}
+.maew-invite-members{min-height:298px;display:flex;flex-direction:column;gap:25px}
+.maew-invite-members ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:8px;row-gap:23px}
+.maew-invite-members li{min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;font-size:12px;line-height:1.2}
+.maew-invite-members li img{width:48px;height:48px;border-radius:50%;object-fit:cover}
+.maew-invite-members li span{max-width:100%;overflow-wrap:anywhere}
+.maew-invite-members li small{color:#e85a2c;font-size:9px;letter-spacing:.08em}
+.maew-invite-error{display:flex;flex-direction:column;gap:15px}
+.maew-invite-error h1{font-size:23px;color:#e85a2c}
+.maew-invite-error p{font-size:14px}
+@media(max-width:360px){.maew-invite-content{padding-inline:16px}.maew-invite-options{gap:10px}.maew-invite-card h2{font-size:21px}.maew-invite-option small{font-size:12px}}

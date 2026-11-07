@@ -1,0 +1,5 @@
+# Local review files and browser profiles
+/tmp/
+
+# Generated API output (existing tracked files must be handled separately)
+/gogun-api/dist/

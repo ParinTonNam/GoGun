@@ -1,6 +1,4 @@
 import { Router } from 'express'
-import bcrypt from 'bcrypt'
-import { randomUUID } from 'crypto'
 import prisma from '../lib/prisma'
 import { requireOrganizer } from '../middleware/trip'
 import { ok, err } from '../lib/response'
@@ -8,13 +6,6 @@ import { param } from '../lib/params'
 import { TripMemberRole, TripMemberStatus } from '../../generated/prisma/enums'
 
 const router = Router({ mergeParams: true })
-
-const GUEST_COLORS = [
-  '#4f6e7a', '#7b8b57', '#8a6e9e', '#c0613e', '#3d7068', '#a8763e',
-]
-function randomGuestColor(): string {
-  return GUEST_COLORS[Math.floor(Math.random() * GUEST_COLORS.length)]
-}
 
 // ชื่อที่แสดงต้องไม่ซ้ำภายในทริปเดียวกัน (เทียบแบบไม่สนตัวพิมพ์ใหญ่เล็ก)
 // excludeUserId ใช้ตอน rename เพื่อไม่นับตัวสมาชิกเองว่าชนกับตัวเอง
@@ -41,91 +32,9 @@ router.get('/', async (req, res) => {
   return ok(res, members)
 })
 
-// Join trip (member selects display name on join page)
-router.post('/', async (req, res) => {
-  const { display_name, avatar_color } = req.body as {
-    display_name?: string
-    avatar_color?: string
-  }
-
-  // Update user profile if provided
-  if (display_name || avatar_color) {
-    await prisma.user.update({
-      where: { id: req.user!.id },
-      data: {
-        ...(display_name && { display_name }),
-        ...(avatar_color && { avatar_color }),
-      },
-    })
-  }
-
-  const existing = await prisma.tripMember.findUnique({
-    where: {
-      trip_id_user_id: { trip_id: param(req, 'tripId'), user_id: req.user!.id },
-    },
-  })
-
-  if (existing) {
-    if (existing.status === 'joined')
-      return err(res, 409, 'CONFLICT', 'Already a member of this trip')
-
-    const member = await prisma.tripMember.update({
-      where: { id: existing.id },
-      data: { status: 'joined', joined_at: new Date() },
-      include: { user: { select: { id: true, display_name: true, avatar_color: true } } },
-    })
-    return ok(res, member, 201)
-  }
-
-  const member = await prisma.tripMember.create({
-    data: {
-      trip_id: param(req, 'tripId'),
-      user_id: req.user!.id,
-      role: 'member',
-      status: 'joined',
-      joined_at: new Date(),
-    },
-    include: { user: { select: { id: true, display_name: true, avatar_color: true } } },
-  })
-  return ok(res, member, 201)
-})
-
-// Add a member by nickname (organizer only) — creates a placeholder guest
-// account the trip member can later claim by joining via the invite link.
-router.post('/add', requireOrganizer, async (req, res) => {
-  const { display_name } = req.body as { display_name?: string }
-  const name = display_name?.trim()
-  if (!name) return err(res, 400, 'VALIDATION_ERROR', 'display_name is required')
-
-  if (await nameTakenInTrip(param(req, 'tripId'), name))
-    return err(res, 409, 'CONFLICT', 'มีสมาชิกชื่อนี้ในทริปแล้ว โปรดใช้ชื่ออื่น')
-
-  const guestId = randomUUID()
-  const password_hash = await bcrypt.hash(randomUUID(), 10)
-  const guest = await prisma.user.create({
-    data: {
-      username: `guest_${guestId}`,
-      email: `guest_${guestId}@guests.gogun.app`,
-      password_hash,
-      display_name: name,
-      avatar_color: randomGuestColor(),
-      is_guest: true,
-    },
-  })
-
-  const member = await prisma.tripMember.create({
-    data: {
-      trip_id: param(req, 'tripId'),
-      user_id: guest.id,
-      role: 'member',
-      status: 'invited',
-    },
-    include: {
-      user: { select: { id: true, display_name: true, avatar_color: true, is_guest: true } },
-    },
-  })
-  return ok(res, member, 201)
-})
+// Members join themselves through the invitation flow.
+router.post('/', (_req, res) => err(res, 410, 'GONE', 'เข้าร่วมผ่านลิงก์เชิญเท่านั้น'))
+router.post('/add', (_req, res) => err(res, 410, 'GONE', 'ส่งลิงก์ให้เพื่อนเข้าร่วมและตั้งชื่อเอง'))
 
 // Update member status/role, or rename a guest member (organizer only)
 router.patch('/:userId', requireOrganizer, async (req, res) => {

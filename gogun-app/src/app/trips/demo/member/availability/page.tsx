@@ -18,15 +18,14 @@ const MEMBERS = Object.keys(MEMBER_INFO) as MemberId[];
 
 // Other members' available days for Nov 2026 (1-indexed)
 const OTHERS_AVAILABLE: Record<"james" | "nai" | "atif", Set<number>> = {
-  james: new Set([14, 15, 16, 20]),
-  nai:   new Set([14, 15, 16, 20, 21, 22, 23, 24]),
-  atif:  new Set([14, 15, 16, 20, 21, 22, 23, 24]),
+  james: new Set([20, 21, 22]),
+  nai:   new Set([20, 21, 22, 23, 24]),
+  atif:  new Set([20, 21, 22, 23, 24]),
 };
 
 // Current user (ต้นน้ำ) initial status for Nov 2026
 const TON_INITIAL: Record<number, Status> = {
   7: "maybe", 8: "maybe", 13: "maybe", 25: "maybe", 28: "maybe",
-  14: "available", 15: "available", 16: "available",
   17: "available", 18: "available", 19: "available",
   20: "available", 21: "available", 22: "available", 23: "available", 24: "available",
 };
@@ -142,7 +141,7 @@ export default function MemberAvailabilityPage() {
 
   // Summary for current month
   const allDays4 = isNov2026
-    ? [14, 15, 16].filter((d) => {
+    ? [20, 21, 22].filter((d) => {
         const key = `2026-11-${String(d).padStart(2, "0")}`;
         return (tonStatus[key] ?? "none") === "available";
       }).length === 3
@@ -150,7 +149,7 @@ export default function MemberAvailabilityPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[96px] pt-[24px]">
+      <div className="demo-page-content flex w-full max-w-[960px] flex-col pb-[96px] pt-[24px]">
 
         {/* Header */}
         <div className="px-[24px]">
@@ -163,13 +162,13 @@ export default function MemberAvailabilityPage() {
           <div className="flex items-center gap-[5px] text-[13px] tracking-[0.08px]">
             <span className="text-[#767168]">4/4 คนเลือกแล้ว</span>
             <span className="text-[#b5b0a4]">·</span>
-            <span className="text-[#767168]">ทุกคนว่าง 14–16 พ.ย.</span>
+            <span className="text-[#767168]">ทุกคนว่าง 20–22 พ.ย.</span>
           </div>
         </div>
 
         {/* Member filter pills */}
         <div className="flex flex-col gap-[10px] px-[24px] pt-[20px]">
-          <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">ใครเลือกอยู่</p>
+          <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">ใครเลือกอยู่</p>
           <div className="flex flex-wrap gap-[5px]">
             {MEMBERS.map((id) => {
               const m = MEMBER_INFO[id];
@@ -197,7 +196,7 @@ export default function MemberAvailabilityPage() {
                     {m.name}
                   </span>
                   {id === "ton" && (
-                    <span className={`text-[10px] font-light tracking-[0.08px] ${isSelected ? "text-[#e85a2c]" : "text-[#767168]"}`}>
+                    <span className={`text-[12px] font-normal tracking-[0.08px] ${isSelected ? "text-[#e85a2c]" : "text-[#767168]"}`}>
                       YOU
                     </span>
                   )}
@@ -271,7 +270,7 @@ export default function MemberAvailabilityPage() {
                   </span>
                   {label && (
                     <span
-                      className="text-[9px] font-light uppercase tracking-[1.26px]"
+                      className="text-[9px] font-normal uppercase tracking-[1.26px]"
                       style={{ color: text }}
                     >
                       {label}
@@ -288,12 +287,12 @@ export default function MemberAvailabilityPage() {
           <div className="mx-[24px] mt-[20px] flex items-center gap-[5px] rounded-[18px] border border-[#e5e1d7] bg-white px-[20px] py-[15px]">
             <div className="flex flex-1 flex-col gap-[5px]">
               <p className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">มี 3 วัน</p>
-              <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">
+              <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">
                 ที่ว่างพร้อมกันทุกคน
               </p>
             </div>
             <div className="flex flex-col items-end gap-[5px]">
-              <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">แนะนำ</p>
+              <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">แนะนำ</p>
               <p className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">14–16 พ.ย.</p>
             </div>
           </div>
@@ -301,7 +300,7 @@ export default function MemberAvailabilityPage() {
 
         {/* Legend */}
         <div className="flex flex-col gap-[8px] px-[24px] pt-[20px]">
-          <div className="flex flex-wrap items-center gap-[8px] text-[12px] font-light tracking-[0.08px]">
+          <div className="flex flex-wrap items-center gap-[8px] text-[12px] font-normal tracking-[0.08px]">
             <span className="text-[#767168]">แตะวันเพื่อสลับ:</span>
             <span className="inline-flex items-center gap-[4px]">
               <span className="size-[14px] rounded-[3px] bg-[#f2efe8]" />
@@ -318,11 +317,11 @@ export default function MemberAvailabilityPage() {
               <span className="text-[#d9a21b]">ไม่แน่ใจ</span>
             </span>
           </div>
-          <div className="flex items-center gap-[8px] text-[12px] font-light tracking-[0.08px] text-[#767168]">
+          <div className="flex items-center gap-[8px] text-[12px] font-normal tracking-[0.08px] text-[#767168]">
             <span className="font-medium text-[#767168]">1/4</span>
             <span>หมายถึงในวันนั้นมีคนว่าง 1 คน</span>
           </div>
-          <div className="flex items-center gap-[8px] text-[12px] font-light tracking-[0.08px]">
+          <div className="flex items-center gap-[8px] text-[12px] font-normal tracking-[0.08px]">
             <span className="size-[14px] shrink-0 rounded-[3px] bg-[#2e8b5c]" />
             <span className="text-[#14110d]">หมายถึงทุกคนว่างตรงกัน</span>
           </div>

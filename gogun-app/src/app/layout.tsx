@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { kanit } from "@/lib/fonts";
 import "./globals.css";
+import "./design-system.css";
+import "./auth-v2.css";
+import { AppFrame } from "@/components/app-frame";
 
 export const metadata: Metadata = {
-  title: "GoGun",
-  description: "ไปกัน GOGUN",
+  title: "Maew Tiew | แมวเที่ยว",
+  description: "Happy Cats, Easy Trips",
 };
 
 export const viewport: Viewport = {
@@ -18,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="th" className={`${kanit.className} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col"><AppFrame>{children}</AppFrame></body>
     </html>
   );
 }

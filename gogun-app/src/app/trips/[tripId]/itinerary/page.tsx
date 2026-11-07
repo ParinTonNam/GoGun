@@ -18,6 +18,7 @@ import {
   type ItineraryActivity,
   type User,
 } from "@/lib/api";
+import { ActivityExtras, ShareDay } from "@/components/activity-extras";
 import { PageHeader } from "@/components/page-header";
 import { LoadError } from "@/components/load-error";
 import { useLoad } from "@/lib/use-load";
@@ -235,7 +236,7 @@ export default function ItineraryPage({
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0]">
+      <main className="trip-page flex items-center justify-center bg-background">
         <p className="text-[#767168]">กำลังโหลด...</p>
       </main>
     );
@@ -245,13 +246,13 @@ export default function ItineraryPage({
   const hasTripDate = Boolean(trip?.confirmed_start_date || trip?.proposed_start_date);
 
   return (
-    <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[40px] pt-[24px]">
+    <main className="trip-page flex justify-center bg-background">
+      <div className="flex trip-page-content flex-col pb-[40px] pt-[24px]">
         {/* Header */}
         <div className="px-[24px]">
           <PageHeader
             title="แผนเดินทาง"
-            backHref={`/trips/${tripId}`}
+            backHref={`/trips/${tripId}/plan`}
             user={me}
             right={
               canEdit ? (
@@ -281,11 +282,12 @@ export default function ItineraryPage({
         </div>
 
         {/* Days timeline */}
-        <div className="flex flex-col pl-[44px] pr-[24px]">
+        <div className="itinerary-days">
           {days.map((day, idx) => (
             <div
               key={day.id}
-              className="relative flex gap-[12px] border-b border-[#e5e1d7] pb-[15px] pt-[14px]"
+              id={`day-${day.id}`}
+              className="itinerary-day relative flex scroll-mt-[24px] gap-[16px]"
             >
               {/* Reorder arrows — absolute left (โหมดแก้ไขเท่านั้น) */}
               {editMode && (
@@ -319,19 +321,19 @@ export default function ItineraryPage({
 
               {/* Day number column */}
               <div className="w-[40px] shrink-0">
-                <p className="text-[9.5px] uppercase tracking-[1.71px] text-[#767168]">DAY</p>
-                <p className="text-[28px] font-light leading-[28px] tracking-[-0.56px] text-[#14110d]">
+                <p className="text-[12px] uppercase tracking-[1.71px] text-[#767168]">DAY</p>
+                <p className="text-[28px] font-normal leading-[28px] tracking-[-0.56px] text-[#14110d]">
                   {String(day.day_number).padStart(2, "0")}
                 </p>
                 {hasTripDate && (
-                  <p className="text-[10px] tracking-[0.08px] text-[#b5b0a4]">
+                  <p className="text-[12px] tracking-[0.08px] text-[#b5b0a4]">
                     {formatShortDate(day.date)}
                   </p>
                 )}
               </div>
 
               {/* Day content */}
-              <div className="flex flex-1 flex-col pb-[2px]">
+              <div className="flex min-w-0 flex-1 flex-col pb-[2px]">
                 {/* Day label — แก้/ลบ ได้เฉพาะโหมดแก้ไข */}
                 <div className="mb-[8px] flex h-[32px] items-center gap-[8px]">
                   {!editMode ? (
@@ -371,15 +373,17 @@ export default function ItineraryPage({
                   )}
                 </div>
 
+                <ShareDay day={day} tripName={trip?.name ?? "แผนเที่ยว"} confirmed={trip?.date_status === "confirmed"} />
                 {/* Activities — เรียงตามเวลาเสมอ */}
                 {[...day.activities]
                   .sort((a, b) => a.time.localeCompare(b.time))
                   .map((act) =>
                     !editMode ? (
                       // Read-only row (โหมดดู)
-                      <div key={act.id} className="flex items-center gap-[8px] py-[6px]">
-                        <span className="w-[44px] shrink-0 text-[11.5px] text-[#767168]">{act.time}</span>
+                      <div key={act.id} className="flex flex-wrap items-center gap-[8px] py-[6px]">
+                        <span className="w-[44px] shrink-0 text-[12px] text-[#767168]">{act.time}</span>
                         <span className="flex-1 text-[13px] text-[#14110d]">{act.title}</span>
+                        <ActivityExtras tripId={tripId} activity={act} canEdit={canEdit} onUpdate={tags => setDays(prev => prev.map(d => ({ ...d, activities: d.activities.map(a => a.id === act.id ? { ...a, tags } : a) })))} />
                       </div>
                     ) : editActId === act.id ? (
                       // Inline edit form
@@ -389,7 +393,7 @@ export default function ItineraryPage({
                             type="time"
                             value={editActTime}
                             onChange={(e) => setEditActTime(e.target.value)}
-                            className="w-full bg-transparent pb-[3px] pt-[2px] text-[11.5px] text-[#767168] outline-none [&::-webkit-calendar-picker-indicator]:hidden"
+                            className="w-full bg-transparent pb-[3px] pt-[2px] text-[12px] text-[#767168] outline-none [&::-webkit-calendar-picker-indicator]:hidden"
                           />
                         </div>
                         <div className="flex flex-1 items-center gap-[6px] border-b border-[#8a8275]">
@@ -431,7 +435,7 @@ export default function ItineraryPage({
                           onClick={() => startEditActivity(act)}
                           className="flex flex-1 items-center gap-[8px] text-left active:opacity-60"
                         >
-                          <span className="w-[44px] shrink-0 text-[11.5px] text-[#767168]">{act.time}</span>
+                          <span className="w-[44px] shrink-0 text-[12px] text-[#767168]">{act.time}</span>
                           <span className="flex-1 text-[13px] text-[#14110d]">{act.title}</span>
                           <svg width="13" height="13" viewBox="0 0 14 14" fill="none" className="shrink-0 opacity-30">
                             <path d="M9.5 2.5l2 2L5 11l-2.5.5L3 9l6.5-6.5Z" stroke="#14110d" strokeWidth="1.2" strokeLinejoin="round" />
@@ -457,7 +461,7 @@ export default function ItineraryPage({
                         type="time"
                         value={newTime}
                         onChange={(e) => setNewTime(e.target.value)}
-                        className="w-full bg-transparent pb-[3px] pt-[2px] text-[11.5px] text-[#767168] outline-none [&::-webkit-calendar-picker-indicator]:hidden"
+                        className="w-full bg-transparent pb-[3px] pt-[2px] text-[12px] text-[#767168] outline-none [&::-webkit-calendar-picker-indicator]:hidden"
                       />
                     </div>
                     <div className="flex flex-1 items-center gap-[6px] border-b border-[#8a8275]">
@@ -502,7 +506,7 @@ export default function ItineraryPage({
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="opacity-50">
                       <path d="M7 1V13M1 7H13" stroke="#14110d" strokeWidth="1.3" strokeLinecap="round" />
                     </svg>
-                    <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">
+                    <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">
                       เพิ่มกิจกรรม
                     </p>
                   </button>
@@ -558,7 +562,7 @@ export default function ItineraryPage({
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="opacity-50">
                 <path d="M7 1V13M1 7H13" stroke="#14110d" strokeWidth="1.3" strokeLinecap="round" />
               </svg>
-              <p className="text-[13px] font-light tracking-[0.08px] text-[#767168]">เพิ่มวัน</p>
+              <p className="text-[13px] font-normal tracking-[0.08px] text-[#767168]">เพิ่มวัน</p>
             </button>
           )}
         </div>

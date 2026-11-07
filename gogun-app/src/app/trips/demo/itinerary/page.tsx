@@ -10,46 +10,29 @@ type Day = { id: string; label: string; activities: Activity[] };
 const INITIAL_DAYS: Day[] = [
   {
     id: "d1",
-    label: "ลงเครื่อง · Tokyo",
+    label: "กรุงเทพฯ → เกาะล้าน",
     activities: [
-      { id: "a1", time: "06:30", title: "Bangkok → Narita (TG676)" },
-      { id: "a2", time: "16:00", title: "Check-in โรงแรม Shinjuku" },
-      { id: "a3", time: "19:00", title: "เดินเล่น Shinjuku, Omoide Yokocho" },
+      { id: "a1", time: "07:00", title: "ออกจากกรุงเทพฯ ไปท่าเรือแหลมบาลีฮาย" },
+      { id: "a2", time: "10:00", title: "นั่งเรือข้ามไปเกาะล้าน · เช็กอินที่พัก" },
+      { id: "a3", time: "13:00", title: "เล่นน้ำหาดตาแหวน แล้วกินมื้อเย็นริมทะเล" },
     ],
   },
   {
     id: "d2",
-    label: "Tokyo · เก่า → ใหม่",
+    label: "หาดสวยและจุดชมวิว",
     activities: [
-      { id: "a4", time: "09:00", title: "Asakusa, Senso-ji" },
-      { id: "a5", time: "13:00", title: "TeamLab Planets" },
-      { id: "a6", time: "19:00", title: "Akihabara — ดู gachapon" },
+      { id: "a4", time: "08:30", title: "อาหารเช้าที่ตลาดหน้าท่าเรือ" },
+      { id: "a5", time: "10:00", title: "ดำน้ำตื้นและเล่นน้ำหาดเทียน" },
+      { id: "a6", time: "17:30", title: "ขึ้นจุดชมวิวกังหันลม ดูพระอาทิตย์ตก" },
     ],
   },
   {
     id: "d3",
-    label: "Tokyo → Kyoto",
+    label: "เก็บบรรยากาศก่อนกลับ",
     activities: [
-      { id: "a7", time: "08:30", title: "Shinkansen สาย Nozomi" },
-      { id: "a8", time: "12:30", title: "Check-in machiya · Gion" },
-      { id: "a9", time: "17:00", title: "เดินเล่น Pontocho" },
-    ],
-  },
-  {
-    id: "d4",
-    label: "Kyoto · วัด, ป่าไผ่",
-    activities: [
-      { id: "a10", time: "07:00", title: "Fushimi Inari (ก่อนคนเยอะ)" },
-      { id: "a11", time: "11:30", title: "Arashiyama, ป่าไผ่" },
-      { id: "a12", time: "18:00", title: "Kaiseki dinner — จองแล้ว" },
-    ],
-  },
-  {
-    id: "d5",
-    label: "บินกลับ",
-    activities: [
-      { id: "a13", time: "10:30", title: "Kyoto → Kansai Airport" },
-      { id: "a14", time: "15:20", title: "Osaka → Bangkok (TG623)" },
+      { id: "a7", time: "09:00", title: "กินมื้อเช้าร้านโปรด ซื้อของฝาก" },
+      { id: "a8", time: "11:30", title: "นั่งเรือกลับพัทยา" },
+      { id: "a9", time: "13:00", title: "ขึ้นรถตู้กลับกรุงเทพฯ" },
     ],
   },
 ];
@@ -154,7 +137,7 @@ export default function ItineraryPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[40px] pt-[24px]">
+      <div className="demo-page-content flex w-full max-w-[960px] flex-col pb-[40px] pt-[24px]">
 
         {/* Header */}
         <div className="px-[24px]">
@@ -211,8 +194,8 @@ export default function ItineraryPage() {
 
               {/* Day number column */}
               <div className="w-[40px] shrink-0">
-                <p className="text-[9.5px] uppercase tracking-[1.71px] text-[#767168]">DAY</p>
-                <p className="text-[28px] font-light leading-[28px] tracking-[-0.56px] text-[#14110d]">
+                <p className="text-[12px] uppercase tracking-[1.71px] text-[#767168]">DAY</p>
+                <p className="text-[28px] font-normal leading-[28px] tracking-[-0.56px] text-[#14110d]">
                   {padDay(idx + 1)}
                 </p>
               </div>
@@ -246,7 +229,7 @@ export default function ItineraryPage() {
                 {day.activities.map((act) => (
                   <div key={act.id} className="flex items-center gap-[8px] py-[6px]">
                     <div className="w-[44px] shrink-0">
-                      <p className="text-[11.5px] text-[#767168]">{act.time}</p>
+                      <p className="text-[12px] text-[#767168]">{act.time}</p>
                     </div>
                     <p className="flex-1 text-[13px] text-[#14110d]">{act.title}</p>
                   </div>
@@ -261,7 +244,7 @@ export default function ItineraryPage() {
                         type="time"
                         value={newTime}
                         onChange={(e) => setNewTime(e.target.value)}
-                        className="w-full bg-transparent pb-[3px] pt-[2px] text-[11.5px] text-[#767168] outline-none [&::-webkit-calendar-picker-indicator]:hidden"
+                        className="w-full bg-transparent pb-[3px] pt-[2px] text-[12px] text-[#767168] outline-none [&::-webkit-calendar-picker-indicator]:hidden"
                       />
                     </div>
                     {/* Title input */}
@@ -308,7 +291,7 @@ export default function ItineraryPage() {
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="opacity-50">
                       <path d="M7 1V13M1 7H13" stroke="#14110d" strokeWidth="1.3" strokeLinecap="round" />
                     </svg>
-                    <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">
+                    <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">
                       เพิ่มกิจกรรม
                     </p>
                   </button>
@@ -363,7 +346,7 @@ export default function ItineraryPage() {
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="opacity-50">
                 <path d="M7 1V13M1 7H13" stroke="#14110d" strokeWidth="1.3" strokeLinecap="round" />
               </svg>
-              <p className="text-[13px] font-light tracking-[0.08px] text-[#767168]">เพิ่มวัน</p>
+              <p className="text-[13px] font-normal tracking-[0.08px] text-[#767168]">เพิ่มวัน</p>
             </button>
           )}
         </div>

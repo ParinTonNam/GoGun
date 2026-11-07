@@ -1,4 +1,5 @@
 "use client";
+import { AuthIntro } from "@/components/travel-artwork";
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -38,7 +39,7 @@ function LinkAccountContent() {
 
   if (loading || !me) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0]">
+      <main className="flex min-h-screen items-center justify-center bg-background">
         <p className="text-[#767168]">กำลังโหลด...</p>
       </main>
     );
@@ -47,7 +48,7 @@ function LinkAccountContent() {
   /* Already a full account — nothing to link */
   if (!me.is_guest && !done) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0] px-[28px]">
+      <main className="auth-page">
         <div className="flex max-w-[320px] flex-col items-center gap-[16px] text-center">
           <div className="flex size-[56px] items-center justify-center rounded-full bg-[#eef3ec] text-[28px]">
             ✓
@@ -70,7 +71,7 @@ function LinkAccountContent() {
   /* Success */
   if (done) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0] px-[28px]">
+      <main className="auth-page">
         <div className="flex max-w-[320px] flex-col items-center gap-[16px] text-center">
           <div className="flex size-[56px] items-center justify-center rounded-full bg-[#eef3ec]">
             <svg width="26" height="26" viewBox="0 0 20 20" fill="none">
@@ -83,7 +84,7 @@ function LinkAccountContent() {
             <p className="text-[16px] font-medium text-[#14110d]">
               ล็อกชื่อ &ldquo;{me.display_name}&rdquo; เรียบร้อย
             </p>
-            <p className="text-[13px] font-light leading-[1.6] text-[#767168]">
+            <p className="text-[13px] font-normal leading-[1.6] text-[#767168]">
               จากนี้เข้าใช้งานจากเครื่องไหนก็ได้ด้วยบัญชีที่เชื่อมไว้
               <br />
               และไม่มีใครเลือกใช้ชื่อนี้จากลิงก์เชิญได้อีก
@@ -102,8 +103,8 @@ function LinkAccountContent() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0] px-[28px]">
-      <div className="flex w-full max-w-[360px] flex-col items-center">
+    <main className="auth-page">
+      <AuthIntro /><div className="auth-panel flex flex-col items-center">
 
         {/* Who you are */}
         <div
@@ -115,7 +116,7 @@ function LinkAccountContent() {
         <p className="pt-[12px] text-[20px] font-medium tracking-[-0.2px] text-[#14110d]">
           บันทึกทริปของคุณไว้
         </p>
-        <p className="pb-[28px] pt-[6px] text-center text-[13px] font-light leading-[1.6] tracking-[0.08px] text-[#767168]">
+        <p className="pb-[28px] pt-[6px] text-center text-[13px] font-normal leading-[1.6] tracking-[0.08px] text-[#767168]">
           ตอนนี้ชื่อ <span className="font-medium text-[#14110d]">&ldquo;{me.display_name}&rdquo;</span> ยังไม่ล็อกอิน
           ใครที่มีลิงก์ทริปก็เข้าใช้ได้ เชื่อมอีเมลเพื่อล็อกชื่อนี้เป็นของคุณ
           และเข้าจากเครื่องไหนก็ได้
@@ -133,7 +134,7 @@ function LinkAccountContent() {
         {/* Divider */}
         <div className="flex w-full items-center gap-[12px] py-[20px]">
           <div className="h-px flex-1 bg-[#e5e1d7]" />
-          <span className="text-[12px] font-light tracking-[0.5px] text-[#b5b0a4]">หรือ</span>
+          <span className="text-[12px] font-normal tracking-[0.5px] text-[#b5b0a4]">หรือ</span>
           <div className="h-px flex-1 bg-[#e5e1d7]" />
         </div>
 
@@ -144,14 +145,14 @@ function LinkAccountContent() {
         />
 
         {saving && (
-          <p className="pt-[12px] text-[12px] font-light text-[#767168]">กำลังเชื่อม...</p>
+          <p className="pt-[12px] text-[12px] font-normal text-[#767168]">กำลังเชื่อม...</p>
         )}
         {error && <p className="pt-[8px] w-full text-center text-[12px] text-red-500">{error}</p>}
 
         <button
           type="button"
           onClick={() => router.push(returnTo)}
-          className="pt-[20px] text-[12px] font-light tracking-[0.08px] text-[#767168] underline underline-offset-2"
+          className="pt-[20px] text-[12px] font-normal tracking-[0.08px] text-[#767168] underline underline-offset-2"
         >
           ไว้ทีหลัง
         </button>

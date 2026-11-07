@@ -30,7 +30,7 @@ function ConfirmContent() {
           <p className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">
             {member.name}
           </p>
-          <p className="text-[10.5px] font-light uppercase tracking-[0.42px] text-[#767168]">
+          <p className="text-[12px] font-normal uppercase tracking-[0.42px] text-[#767168]">
             {member.role}
           </p>
         </div>
@@ -47,7 +47,7 @@ function ConfirmContent() {
           <button
             type="button"
             onClick={() => router.push("/trips/demo/join")}
-            className="flex items-center justify-center rounded-[18px] border border-[#e5e1d7] pb-[18px] pt-[19px] text-[15px] font-light tracking-[0.08px] text-[#14110d]"
+            className="flex items-center justify-center rounded-[18px] border border-[#e5e1d7] pb-[18px] pt-[19px] text-[15px] font-normal tracking-[0.08px] text-[#14110d]"
           >
             เลือกใหม่
           </button>

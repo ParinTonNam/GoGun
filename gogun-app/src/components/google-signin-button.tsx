@@ -53,10 +53,12 @@ function GoogleGLogo() {
 export default function GoogleSignInButton({
   onCredential,
   variant = "official",
+  iconSrc = "/images/icon-google.svg",
   label = "เข้าสู่ระบบด้วย Google",
 }: {
   onCredential: (credential: string) => void;
-  variant?: "official" | "styled";
+  variant?: "official" | "styled" | "icon" | "auth";
+  iconSrc?: string;
   label?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -91,10 +93,10 @@ export default function GoogleSignInButton({
       google.accounts.id.renderButton(el, {
         theme: "outline",
         size: "large",
-        shape: "pill",
-        text: "continue_with",
+        shape: variant === "icon" ? "circle" : "pill",
+        ...(variant === "icon" ? { type: "icon" } : { text: "continue_with" }),
         locale: "th",
-        width: Math.min(el.clientWidth, 400),
+          width: variant === "icon" ? 40 : Math.min(el.clientWidth, 400),
       });
     }
     attempt(0);
@@ -108,6 +110,31 @@ export default function GoogleSignInButton({
       if (retryRef.current !== null) window.clearTimeout(retryRef.current);
     };
   }, [render]);
+
+  if (variant === "icon") {
+    return (
+      <div className="google-icon-signin">
+        <button type="button" className="auth-social-button" aria-label="เข้าสู่ระบบด้วย Google" disabled={!CLIENT_ID}>
+          <img src={iconSrc} alt="" width="27" height="27" />
+        </button>
+        {CLIENT_ID && <div className="google-icon-overlay"><div ref={containerRef} /></div>}
+        {CLIENT_ID && <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onReady={() => render()} />}
+      </div>
+    );
+  }
+
+  if (variant === "auth") {
+    return (
+      <div className="maew-auth-google-button">
+        <button type="button" disabled={!CLIENT_ID} tabIndex={CLIENT_ID ? -1 : undefined}>
+          <GoogleGLogo />
+          <span>{label}</span>
+        </button>
+        {CLIENT_ID && <div className="maew-auth-google-overlay"><div ref={containerRef} /></div>}
+        {CLIENT_ID && <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onReady={() => render()} />}
+      </div>
+    );
+  }
 
   if (!CLIENT_ID) return null;
 

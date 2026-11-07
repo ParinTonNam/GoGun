@@ -11,6 +11,7 @@ import { requireTripMember } from './middleware/trip'
 
 import authRouter from './routes/auth'
 import tripsRouter from './routes/trips'
+import tripExtrasRouter from './routes/trip-extras'
 import membersRouter from './routes/members'
 import itineraryRouter from './routes/itinerary'
 import expensesRouter from './routes/expenses'
@@ -22,6 +23,7 @@ import packingRouter from './routes/packing'
 import checklistRouter from './routes/checklist'
 import wheelRouter from './routes/wheel'
 import notesRouter from './routes/notes'
+import questsRouter from './routes/quests'
 
 const app = express()
 
@@ -79,6 +81,7 @@ app.use('/api/v1/auth/google', authLimiter)
 app.use('/api/v1/auth', authRouter)
 
 // Trip top-level routes (GET /join/:code is public; rest are per-route guarded)
+app.use('/api/v1/trips', tripExtrasRouter)
 app.use('/api/v1/trips', tripsRouter)
 
 // Trip sub-resources — all require auth + trip membership
@@ -94,6 +97,7 @@ app.use(`${tripBase}/packing`, requireAuth, requireTripMember, packingRouter)
 app.use(`${tripBase}/checklist`, requireAuth, requireTripMember, checklistRouter)
 app.use(`${tripBase}/wheel`, requireAuth, requireTripMember, wheelRouter)
 app.use(`${tripBase}/notes`, requireAuth, requireTripMember, notesRouter)
+app.use(`${tripBase}/quests`, requireAuth, requireTripMember, questsRouter)
 
 // API Docs — Swagger UI relies on inline scripts/styles, which helmet's
 // default Content-Security-Policy blocks, so disable CSP for this route only.

@@ -156,7 +156,7 @@ router.post('/link', requireAuth, async (req, res) => {
     data: { email: normalized, password_hash, is_guest: false },
   })
 
-  return ok(res, serializeUser(user))
+  return ok(res, { token: signToken(user.id), user: serializeUser(user) })
 })
 
 // Link a Google account to a guest account — same effect as /link, but the
@@ -196,7 +196,7 @@ router.post('/link/google', requireAuth, async (req, res) => {
     where: { id: req.user!.id },
     data: { google_id: payload.sub, email, is_guest: false },
   })
-  return ok(res, serializeUser(user))
+  return ok(res, { token: signToken(user.id), user: serializeUser(user) })
 })
 
 router.get('/me', requireAuth, (req, res) => {
@@ -204,11 +204,18 @@ router.get('/me', requireAuth, (req, res) => {
 })
 
 router.patch('/me', requireAuth, async (req, res) => {
-  const { display_name, email, phone } = req.body as {
+  const { display_name, email, phone, avatar_color } = req.body as {
     display_name?: string
     email?: string
     phone?: string
+    avatar_color?: string
   }
+
+  const profileAvatarColors = ['#fcb585', '#fead9c', '#b9daef', '#d0a0d2', '#a8cfd2', '#d0dab1']
+  if (avatar_color !== undefined && (
+    typeof avatar_color !== 'string' || !profileAvatarColors.includes(avatar_color.toLowerCase())
+  ))
+    return err(res, 400, 'VALIDATION_ERROR', 'avatar_color is not a supported profile avatar')
 
   if (display_name !== undefined && !display_name.trim())
     return err(res, 400, 'VALIDATION_ERROR', 'display_name cannot be empty')
@@ -245,6 +252,7 @@ router.patch('/me', requireAuth, async (req, res) => {
       ...(display_name !== undefined && { display_name: display_name.trim() }),
       ...(email !== undefined && { email: email.trim().toLowerCase() }),
       ...(phone !== undefined && { phone: phone.trim() || null }),
+      ...(avatar_color !== undefined && { avatar_color: avatar_color.toLowerCase() }),
     },
   })
 

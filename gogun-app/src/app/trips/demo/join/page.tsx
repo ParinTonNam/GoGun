@@ -14,24 +14,24 @@ export default function JoinSelectPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col gap-[24px] pb-[30px] pt-[92px] px-[24px]">
+      <div className="demo-page-content flex w-full max-w-[960px] flex-col gap-[24px] pb-[30px] pt-[92px] px-[24px]">
 
         {/* Trip info header */}
         <div className="flex flex-col gap-[8px] pb-[40px]">
-          <p className="text-[10px] uppercase tracking-[0.6px] text-[#767168]">
+          <p className="text-[12px] uppercase tracking-[0.6px] text-[#767168]">
             คุณถูกเชิญเข้าทริป
           </p>
           <p className="text-[32px] font-medium leading-[1.15] tracking-[-0.32px] text-[#14110d]">
-            ทริปญี่ปุ่น Autumn
+            ทริปทะเลเกาะล้าน
           </p>
           <div className="flex items-center gap-[10px] text-[13px] tracking-[0.08px]">
-            <span className="text-[#767168]">Japan</span>
+            <span className="text-[#767168]">เกาะล้าน · พัทยา</span>
             <span className="text-[#b5b0a4]">·</span>
-            <span className="text-[#767168]">5 วัน</span>
+            <span className="text-[#767168]">3 วัน</span>
             <span className="text-[#b5b0a4]">·</span>
             <span className="text-[#767168]">4 คน</span>
           </div>
-          <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">
+          <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">
             ยังอยู่ระหว่างหาวัน
           </p>
         </div>
@@ -39,7 +39,7 @@ export default function JoinSelectPage() {
         {/* Member selector */}
         <div className="flex flex-col gap-[4px]">
           <p className="text-[15px] tracking-[0.08px] text-[#14110d]">ใครคือคุณ?</p>
-          <p className="pb-[20px] text-[12px] font-light tracking-[0.08px] text-[#767168]">
+          <p className="pb-[20px] text-[12px] font-normal tracking-[0.08px] text-[#767168]">
             กดชื่อเพื่อเริ่มใช้งาน · ไม่ต้องสมัครสมาชิก
           </p>
 
@@ -60,7 +60,7 @@ export default function JoinSelectPage() {
                 <p className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">
                   {m.name}
                 </p>
-                <p className="text-[10.5px] font-light uppercase tracking-[0.42px] text-[#767168]">
+                <p className="text-[12px] font-normal uppercase tracking-[0.42px] text-[#767168]">
                   {m.role}
                 </p>
               </button>
@@ -70,12 +70,12 @@ export default function JoinSelectPage() {
 
         {/* Footer */}
         <div className="flex items-center justify-center gap-[4px] pt-[6px]">
-          <p className="text-[11px] font-light tracking-[0.44px] text-[#b5b0a4]">
+          <p className="text-[12px] font-normal tracking-[0.44px] text-[#b5b0a4]">
             ไม่มีชื่อในรายการ?
           </p>
           <button
             type="button"
-            className="border-b border-[#d4cfc2] pb-px text-[11px] font-light tracking-[0.44px] text-[#14110d]"
+            className="border-b border-[#d4cfc2] pb-px text-[12px] font-normal tracking-[0.44px] text-[#14110d]"
           >
             แจ้งคนจัดทริป
           </button>

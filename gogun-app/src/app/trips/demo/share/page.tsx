@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const INVITE_LINK = "gogun.app/t/tokyo-kyoto-x4";
+const INVITE_LINK = "maewtiew.app/demo/koh-larn";
 const FULL_URL = `https://${INVITE_LINK}`;
 
 export default function SharePage() {
@@ -80,7 +80,7 @@ export default function SharePage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col items-center justify-center gap-[8px] px-[32px] py-[40px]">
+      <div className="demo-page-content flex w-full max-w-[960px] flex-col items-center justify-center gap-[8px] px-[32px] py-[40px]">
 
         {/* Mascot */}
         <div className="relative size-[176px] shrink-0">
@@ -89,11 +89,11 @@ export default function SharePage() {
 
         {/* Trip info */}
         <div className="flex flex-col items-center pb-[20px]">
-          <p className="text-[13.5px] font-light leading-[21.6px] tracking-[0.08px] text-[#767168]">
-            ทริปใหม่ · Japan
+          <p className="text-[13.5px] font-normal leading-[21.6px] tracking-[0.08px] text-[#767168]">
+            ทริปตัวอย่าง · เกาะล้าน
           </p>
-          <p className="text-[13.5px] font-light leading-[21.6px] tracking-[0.08px] text-[#767168]">
-            10 พ.ย. – 13 พ.ย. · 4 คน
+          <p className="text-[13.5px] font-normal leading-[21.6px] tracking-[0.08px] text-[#767168]">
+            20 พ.ย. – 22 พ.ย. · 4 คน
           </p>
         </div>
 
@@ -102,7 +102,7 @@ export default function SharePage() {
           <div className="flex w-full flex-col gap-[10px] rounded-[18px] border border-[#e5e1d7] bg-white p-[19px]">
 
             {/* Label */}
-            <p className="text-[10px] uppercase tracking-[0.1px] text-[#767168]">
+            <p className="text-[12px] uppercase tracking-[0.1px] text-[#767168]">
               {showQr ? "คิวอาโค้ดเชิญเพื่อน" : "ลิงก์เชิญเพื่อน"}
             </p>
 
@@ -145,7 +145,7 @@ export default function SharePage() {
                   >
                     <img src={icon} alt="" className={`shrink-0 ${iconSize}`} />
                   </div>
-                  <p className={`whitespace-nowrap text-[10.5px] font-light tracking-[0.21px] transition-colors ${active && activeLabel ? "text-[#e85a2c]" : "text-[#767168]"}`}>
+                  <p className={`whitespace-nowrap text-[12px] font-normal tracking-[0.21px] transition-colors ${active && activeLabel ? "text-[#e85a2c]" : "text-[#767168]"}`}>
                     {active && activeLabel ? activeLabel : label}
                   </p>
                 </button>

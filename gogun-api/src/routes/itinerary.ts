@@ -111,7 +111,8 @@ router.delete('/days/:dayId', requireItineraryEditor, async (req, res) => {
 
 // Add activity to day
 router.post('/days/:dayId/activities', requireItineraryEditor, async (req, res) => {
-  const { time, title, sort_order } = req.body as {
+  const { time, title, sort_order, tags } = req.body as {
+    tags?: string[]
     time?: string
     title?: string
     sort_order?: number
@@ -119,20 +120,22 @@ router.post('/days/:dayId/activities', requireItineraryEditor, async (req, res) 
   if (!time || !title)
     return err(res, 400, 'VALIDATION_ERROR', 'time and title are required')
 
+  if (tags !== undefined && (!Array.isArray(tags) || tags.length > 3 || tags.some(t => !['ต้องจองล่วงหน้า', 'มีค่าใช้จ่ายเพิ่ม', 'จุดนัดพบ'].includes(t)))) return err(res, 400, 'VALIDATION_ERROR', 'Invalid activity tags')
   const day = await prisma.itineraryDay.findFirst({
     where: { id: param(req, 'dayId'), trip_id: param(req, 'tripId') },
   })
   if (!day) return err(res, 404, 'NOT_FOUND', 'Day not found')
 
   const activity = await prisma.itineraryActivity.create({
-    data: { day_id: param(req, 'dayId'), time, title, sort_order: sort_order ?? 0 },
+    data: { day_id: param(req, 'dayId'), time, title, sort_order: sort_order ?? 0, tags: tags ?? [] },
   })
   return ok(res, activity, 201)
 })
 
 // Edit activity
 router.patch('/activities/:actId', requireItineraryEditor, async (req, res) => {
-  const { time, title, sort_order } = req.body as {
+  const { time, title, sort_order, tags } = req.body as {
+    tags?: string[]
     time?: string
     title?: string
     sort_order?: number
@@ -144,9 +147,11 @@ router.patch('/activities/:actId', requireItineraryEditor, async (req, res) => {
   if (!activity || activity.day.trip_id !== param(req, 'tripId'))
     return err(res, 404, 'NOT_FOUND', 'Activity not found')
 
+  if (tags !== undefined && (!Array.isArray(tags) || tags.length > 3 || tags.some(t => !['ต้องจองล่วงหน้า', 'มีค่าใช้จ่ายเพิ่ม', 'จุดนัดพบ'].includes(t)))) return err(res, 400, 'VALIDATION_ERROR', 'Invalid activity tags')
   const updated = await prisma.itineraryActivity.update({
     where: { id: param(req, 'actId') },
     data: {
+      ...(tags !== undefined && { tags }),
       ...(time !== undefined && { time }),
       ...(title !== undefined && { title }),
       ...(sort_order !== undefined && { sort_order }),

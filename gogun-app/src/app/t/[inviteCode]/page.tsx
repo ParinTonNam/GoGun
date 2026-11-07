@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import InviteClient from "./invite-client";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+const API_BASE = (process.env.GOGUN_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1").replace(/\/$/, "");
 
 type Props = { params: Promise<{ inviteCode: string }> };
 

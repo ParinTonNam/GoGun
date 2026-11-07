@@ -9,9 +9,13 @@ if (!envSecret || envSecret.length < 32) {
 const SECRET: string = envSecret
 
 export function signToken(userId: string): string {
-  return jwt.sign({ sub: userId }, SECRET, { expiresIn: '90d' })
+  return jwt.sign({ sub: userId }, SECRET, { expiresIn: '7d' })
 }
 
-export function verifyToken(token: string): { sub: string } {
-  return jwt.verify(token, SECRET) as { sub: string }
+export function signGuestToken(userId: string): string {
+  return jwt.sign({ sub: userId, guest: true }, SECRET, { expiresIn: '7d' })
+}
+
+export function verifyToken(token: string): { sub: string; guest?: boolean } {
+  return jwt.verify(token, SECRET, { maxAge: '7d' }) as { sub: string; guest?: boolean }
 }

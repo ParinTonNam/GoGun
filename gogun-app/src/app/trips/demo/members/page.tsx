@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageHeader, DEMO_USER } from "@/components/page-header";
-import { MEMBER_COLORS, ORGANIZER_COLOR } from "@/lib/trip";
+import { ORGANIZER_COLOR } from "@/lib/trip";
 
 type Member = {
   id: string;
@@ -12,7 +12,7 @@ type Member = {
   isOrganizer: boolean;
 };
 
-const INVITE_LINK = "gogun.app/t/tokyo-kyoto-x4";
+const INVITE_LINK = "maewtiew.app/demo/koh-larn";
 
 const SHARE_PLATFORMS: { key: string; label: string; bg: string; icon?: string }[] = [
   { key: "line", label: "LINE", bg: "#06c755", icon: "/images/icon-line.svg" },
@@ -35,28 +35,14 @@ function QRCorner({ pos }: { pos: string }) {
 
 export default function MembersPage() {
   const router = useRouter();
-  const [members, setMembers] = useState<Member[]>([
+  const [members] = useState<Member[]>([
     { id: "organizer", name: "ต้นน้ำ (คุณ)", color: ORGANIZER_COLOR, isOrganizer: true },
+    { id: "james", name: "เจมส์", color: "#4f6e7a", isOrganizer: false },
+    { id: "nai", name: "นาย", color: "#7b8b57", isOrganizer: false },
+    { id: "atif", name: "อาติฟ", color: "#8a6e9e", isOrganizer: false },
   ]);
-  const [inputName, setInputName] = useState("");
   const [showSheet, setShowSheet] = useState(false);
   const [copied, setCopied] = useState(false);
-
-  function addMember() {
-    const trimmed = inputName.trim();
-    if (!trimmed) return;
-    const nonOrgCount = members.filter((m) => !m.isOrganizer).length;
-    setMembers((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        name: trimmed,
-        color: MEMBER_COLORS[nonOrgCount % MEMBER_COLORS.length],
-        isOrganizer: false,
-      },
-    ]);
-    setInputName("");
-  }
 
   async function copyLink() {
     try {
@@ -71,7 +57,7 @@ export default function MembersPage() {
   async function share() {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ url: `https://${INVITE_LINK}`, title: "ทริปญี่ปุ่น Autumn" });
+      await navigator.share({ url: `https://${INVITE_LINK}`, title: "ทริปทะเลเกาะล้าน" });
         return;
       } catch {
         // cancelled or unsupported
@@ -82,7 +68,7 @@ export default function MembersPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex min-h-screen w-full max-w-[420px] flex-col pb-[24px] pt-[24px]">
+      <div className="demo-page-content flex min-h-screen w-full max-w-[960px] flex-col pb-[24px] pt-[24px]">
         {/* Header */}
         <div className="px-[24px]">
           <PageHeader
@@ -136,7 +122,7 @@ export default function MembersPage() {
         {/* Members section */}
         <div className="flex flex-col gap-[10px] px-[24px] pb-[28px]">
           <div className="flex items-center justify-between">
-            <p className="text-[11px] uppercase tracking-[1.54px] text-[#767168]">MEMBERS</p>
+            <p className="text-[12px] uppercase tracking-[1.54px] text-[#767168]">MEMBERS</p>
             <p className="text-[12px] tracking-[0.12px] text-[#14110d]">{members.length} คน</p>
           </div>
           <div className="flex flex-col">
@@ -155,7 +141,7 @@ export default function MembersPage() {
                       {member.name}
                     </p>
                     <p
-                      className="text-[11px] font-medium tracking-[0.08px]"
+                      className="text-[12px] font-medium tracking-[0.08px]"
                       style={{ color: member.isOrganizer ? "#e85a2c" : "#d9a21b" }}
                     >
                       {member.isOrganizer ? "คนจัดทริป · HOST" : "รอเข้าร่วม"}
@@ -167,30 +153,7 @@ export default function MembersPage() {
           </div>
         </div>
 
-        {/* Add member input */}
-        <div className="px-[24px] pb-[28px]">
-          <div className="flex items-center gap-[8px]">
-            <div className="flex-1 border-b border-[#e5e1d7] py-[14px]">
-              <input
-                type="text"
-                value={inputName}
-                onChange={(e) => setInputName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addMember()}
-                placeholder="ชื่อเล่น เช่น ฟ้า, ปอนด์"
-                className="w-full bg-transparent text-[17px] text-[#14110d] outline-none placeholder:text-[#757575]"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={addMember}
-              disabled={!inputName.trim()}
-              className="flex h-[44px] shrink-0 items-center gap-[8px] rounded-[14px] bg-[#14110d] px-[18px] py-[12px] disabled:opacity-40"
-            >
-              <img src="/images/icon-plus.svg" alt="" className="size-[20px]" />
-              <p className="text-[13px] font-medium tracking-[0.13px] text-[#f7f5f0]">เพิ่ม</p>
-            </button>
-          </div>
-        </div>
+        <p className="px-6 text-sm text-[#767168]">เพื่อนเข้าร่วมผ่านลิงก์และตั้งชื่อเอง ไม่ต้องเพิ่มชื่อไว้ล่วงหน้า</p>
 
         {/* Bottom shortcuts */}
         <div className="mt-auto flex gap-[8px] px-[24px] pt-[24px]">
@@ -218,7 +181,7 @@ export default function MembersPage() {
             className="fixed inset-0 z-10 bg-black/30"
             onClick={() => setShowSheet(false)}
           />
-          <div className="fixed bottom-0 left-1/2 z-20 w-full max-w-[420px] -translate-x-1/2 overflow-hidden rounded-tl-[24px] rounded-tr-[24px] bg-[#f7f5f0] pt-[8px]">
+          <div className="responsive-sheet fixed bottom-0 left-1/2 z-20 w-full max-w-[420px] -translate-x-1/2 overflow-hidden rounded-tl-[24px] rounded-tr-[24px] bg-[#f7f5f0] pt-[8px]">
             {/* Handle */}
             <div className="flex justify-center pb-0">
               <div className="h-[4px] w-[36px] rounded-[2px] bg-[#d4cfc2]" />
@@ -260,7 +223,7 @@ export default function MembersPage() {
                     <QRCorner pos="bottom-0 left-0" />
                   </div>
                 </div>
-                <p className="text-[11px] tracking-[0.44px] text-[#767168]">
+                <p className="text-[12px] tracking-[0.44px] text-[#767168]">
                   สแกนเพื่อเข้าทริปได้ทันที
                 </p>
               </div>
@@ -283,7 +246,7 @@ export default function MembersPage() {
                         <span className="size-[10px] rounded-full border-2 border-white" />
                       )}
                     </span>
-                    <span className="text-[10.5px] tracking-[0.21px] text-[#767168]">
+                    <span className="text-[12px] tracking-[0.21px] text-[#767168]">
                       {platform.label}
                     </span>
                   </button>

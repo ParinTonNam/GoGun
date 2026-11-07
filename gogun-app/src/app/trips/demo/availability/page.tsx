@@ -30,9 +30,9 @@ const CELLS: CalDay[] = [
   { n: 12, v: "default" },
   { n: 13, v: "uncertain" },
   // Row 3
-  { n: 14, v: "all" },
-  { n: 15, v: "all" },
-  { n: 16, v: "all" },
+  { n: 14, v: "default" },
+  { n: 15, v: "default" },
+  { n: 16, v: "default" },
   { n: 17, v: "default" },
   { n: 18, v: "default" },
   { n: 19, v: "default" },
@@ -141,7 +141,7 @@ function ConfirmDateSheet({
   }
 
   return (
-    <div className="fixed bottom-0 left-1/2 z-20 w-full max-w-[420px] -translate-x-1/2 overflow-hidden rounded-tl-[25px] rounded-tr-[25px] bg-[#f7f5f0] shadow-[0_-4px_24px_rgba(0,0,0,0.10)]">
+    <div className="responsive-sheet fixed bottom-0 left-1/2 z-20 w-full max-w-[420px] -translate-x-1/2 overflow-hidden rounded-tl-[25px] rounded-tr-[25px] bg-[#f7f5f0] shadow-[0_-4px_24px_rgba(0,0,0,0.10)]">
       {/* Drag handle */}
       <div className="flex justify-center pt-[10px]">
         <div className="h-[4px] w-[36px] rounded-[2px] bg-[#d4cfc2]" />
@@ -161,7 +161,7 @@ function ConfirmDateSheet({
           </button>
         </div>
 
-        {/* Option: 14–16 พ.ย. */}
+        {/* Option: 20–22 พ.ย. */}
         <button
           type="button"
           onClick={() => setSelected("preset-nov")}
@@ -173,8 +173,8 @@ function ConfirmDateSheet({
                 : "1px solid #e5e1d7",
           }}
         >
-          <p className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">14–16 พ.ย.</p>
-          <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">
+          <p className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">20–22 พ.ย.</p>
+          <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">
             ที่ว่างพร้อมกันทุกคน
           </p>
         </button>
@@ -192,7 +192,7 @@ function ConfirmDateSheet({
           }}
         >
           <p className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">1-5 ธ.ค.</p>
-          <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">
+          <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">
             ที่ว่างพร้อมกันทุกคน
           </p>
         </button>
@@ -241,7 +241,7 @@ function ConfirmDateSheet({
             <div className="grid grid-cols-7 gap-x-[2px]">
               {WEEK_HEADERS.map((h) => (
                 <div key={h} className="flex h-[24px] items-center justify-center">
-                  <p className="text-[9px] font-light uppercase tracking-[0.9px] text-[#b5b0a4]">
+                  <p className="text-[9px] font-normal uppercase tracking-[0.9px] text-[#b5b0a4]">
                     {h}
                   </p>
                 </div>
@@ -255,7 +255,7 @@ function ConfirmDateSheet({
                   key={n}
                   type="button"
                   onClick={() => handleDayTap(n)}
-                  className={`flex h-[45px] items-center justify-center text-[12px] font-light ${dayRounded(n)}`}
+                  className={`flex h-[45px] items-center justify-center text-[12px] font-normal ${dayRounded(n)}`}
                   style={{ backgroundColor: dayBg(n), color: dayColor(n) }}
                 >
                   {n}
@@ -276,7 +276,7 @@ function ConfirmDateSheet({
         </button>
 
         {/* Disclaimer */}
-        <p className="shrink-0 text-[11px] tracking-[0.08px] text-[#767168]">
+        <p className="shrink-0 text-[12px] tracking-[0.08px] text-[#767168]">
           * สามารถเปลี่ยนวันที่ภายหลังได้
         </p>
       </div>
@@ -311,7 +311,7 @@ export default function AvailabilityPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[30px] pt-[24px]">
+      <div className="demo-page-content flex w-full max-w-[960px] flex-col pb-[30px] pt-[24px]">
         {/* Header */}
         <div className="px-[24px]">
           <PageHeader title="เทียบวันว่าง" backHref="/trips/demo" user={DEMO_USER} />
@@ -320,7 +320,7 @@ export default function AvailabilityPage() {
         <div className="flex flex-col gap-[20px]">
           {/* Member filter pills */}
           <div className="flex flex-col gap-[10px] px-[24px]">
-            <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">ใครเลือกอยู่</p>
+            <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">ใครเลือกอยู่</p>
             <div className="flex flex-wrap gap-[5px]">
               {MEMBERS.map((m) => {
                 const isActive = activeMember === m.key;
@@ -348,7 +348,7 @@ export default function AvailabilityPage() {
                       {m.name}
                     </span>
                     {m.key === "ton" && (
-                      <span className="text-[10px] font-light tracking-[0.08px] text-[#c44211]">
+                      <span className="text-[12px] font-normal tracking-[0.08px] text-[#c44211]">
                         YOU
                       </span>
                     )}
@@ -443,31 +443,31 @@ export default function AvailabilityPage() {
           {/* Legend */}
           <div className="flex flex-col gap-[11px] px-[40px]">
             <div className="flex flex-wrap items-center gap-[14px]">
-              <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">
+              <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">
                 แตะวันเพื่อสลับ:
               </p>
               <div className="flex items-center gap-[8px]">
                 <div className="size-[20px] rounded-[3px] bg-[#f2efe8]" />
-                <p className="text-[12px] font-light tracking-[0.08px] text-[#14110d]">ไม่ว่าง</p>
+                <p className="text-[12px] font-normal tracking-[0.08px] text-[#14110d]">ไม่ว่าง</p>
               </div>
               <p className="text-[12px] text-black">→</p>
               <div className="flex items-center gap-[8px]">
                 <div className="size-[20px] rounded-[3px] bg-[#e0f0e5]" />
-                <p className="text-[12px] font-light tracking-[0.08px] text-[#2e8b5c]">ว่าง</p>
+                <p className="text-[12px] font-normal tracking-[0.08px] text-[#2e8b5c]">ว่าง</p>
               </div>
               <p className="text-[12px] text-black">→</p>
               <div className="flex items-center gap-[8px]">
                 <div className="size-[20px] rounded-[3px] bg-[#faefcb]" />
-                <p className="text-[12px] font-light tracking-[0.08px] text-[#d9a21b]">ไม่แน่ใจ</p>
+                <p className="text-[12px] font-normal tracking-[0.08px] text-[#d9a21b]">ไม่แน่ใจ</p>
               </div>
             </div>
             <div className="flex items-center gap-[8px]">
-              <p className="text-[12px] font-light text-[#767168]">1/4</p>
-              <p className="text-[12px] font-light text-black">หมายถึงในวันนั้นมีคนว่าง 1 คน</p>
+              <p className="text-[12px] font-normal text-[#767168]">1/4</p>
+              <p className="text-[12px] font-normal text-black">หมายถึงในวันนั้นมีคนว่าง 1 คน</p>
             </div>
             <div className="flex items-center gap-[8px]">
               <div className="size-[20px] shrink-0 rounded-[3px] bg-[#2e8b5c]" />
-              <p className="text-[12px] font-light text-black">หมายถึงทุกคนว่างตรงกัน</p>
+              <p className="text-[12px] font-normal text-black">หมายถึงทุกคนว่างตรงกัน</p>
             </div>
           </div>
 
@@ -478,14 +478,14 @@ export default function AvailabilityPage() {
                 <p className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">
                   มี 3 วัน
                 </p>
-                <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">
+                <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">
                   ที่ว่างพร้อมกันทุกคน
                 </p>
               </div>
               <div className="flex flex-col items-end gap-[5px]">
-                <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">แนะนำ</p>
+                <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">แนะนำ</p>
                 <p className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">
-                  14–16 พ.ย.
+                  20–22 พ.ย.
                 </p>
               </div>
             </div>

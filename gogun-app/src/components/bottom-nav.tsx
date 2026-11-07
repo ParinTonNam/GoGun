@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 type Tab = "trips" | "recommend" | "profile";
 
@@ -35,7 +38,39 @@ function IconProfile({ color }: { color: string }) {
   );
 }
 
-export function BottomNav({ active }: { active: Tab }) {
+export function BottomNav({ active, user }: { active: Tab; user?: { display_name: string; avatar_color: string } | null }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const toggleButton = useRef<HTMLButtonElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
+  const menuPanel = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButton.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setMenuOpen(false); toggleButton.current?.focus(); }
+      if (event.key === "Tab") {
+        const items = menuPanel.current?.querySelectorAll<HTMLElement>('a, button:not([disabled])');
+        if (!items?.length) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", onKeyDown); };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const closeOnDesktop = () => { if (window.innerWidth >= 1024) setMenuOpen(false); };
+    window.addEventListener("resize", closeOnDesktop);
+    return () => window.removeEventListener("resize", closeOnDesktop);
+  }, []);
+
+
   const ACTIVE_ICON_COLOR = "#e85a2c";
   const INACTIVE_ICON_COLOR = "#6e6a62";
 
@@ -45,32 +80,19 @@ export function BottomNav({ active }: { active: Tab }) {
     label: string;
     Icon: React.ComponentType<{ color: string }>;
   }> = [
-    { id: "trips",     href: "/trips",     label: "จัดการทริป", Icon: IconTrips },
+    { id: "trips",     href: "/trips",     label: "ทริปของฉัน", Icon: IconTrips },
     { id: "recommend", href: "/recommend", label: "แนะนำทริป",  Icon: IconRecommend },
     { id: "profile",   href: "/profile",   label: "โปรไฟล์",    Icon: IconProfile },
   ];
 
-  return (
-    <div className="fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 w-full max-w-[420px] z-50">
-      <div className="mx-[13px] flex h-[62px] items-start justify-center rounded-[18px] border border-[#d4cfc2] bg-white pt-[8px]">
-        {tabs.map((tab) => {
-          const isActive = active === tab.id;
-          const iconColor = isActive ? ACTIVE_ICON_COLOR : INACTIVE_ICON_COLOR;
-          return (
-            <Link key={tab.id} href={tab.href} className="flex flex-1 flex-col items-center gap-[3px]">
-              <div className="flex size-[20px] shrink-0 items-center justify-center">
-                <tab.Icon color={iconColor} />
-              </div>
-              <div className="flex flex-col items-center">
-                <span className={`text-[10px] tracking-[0.08px] ${isActive ? "font-medium text-[#14110d]" : "font-light text-[#767168]"}`}>
-                  {tab.label}
-                </span>
-                {isActive && <div className="mt-[2px] size-[3px] rounded-full bg-[#e85a2c]" />}
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
-  );
+  return <>
+    <button type="button" ref={toggleButton} className="global-menu-toggle" aria-label="เปิดเมนูทั้งหมด" aria-expanded={menuOpen} aria-controls="global-menu" onClick={() => setMenuOpen(true)}><span className="global-menu-lines" aria-hidden="true"><i /><i /><i /></span>เมนู</button>
+    {menuOpen && <button type="button" className="workspace-menu-backdrop" aria-label="ปิดเมนูหลัก" onClick={() => { setMenuOpen(false); toggleButton.current?.focus(); }} />}
+    <aside id="global-menu" ref={menuPanel} className={`global-sidebar${menuOpen ? " is-open" : ""}`} role={menuOpen ? "dialog" : undefined} aria-modal={menuOpen || undefined} aria-label="เมนูหลัก">
+      <button type="button" ref={closeButton} className="workspace-menu-close" aria-label="ปิดเมนู" onClick={() => { setMenuOpen(false); toggleButton.current?.focus(); }}>×</button>
+      <Link href="/trips" className="workspace-brand" onClick={() => setMenuOpen(false)}><img src="/images/logo.svg" alt="" width={28} height={28} /> GoGun · ไปกัน</Link>
+      <nav aria-label="หน้าหลักของ GoGun">{tabs.filter((tab) => tab.id !== "profile").map((tab) => <Link key={tab.id} href={tab.href} onClick={() => setMenuOpen(false)} aria-current={active === tab.id ? "page" : undefined} className="global-menu-item"><tab.Icon color={active === tab.id ? ACTIVE_ICON_COLOR : INACTIVE_ICON_COLOR} /><span>{tab.label}</span></Link>)}</nav>
+      <Link href="/profile" className="workspace-profile" aria-current={active === "profile" ? "page" : undefined} onClick={() => setMenuOpen(false)}><span className="workspace-avatar" style={{ backgroundColor: user?.avatar_color || "#58795b" }}>{user?.display_name.trim().slice(0, 1) || <IconProfile color="#fff" />}</span><span>{user?.display_name || "โปรไฟล์"}<small>บัญชีของฉัน</small></span></Link>
+    </aside>
+  </>;
 }

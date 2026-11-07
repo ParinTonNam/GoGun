@@ -1,422 +1,132 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  getTripByInvite,
-  claimMember,
-  mergeMember,
-  joinTripByInvite,
-  getMe,
-  saveToken,
-  clearToken,
-  getInitial,
-  ApiError,
-  type Trip,
-  type User,
-} from "@/lib/api";
-
-type PageState = "loading" | "ready" | "joining" | "error";
+import { getTripByInvite, claimMember, joinAsGuest, joinTripByInvite, getMe, ApiError, type Trip, type User } from "@/lib/api";
+import { getCatAvatarUrl, formatThaiShortDateRange } from "@/components/trip-ticket-selector";
+import { getTripCoverImage } from "@/lib/trip-themes";
+import "./invite.css";
 
 export default function InviteClient({ inviteCode }: { inviteCode: string }) {
   const router = useRouter();
-
   const [trip, setTrip] = useState<Trip | null>(null);
   const [me, setMe] = useState<User | null>(null);
-  const [pageState, setPageState] = useState<PageState>("loading");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [claimError, setClaimError] = useState("");
-
-  function load() {
-    const token = typeof window !== "undefined" ? localStorage.getItem("gogun_token") : null;
-    setIsLoggedIn(!!token);
-
-    const tripPromise = getTripByInvite(inviteCode);
-    // Only a 401 means the token is genuinely stale — clear it and show the
-    // login CTA. Any other failure must not silently render the wrong CTA,
-    // so let it propagate to the error state instead.
-    const mePromise = token
-      ? getMe().catch((e) => {
-          if (e instanceof ApiError && e.status === 401) {
-            clearToken();
-            setIsLoggedIn(false);
-            return null;
-          }
-          throw e;
-        })
-      : Promise.resolve(null);
-
-    return Promise.all([tripPromise, mePromise]).then(([t, user]) => {
-      setTrip(t);
-      setMe(user);
-      setPageState("ready");
-    });
-  }
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [attempt, setAttempt] = useState(0);
+  const [mode, setMode] = useState<"account" | "guest" | null>(null);
+  const [guestId, setGuestId] = useState("");
+  const [name, setName] = useState("");
+  const [reviewing, setReviewing] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const submitting = useRef(false);
+  const returnTo = `/t/${encodeURIComponent(inviteCode)}`;
+  const loginHref = `/login?returnTo=${encodeURIComponent(returnTo)}`;
 
   useEffect(() => {
-    load().catch(() => setPageState("error"));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inviteCode]);
-
-  const alreadyMember = !!(
-    me &&
-    trip?.members.some((m) => m.user_id === me.id && m.status === "joined")
-  );
-
-  // ล็อกอินด้วยบัญชีจริง (ไม่ใช่ guest) → กดชื่อ = รวมเข้าบัญชีนี้ ไม่สร้างคนซ้ำ
-  const isRealUser = !!(me && !me.is_guest);
-
-  // Guest names stay selectable by anyone with the link until their owner
-  // links an email, which locks the name to that account.
-  const claimableMembers = trip?.members.filter((m) => m.user.is_guest) ?? [];
-  const joinedMembers = trip?.members.filter((m) => m.status === "joined") ?? [];
-
-  async function handleClaim(memberId: string) {
-    setClaimError("");
-    setPageState("joining");
-    try {
-      if (isRealUser && trip) {
-        // มีบัญชีจริงอยู่แล้ว → รวม guest slot เข้าบัญชีนี้ (คงตัวตนเดิม ไม่เกิดคนซ้ำ)
-        const result = await mergeMember(inviteCode, memberId);
-        const dest =
-          me?.id === trip.organizer_id
-            ? `/trips/${result.trip_id}`
-            : `/trips/${result.trip_id}/member`;
-        router.push(dest);
-        return;
+    let active = true;
+    async function load() {
+      try {
+        const [t, user] = await Promise.all([
+          getTripByInvite(inviteCode),
+          getMe({ redirectOnUnauthorized: false }).catch(e => {
+            if (e instanceof ApiError && e.status === 401) return null;
+            throw e;
+          }),
+        ]);
+        if (!active) return;
+        setTrip(t); setMe(user);
+        if (user && !user.is_guest) setMode("account");
+      } catch (e) {
+        if (active) setLoadError(e instanceof Error ? e.message : "โหลดทริปไม่สำเร็จ");
+      } finally {
+        if (active) setLoading(false);
       }
-      const result = await claimMember(inviteCode, memberId);
-      saveToken(result.token);
-      const dest =
-        result.member.role === "organizer"
-          ? `/trips/${result.trip_id}`
-          : `/trips/${result.trip_id}/member`;
-      router.push(dest);
-    } catch (e) {
-      setClaimError(
-        e instanceof Error ? e.message : "ชื่อนี้ถูกใช้ไปแล้ว ลองใหม่อีกครั้ง",
-      );
-      setPageState("ready");
-      load().catch(() => {});
     }
-  }
+    void load();
+    return () => { active = false; };
+  }, [inviteCode, attempt]);
 
-  function handleSwitchPerson() {
-    clearToken();
-    setMe(null);
-    setIsLoggedIn(false);
-  }
+  const joined = trip?.members.filter(m => m.status === "joined") ?? [];
+  const guests = joined.filter(m => m.user.is_guest);
+  const selectedGuest = guests.find(m => m.id === guestId);
+  const accountReady = !!me && !me.is_guest;
+  const selectedName = mode === "account" ? me?.display_name : selectedGuest?.user.display_name ?? name.trim();
 
-  async function handleLoginJoin() {
-    if (!isLoggedIn) {
-      router.push(`/login?returnTo=/t/${inviteCode}`);
-      return;
-    }
-    setPageState("joining");
+  async function confirmJoin() {
+    if (submitting.current || !reviewing || !mode) return;
+    submitting.current = true; setBusy(true); setError("");
     try {
-      const result = await joinTripByInvite(inviteCode);
-      router.push(`/trips/${result.trip_id}/member`);
-    } catch {
-      setPageState("ready");
+      if (mode === "account") {
+        if (!accountReady) { router.push(loginHref); return; }
+        const result = await joinTripByInvite(inviteCode);
+        router.replace(`/trips/${result.trip_id}`);
+      } else {
+        const result = guestId ? await claimMember(inviteCode, guestId) : await joinAsGuest(inviteCode, name.trim());
+        router.replace(`/trips/${result.trip_id}`);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "เข้าร่วมไม่สำเร็จ กรุณาลองใหม่");
+      submitting.current = false; setBusy(false);
     }
   }
 
-  /* ── Loading ── */
-  if (pageState === "loading") {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0]">
-        <div className="flex flex-col items-center gap-[12px]">
-          <div className="size-[32px] animate-spin rounded-full border-[2px] border-[#e5e1d7] border-t-[#e85a2c]" />
-          <p className="text-[13px] font-light text-[#767168]">กำลังโหลดทริป...</p>
-        </div>
-      </main>
-    );
-  }
+  return <main className="maew-invite-page"><div className="maew-invite-content">
+    <header className="maew-invite-brand"><Link href="/" aria-label="Maew Tiew หน้าแรก" className="maew-home-brand">
+      <img src="/images/figma-gogun-mark.svg" alt="" width={31} height={30} />
+      <span className="maew-home-brand-copy"><span className="maew-home-brand-title">Maew Tiew</span><span className="maew-home-brand-sub">Happy Cats, Easy Trips</span></span>
+    </Link></header>
 
-  /* ── Error / Not found ── */
-  if (pageState === "error" || !trip) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0] px-[28px]">
-        <div className="flex max-w-[320px] flex-col items-center gap-[16px] text-center">
-          <div className="flex size-[56px] items-center justify-center rounded-full bg-[#f2efe8] text-[28px]">
-            🔗
+    {loading ? <section className="maew-invite-card" role="status">กำลังเปิดลิงก์เชิญ…</section>
+      : !trip || loadError ? <section className="maew-invite-card maew-invite-error">
+        <h1>เปิดลิงก์เชิญไม่สำเร็จ</h1><p role="alert">{loadError}</p>
+        <button type="button" className="maew-invite-primary" onClick={() => { setLoadError(""); setLoading(true); setAttempt(a => a + 1); }}>ลองอีกครั้ง</button>
+        <Link href="/trips">กลับหน้าทริปของฉัน</Link>
+      </section> : <>
+        <section className="maew-invite-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(63,31,87,.25), transparent 75%), url("${getTripCoverImage(trip.theme)}")` }}>
+          <h1>คุณได้รับเชิญเข้าทริป<br /><span>{trip.name}</span></h1>
+          <div className="maew-invite-hero-meta"><span>{trip.proposed_start_date || trip.confirmed_start_date ? formatThaiShortDateRange(trip) : "ยังไม่กำหนดวัน"}</span><span className="maew-invite-status">{trip.date_status === "confirmed" ? "ยืนยันแล้ว" : "ยังไม่ยืนยัน"}</span></div>
+        </section>
+
+        {reviewing ? <section className="maew-invite-card maew-invite-choice" aria-labelledby="join-review">
+          <h2 id="join-review">ยืนยันเข้าร่วมทริป</h2>
+          <p>ทริป <strong>{trip.name}</strong></p>
+          <p>ใช้ชื่อ <strong>{selectedName}</strong> · {mode === "guest" ? "Guest" : "บัญชีที่ล็อกอิน"}</p>
+          <p className="maew-invite-hint">{mode === "guest" ? "ชื่อ Guest นี้ใครที่มีลิงก์ก็เลือกเข้าใช้ได้ ผูกบัญชีภายหลังเพื่อล็อกชื่อได้" : "ชื่อนี้เข้าใช้ได้ด้วยการล็อกอินบัญชีของคุณเท่านั้น"}</p>
+          <p className="maew-invite-hint">ยืนยันแล้วเข้าทริปได้ทันที ไม่ต้องรอผู้จัดอนุมัติ</p>
+          {error && <p className="maew-invite-form-error" role="alert">{error}</p>}
+          <button type="button" className="maew-invite-primary" onClick={confirmJoin} disabled={busy}>{busy ? "กำลังเข้าทริป…" : "ยืนยันและเข้าทริป"}</button>
+          <button type="button" className="maew-invite-back" disabled={busy} onClick={() => { setReviewing(false); setError(""); }}>ย้อนกลับ</button>
+        </section> : <section className="maew-invite-card maew-invite-choice" aria-labelledby="join-choice-heading">
+          <h2 id="join-choice-heading">ต้องการเข้าร่วมแบบไหน?</h2>
+          <div className="maew-invite-options">
+            <button type="button" className="maew-invite-option" aria-pressed={mode === "account"} onClick={() => setMode("account")}><strong>ล็อกอิน</strong><small>ใช้บัญชีของฉัน</small></button>
+            <button type="button" className="maew-invite-option" aria-pressed={mode === "guest"} onClick={() => setMode("guest")}><strong>Guest</strong><small>ตั้งชื่อ ไม่ต้องสมัคร</small></button>
           </div>
-          <div className="flex flex-col gap-[6px]">
-            <p className="text-[16px] font-medium text-[#14110d]">ลิงก์ไม่ถูกต้อง</p>
-            <p className="text-[13px] font-light leading-[1.6] text-[#767168]">
-              ลิงก์นี้อาจหมดอายุหรือถูกลบไปแล้ว ขอลิงก์ใหม่จากผู้จัดทริป
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => router.push("/trips")}
-            className="mt-[4px] rounded-[14px] bg-[#14110d] px-[28px] py-[12px] text-[14px] font-medium text-white"
-          >
-            กลับหน้าหลัก
-          </button>
-        </div>
-      </main>
-    );
-  }
+          {mode === "account" && (accountReady ? <div className="maew-invite-mode-content">
+            <p className="maew-invite-hint">เข้าร่วมในชื่อ <strong>{me.display_name}</strong></p>
+            <button type="button" className="maew-invite-primary" onClick={() => setReviewing(true)}>เข้าทริป</button>
+            <Link className="maew-invite-account-link" href={loginHref}>ใช้บัญชีอื่น</Link>
+          </div> : <div className="maew-invite-mode-content">
+            <p className="maew-invite-hint">ล็อกอินก่อน แล้วกลับมายืนยันเข้าร่วมทริปนี้</p>
+            <Link className="maew-invite-primary" href={loginHref}>เข้าสู่ระบบ</Link>
+            <p className="maew-invite-signup">ถ้ายังไม่มีแอคเคาท์ ? <Link href={`/signin?returnTo=${encodeURIComponent(returnTo)}`}>ลงทะเบียนเลย</Link></p>
+          </div>)}
+          {mode === "guest" && <form className="maew-invite-mode-content maew-invite-guest-form" onSubmit={e => { e.preventDefault(); if (selectedGuest || name.trim()) setReviewing(true); }}>
+            <p className="maew-invite-hint">ใครมีลิงก์ก็เข้าร่วมเป็น Guest ได้ เมื่อตั้งชื่อจะปรากฏในสมาชิกทริป</p>
+            {guests.length > 0 && <label className="maew-invite-field"><span>Guest ใหม่ หรือชื่อเดิมของคุณ</span><select value={guestId} onChange={e => setGuestId(e.target.value)}><option value="">ตั้งชื่อ Guest ใหม่</option>{guests.map(m => <option key={m.id} value={m.id}>{m.user.display_name} · Guest</option>)}</select></label>}
+            {!guestId && <label className="maew-invite-field"><span>ชื่อที่แสดงในทริป <small>({name.length}/50 ตัวอักษร)</small></span><input autoComplete="nickname" required maxLength={50} value={name} onChange={e => setName(e.target.value)} placeholder="ต้นน้ำ" /></label>}
+            {me && !me.is_guest && <p className="maew-invite-hint">การเข้าด้วย Guest จะสลับจากบัญชี {me.display_name} ไปใช้ชื่อ Guest</p>}
+            <button className="maew-invite-primary" disabled={!selectedGuest && !name.trim()}>เข้าทริป</button>
+          </form>}
+        </section>}
 
-  /* ── Ready ── */
-  const memberCount = trip.members.filter((m) => m.status === "joined").length;
-
-  const dateLabel = (() => {
-    const iso =
-      trip.date_status === "confirmed"
-        ? trip.confirmed_start_date
-        : trip.proposed_start_date;
-    if (!iso) return "ยังไม่กำหนดวัน";
-    return new Date(iso).toLocaleDateString("th-TH", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  })();
-
-  return (
-    <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col px-[24px] pb-[40px] pt-[72px]">
-
-        {/* Eyebrow */}
-        <p className="pb-[10px] text-[10.5px] uppercase tracking-[1.5px] text-[#767168]">
-          คุณถูกเชิญเข้าทริป
-        </p>
-
-        {/* Trip name */}
-        <h1 className="text-[34px] font-medium leading-[1.12] tracking-[-0.34px] text-[#14110d]">
-          {trip.name}
-        </h1>
-
-        {/* Meta */}
-        <div className="mt-[10px] flex flex-wrap items-center gap-x-[10px] gap-y-[4px]">
-          <span className="text-[13px] font-light tracking-[0.08px] text-[#767168]">
-            {trip.destination}
-          </span>
-          <span className="text-[#d4cfc2]">·</span>
-          <span className="text-[13px] font-light tracking-[0.08px] text-[#767168]">
-            {trip.duration_days} วัน
-          </span>
-          <span className="text-[#d4cfc2]">·</span>
-          <span className="text-[13px] font-light tracking-[0.08px] text-[#767168]">
-            {memberCount} คน
-          </span>
-        </div>
-
-        {/* Date */}
-        <p className="mt-[6px] text-[12px] font-light tracking-[0.08px] text-[#b5b0a4]">
-          {trip.date_status === "confirmed"
-            ? `ยืนยันวันแล้ว · ${dateLabel}`
-            : `กำลังหาวัน · ${dateLabel}`}
-        </p>
-
-        {/* Organizer */}
-        <div className="mt-[28px] flex items-center gap-[10px]">
-          <div
-            className="flex size-[36px] shrink-0 items-center justify-center rounded-full text-[15px] font-medium text-white"
-            style={{ backgroundColor: trip.organizer.avatar_color }}
-          >
-            {trip.organizer.display_name.slice(0, 1)}
-          </div>
-          <div className="flex flex-col gap-px">
-            <p className="text-[13px] font-medium tracking-[0.08px] text-[#14110d]">
-              {trip.organizer.display_name}
-            </p>
-            <p className="text-[11px] font-light tracking-[0.08px] text-[#767168]">ผู้จัดทริป</p>
-          </div>
-        </div>
-
-        {/* Pick your name — primary way to join, no account needed */}
-        {!alreadyMember && claimableMembers.length > 0 && (
-          <div className="mt-[28px] flex flex-col gap-[4px]">
-            <p className="text-[15px] tracking-[0.08px] text-[#14110d]">ใครคือคุณ?</p>
-            <p className="pb-[16px] text-[12px] font-light tracking-[0.08px] text-[#767168]">
-              {isRealUser
-                ? `กดชื่อของคุณเพื่อรวมเข้ากับบัญชี ${me?.display_name ?? ""} · ไม่เพิ่มคนซ้ำ`
-                : "กดชื่อเพื่อเริ่มใช้งาน · ไม่ต้องสมัครสมาชิก"}
-            </p>
-            <div className="grid grid-cols-2 gap-[8px]">
-              {claimableMembers.map((m) => (
-                <button
-                  key={m.id}
-                  type="button"
-                  onClick={() => handleClaim(m.id)}
-                  disabled={pageState === "joining"}
-                  className="flex flex-col items-center gap-[10px] rounded-[18px] border border-[#e5e1d7] bg-white pb-[18px] pt-[19px] disabled:opacity-50"
-                >
-                  <div
-                    className="flex size-[56px] items-center justify-center rounded-[28px] text-[20px] font-medium text-white"
-                    style={{ backgroundColor: m.user.avatar_color }}
-                  >
-                    {getInitial(m.user.display_name)}
-                  </div>
-                  <p className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">
-                    {m.user.display_name}
-                  </p>
-                </button>
-              ))}
-            </div>
-            <p className="pt-[10px] text-[11px] font-light leading-[1.6] tracking-[0.08px] text-[#b5b0a4]">
-              ชื่อเหล่านี้ยังไม่ล็อก ใครที่มีลิงก์ทริปก็เลือกได้
-              หลังเข้าทริปแล้วสามารถเชื่อมอีเมลเพื่อล็อกชื่อของคุณ
-            </p>
-            {claimError && (
-              <p className="pt-[10px] text-[12px] text-red-500">{claimError}</p>
-            )}
-          </div>
-        )}
-
-        {/* Members already in */}
-        {joinedMembers.length > 0 && (
-          <div className="mt-[20px] flex flex-col gap-[8px]">
-            <p className="text-[11px] uppercase tracking-[1.2px] text-[#b5b0a4]">สมาชิก</p>
-            <div className="flex flex-wrap gap-[8px]">
-              {joinedMembers.slice(0, 8).map((m) => (
-                <div
-                  key={m.id}
-                  className="flex items-center gap-[7px] rounded-full border border-[#e5e1d7] bg-white px-[10px] py-[5px]"
-                >
-                  <div
-                    className="flex size-[20px] shrink-0 items-center justify-center rounded-full text-[10px] font-medium text-white"
-                    style={{ backgroundColor: m.user.avatar_color }}
-                  >
-                    {m.user.display_name.slice(0, 1)}
-                  </div>
-                  <span className="text-[12px] tracking-[0.08px] text-[#14110d]">
-                    {m.user.display_name}
-                  </span>
-                  {m.user.is_guest === false && (
-                    <svg
-                      width="10"
-                      height="10"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      aria-label="เชื่อมอีเมลแล้ว"
-                    >
-                      <rect x="3" y="7" width="10" height="7" rx="2" stroke="#b5b0a4" strokeWidth="1.6" />
-                      <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="#b5b0a4" strokeWidth="1.6" strokeLinecap="round" />
-                    </svg>
-                  )}
-                </div>
-              ))}
-              {memberCount > 8 && (
-                <div className="flex items-center rounded-full border border-[#e5e1d7] bg-white px-[10px] py-[5px]">
-                  <span className="text-[12px] font-light text-[#767168]">+{memberCount - 8} คน</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="flex-1 py-[32px]" />
-
-        {/* CTA */}
-        {alreadyMember && me ? (
-          <div className="flex flex-col gap-[10px]">
-            <div className="flex items-center justify-center gap-[8px] rounded-[14px] border border-[#e5e1d7] bg-white px-[14px] py-[10px]">
-              <div
-                className="flex size-[26px] shrink-0 items-center justify-center rounded-full text-[11px] font-medium text-white"
-                style={{ backgroundColor: me.avatar_color }}
-              >
-                {getInitial(me.display_name)}
-              </div>
-              <p className="text-[13px] tracking-[0.08px] text-[#14110d]">
-                กำลังใช้งานในชื่อ <span className="font-medium">{me.display_name}</span>
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() =>
-                router.push(
-                  me.id === trip.organizer_id
-                    ? `/trips/${trip.id}`
-                    : `/trips/${trip.id}/member`,
-                )
-              }
-              className="w-full rounded-[18px] bg-[#14110d] py-[16px] text-[15px] font-medium text-white"
-            >
-              ดูทริปนี้
-            </button>
-            {me.is_guest && (
-              <button
-                type="button"
-                onClick={() => router.push(`/link-account?returnTo=/t/${inviteCode}`)}
-                className="text-center text-[12px] font-light tracking-[0.08px] text-[#e85a2c] underline underline-offset-2"
-              >
-                ชื่อนี้ยังไม่ล็อก ใครมีลิงก์ก็เข้าได้ เชื่อมอีเมลเพื่อล็อกชื่อ
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={handleSwitchPerson}
-              className="text-center text-[12px] font-light tracking-[0.08px] text-[#767168] underline underline-offset-2"
-            >
-              ไม่ใช่คุณ? เปลี่ยนคน
-            </button>
-          </div>
-        ) : isLoggedIn && claimableMembers.length > 0 ? (
-          // มีชื่อให้กดอยู่ด้านบน — ดันให้กดชื่อตัวเองก่อน (กันเผลอสร้างคนซ้ำ)
-          // ปุ่มเข้าร่วมแบบคนใหม่เหลือเป็นทางสำรองเล็กๆ
-          <div className="flex flex-col gap-[8px] text-center">
-            <p className="text-[11px] font-light tracking-[0.44px] text-[#b5b0a4]">
-              ไม่มีชื่อของคุณด้านบน?
-            </p>
-            <button
-              type="button"
-              onClick={handleLoginJoin}
-              disabled={pageState === "joining"}
-              className="text-[12px] font-light tracking-[0.08px] text-[#767168] underline underline-offset-2 disabled:opacity-60"
-            >
-              {pageState === "joining" ? "กำลังเข้าร่วม..." : "เข้าร่วมเป็นสมาชิกใหม่"}
-            </button>
-          </div>
-        ) : isLoggedIn ? (
-          <button
-            type="button"
-            onClick={handleLoginJoin}
-            disabled={pageState === "joining"}
-            className="w-full rounded-[18px] bg-[#e85a2c] py-[15px] text-[15px] font-medium text-white disabled:opacity-60"
-          >
-            {pageState === "joining" ? "กำลังเข้าร่วม..." : "เข้าร่วมทริป"}
-          </button>
-        ) : claimableMembers.length > 0 ? (
-          <div className="flex flex-col gap-[8px] text-center">
-            <p className="text-[11px] font-light tracking-[0.44px] text-[#b5b0a4]">
-              ไม่มีชื่อของคุณ? ติดต่อคนจัดทริปเพื่อเพิ่มชื่อ
-            </p>
-            <button
-              type="button"
-              onClick={handleLoginJoin}
-              className="text-[12px] font-light tracking-[0.08px] text-[#767168] underline underline-offset-2"
-            >
-              มีบัญชี GoGun แล้ว? เข้าสู่ระบบ
-            </button>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-[10px]">
-            <button
-              type="button"
-              onClick={handleLoginJoin}
-              className="w-full rounded-[18px] bg-[#e85a2c] py-[15px] text-[15px] font-medium text-white"
-            >
-              เข้าสู่ระบบเพื่อเข้าร่วม
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push(`/signin?returnTo=/t/${inviteCode}`)}
-              className="w-full rounded-[18px] border border-[#e5e1d7] bg-white py-[15px] text-[15px] font-medium text-[#14110d]"
-            >
-              สมัครสมาชิก
-            </button>
-          </div>
-        )}
-
-        <p className="pt-[20px] text-center text-[10.5px] tracking-[0.42px] text-[#b5b0a4]">
-          GoGun · ไปกัน
-        </p>
-
-      </div>
-    </main>
-  );
+        {joined.length > 0 && <section className="maew-invite-card maew-invite-members" aria-labelledby="join-members-heading">
+          <h2 id="join-members-heading">สมาชิกที่เข้าร่วมแล้ว</h2>
+          <ul>{joined.map((m, i) => <li key={m.id}><img src={getCatAvatarUrl(m.user.display_name, i, m.user.avatar_color)} alt="" width={48} height={48} /><span>{m.user.display_name}</span>{m.role === "organizer" && <small>HOST</small>}</li>)}</ul>
+        </section>}
+      </>}
+  </div></main>;
 }

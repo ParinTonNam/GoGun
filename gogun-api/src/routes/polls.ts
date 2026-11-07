@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import prisma from '../lib/prisma'
-import { requireOrganizer } from '../middleware/trip'
+import { requireOrganizer, requirePollCreator } from '../middleware/trip'
 import { ok, err } from '../lib/response'
 import { param } from '../lib/params'
 import { PollStatus } from '../../generated/prisma/enums'
@@ -40,8 +40,8 @@ router.get('/', async (req, res) => {
   }))
 })
 
-// Create poll (organizer only)
-router.post('/', requireOrganizer, async (req, res) => {
+// Create poll (organizer or member when allow_member_polls is enabled)
+router.post('/', requirePollCreator, async (req, res) => {
   const { title, subtitle, close_date, options } = req.body as {
     title?: string
     subtitle?: string
@@ -66,26 +66,67 @@ router.post('/', requireOrganizer, async (req, res) => {
   return ok(res, poll, 201)
 })
 
-// Update poll
-router.patch('/:pollId', requireOrganizer, async (req, res) => {
+// Update poll (title, subtitle, status, and options)
+router.patch('/:pollId', requirePollCreator, async (req, res) => {
   const poll = await prisma.poll.findFirst({
     where: { id: param(req, 'pollId'), trip_id: param(req, 'tripId') },
+    include: { options: { orderBy: { sort_order: 'asc' } } },
   })
   if (!poll) return err(res, 404, 'NOT_FOUND', 'Poll not found')
 
-  const { title, subtitle, status } = req.body as {
+  const { title, subtitle, status, options } = req.body as {
     title?: string
     subtitle?: string
     status?: PollStatus
+    options?: Array<{ id?: string; text: string; sort_order?: number }>
   }
-  const updated = await prisma.poll.update({
-    where: { id: param(req, 'pollId') },
-    data: {
-      ...(title !== undefined && { title }),
-      ...(subtitle !== undefined && { subtitle }),
-      ...(status !== undefined && { status }),
-    },
+
+  const updated = await prisma.$transaction(async (tx) => {
+    await tx.poll.update({
+      where: { id: poll.id },
+      data: {
+        ...(title !== undefined && { title }),
+        ...(subtitle !== undefined && { subtitle }),
+        ...(status !== undefined && { status }),
+      },
+    })
+
+    if (Array.isArray(options)) {
+      const incomingWithId = options.filter((o) => !!o.id)
+      const incomingIds = new Set(incomingWithId.map((o) => o.id!))
+      const toDeleteIds = poll.options.filter((existing) => !incomingIds.has(existing.id)).map((o) => o.id)
+
+      if (toDeleteIds.length > 0) {
+        await tx.pollVote.deleteMany({ where: { option_id: { in: toDeleteIds } } })
+        await tx.pollOption.deleteMany({ where: { id: { in: toDeleteIds } } })
+      }
+
+      for (let i = 0; i < options.length; i++) {
+        const opt = options[i]
+        const sortOrder = opt.sort_order ?? i
+        if (opt.id && poll.options.some((existing) => existing.id === opt.id)) {
+          await tx.pollOption.update({
+            where: { id: opt.id },
+            data: { text: opt.text, sort_order: sortOrder },
+          })
+        } else {
+          await tx.pollOption.create({
+            data: {
+              poll_id: poll.id,
+              text: opt.text,
+              sort_order: sortOrder,
+            },
+          })
+        }
+      }
+    }
+
+    return tx.poll.findUnique({
+      where: { id: poll.id },
+      include: { options: { orderBy: { sort_order: 'asc' } } },
+    })
   })
+
   return ok(res, updated)
 })
 

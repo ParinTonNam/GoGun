@@ -72,18 +72,18 @@ type GroupItem   = { id: string; text: string; voters: Voter[] };
 type PersonalItem = { id: string; text: string };
 
 const INITIAL_GROUP: GroupItem[] = [
-  { id: "g1", text: "Pocket WiFi",                         voters: ["ton", "nai"] },
-  { id: "g2", text: "Power adapter (ปลั๊ก A)",             voters: ["ton", "james", "atif"] },
-  { id: "g3", text: "Universal travel insurance",           voters: ["ton", "nai"] },
-  { id: "g4", text: "ยาสามัญ (paracetamol, แก้แพ้)",       voters: ["ton", "nai"] },
+  { id: "g1", text: "ถุงกันน้ำใส่มือถือ", voters: ["ton", "nai"] },
+  { id: "g2", text: "หน้ากากดำน้ำและเสื้อชูชีพ", voters: ["ton", "james", "atif"] },
+  { id: "g3", text: "ยาสามัญและพลาสเตอร์กันน้ำ", voters: ["ton", "nai"] },
+  { id: "g4", text: "ลำโพงพกพาสำหรับบ้านพัก", voters: ["ton", "nai"] },
 ];
 
 const INITIAL_PERSONAL: PersonalItem[] = [
-  { id: "p1", text: "Passport (เช็ควันหมดอายุ)" },
-  { id: "p2", text: "เสื้อกันหนาว ~10°C" },
-  { id: "p3", text: "รองเท้าเดินนานๆ ใส่สบาย" },
-  { id: "p4", text: "ที่ชาร์จมือถือ" },
-  { id: "p5", text: "บัตรเครดิตแจ้งใช้ตปท." },
+  { id: "p1", text: "บัตรประชาชนและเงินสด" },
+  { id: "p2", text: "ชุดว่ายน้ำและเสื้อคลุม" },
+  { id: "p3", text: "รองเท้าแตะเดินชายหาด" },
+  { id: "p4", text: "ที่ชาร์จมือถือและพาวเวอร์แบงก์" },
+  { id: "p5", text: "หมวก แว่นกันแดด และครีมกันแดด" },
 ];
 
 export default function PackingListPage() {
@@ -147,7 +147,7 @@ export default function PackingListPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col gap-[24px] pb-[100px] pt-[24px] px-[24px]">
+      <div className="demo-page-content flex w-full max-w-[960px] flex-col gap-[24px] pb-[100px] pt-[24px] px-[24px]">
 
         {/* Header */}
         <PageHeader title="Packing List" backHref="/trips/demo/tools" user={DEMO_USER} />
@@ -157,7 +157,7 @@ export default function PackingListPage() {
           <div className="flex items-center justify-between pb-[8px]">
             <p className="text-[13px] font-medium tracking-[0.08px] text-[#14110d]">ของกลาง</p>
             <div className="flex items-center gap-[10px]">
-              <p className="text-[10.5px] font-light tracking-[0.63px] text-[#767168]">
+              <p className="text-[12px] font-normal tracking-[0.63px] text-[#767168]">
                 {gDone}/{groupItems.length}
               </p>
               <button
@@ -172,7 +172,7 @@ export default function PackingListPage() {
                     : "border-[#e5e1d7] bg-white"
                 }`}
               >
-                {!editingGroup && <span className="text-[10px] leading-none text-[#14110d]">+</span>}
+                {!editingGroup && <span className="text-[12px] leading-none text-[#14110d]">+</span>}
                 <p className={`text-[8px] font-medium tracking-[0.13px] ${editingGroup ? "text-white" : "text-[#14110d]"}`}>
                   {editingGroup ? "เสร็จ" : "แก้ไข"}
                 </p>
@@ -191,14 +191,14 @@ export default function PackingListPage() {
               >
                 <Checkbox checked={checked} onToggle={() => toggleGroup(item.id)} />
                 <p
-                  className={`flex-1 text-[14px] font-light tracking-[0.08px] ${
+                  className={`flex-1 text-[14px] font-normal tracking-[0.08px] ${
                     checked ? "line-through text-[#b5b0a4]" : "text-[#14110d]"
                   }`}
                 >
                   {item.text}
                 </p>
                 <AvatarStack voters={item.voters} />
-                <p className="shrink-0 text-[10.5px] font-light tracking-[0.42px] text-[#767168]">ทุกคน</p>
+                <p className="shrink-0 text-[12px] font-normal tracking-[0.42px] text-[#767168]">ทุกคน</p>
                 {editingGroup && <DeleteButton onDelete={() => deleteGroupItem(item.id)} />}
               </div>
             );
@@ -232,7 +232,7 @@ export default function PackingListPage() {
               ของส่วนตัว · ใครต้องเตรียมเอง
             </p>
             <div className="flex items-center gap-[10px]">
-              <p className="text-[10.5px] font-light tracking-[0.63px] text-[#767168]">
+              <p className="text-[12px] font-normal tracking-[0.63px] text-[#767168]">
                 {pDone}/{personalItems.length}
               </p>
               <button
@@ -247,7 +247,7 @@ export default function PackingListPage() {
                     : "border-[#e5e1d7] bg-white"
                 }`}
               >
-                {!editingPersonal && <span className="text-[10px] leading-none text-[#14110d]">+</span>}
+                {!editingPersonal && <span className="text-[12px] leading-none text-[#14110d]">+</span>}
                 <p className={`text-[8px] font-medium tracking-[0.13px] ${editingPersonal ? "text-white" : "text-[#14110d]"}`}>
                   {editingPersonal ? "เสร็จ" : "แก้ไข"}
                 </p>
@@ -266,7 +266,7 @@ export default function PackingListPage() {
               >
                 <Checkbox checked={checked} onToggle={() => togglePersonal(item.id)} />
                 <p
-                  className={`flex-1 text-[14px] font-light tracking-[0.08px] ${
+                  className={`flex-1 text-[14px] font-normal tracking-[0.08px] ${
                     checked ? "line-through text-[#b5b0a4]" : "text-[#14110d]"
                   }`}
                 >

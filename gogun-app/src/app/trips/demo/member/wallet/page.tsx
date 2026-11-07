@@ -36,33 +36,33 @@ const EXPENSES: {
   split: number; avatarIds: MemberId[]; total: string; perPerson: string;
   addedBy: MemberId;
 }[] = [
-  { icon: "/images/icon-expense-plane.svg",  name: "ตั๋วเครื่องบิน × 4",       paidBy: "ต้นน้ำ", split: 4, avatarIds: ["ton","james","nai","atif"], total: "147,200", perPerson: "36,800", addedBy: "ton"   },
-  { icon: "/images/icon-expense-hotel.svg",  name: "Shinjuku Granbell × 2 คืน", paidBy: "เจมส์",  split: 4, avatarIds: ["ton","james","nai","atif"], total: "36,400",  perPerson: "9,100",  addedBy: "james" },
-  { icon: "/images/icon-expense-hotel.svg",  name: "Machiya Gion × 2 คืน",      paidBy: "ต้นน้ำ", split: 4, avatarIds: ["ton","james","nai","atif"], total: "44,000",  perPerson: "11,000", addedBy: "ton"   },
-  { icon: "/images/icon-expense-train.svg",  name: "JR Pass × 4",               paidBy: "นาย",    split: 4, avatarIds: ["ton","james","nai","atif"], total: "23,400",  perPerson: "5,850",  addedBy: "nai"   },
-  { icon: "/images/icon-expense-food.svg",   name: "Kaiseki dinner",             paidBy: "ต้นน้ำ", split: 4, avatarIds: ["ton","james","nai","atif"], total: "24,000",  perPerson: "6,000",  addedBy: "ton"   },
-  { icon: "/images/icon-expense-wifi.svg",   name: "Pocket WiFi",                paidBy: "เจมส์",  split: 2, avatarIds: ["ton","nai"],               total: "1,800",   perPerson: "900",    addedBy: "james" },
-  { icon: "/images/icon-expense-ticket.svg", name: "TeamLab tickets × 4",        paidBy: "ต้นน้ำ", split: 4, avatarIds: ["ton","james","nai","atif"], total: "14,000",  perPerson: "3,500",  addedBy: "ton"   },
+  { icon: "/images/icon-expense-plane.svg",  name: "รถตู้กรุงเทพฯ–พัทยา", paidBy: "ต้นน้ำ", split: 4, avatarIds: ["ton","james","nai","atif"], total: "3,200", perPerson: "800", addedBy: "ton" },
+  { icon: "/images/icon-expense-ticket.svg", name: "เรือไป–กลับและรถสองแถว", paidBy: "เจมส์", split: 4, avatarIds: ["ton","james","nai","atif"], total: "1,800", perPerson: "450", addedBy: "james" },
+  { icon: "/images/icon-expense-hotel.svg", name: "บ้านทะเล รีสอร์ต × 2 คืน", paidBy: "ต้นน้ำ", split: 4, avatarIds: ["ton","james","nai","atif"], total: "4,800", perPerson: "1,200", addedBy: "ton" },
+  { icon: "/images/icon-expense-train.svg", name: "เช่ามอเตอร์ไซค์ 2 คัน", paidBy: "นาย", split: 4, avatarIds: ["ton","james","nai","atif"], total: "1,200", perPerson: "300", addedBy: "nai" },
+  { icon: "/images/icon-expense-food.svg", name: "ซีฟู้ดมื้อเย็น", paidBy: "เจมส์", split: 4, avatarIds: ["ton","james","nai","atif"], total: "2,200", perPerson: "550", addedBy: "james" },
+  { icon: "/images/icon-expense-ticket.svg", name: "ดำน้ำตื้นและเสื้อชูชีพ", paidBy: "ต้นน้ำ", split: 4, avatarIds: ["ton","james","nai","atif"], total: "600", perPerson: "150", addedBy: "ton" },
 ];
+const DEMO_EXPENSES_KEY = "demo_expenses";
 
 const TRANSFERS = [
-  { from: { initial: "จ", color: "#4f6e7a", name: "เจมส์" }, to: { initial: "ต", color: "#c0613e", name: "ต้นน้ำ" }, amount: "47,500", panelType: "qr" as const },
-  { from: { initial: "น", color: "#7b8b57", name: "นาย" },   to: { initial: "ต", color: "#c0613e", name: "ต้นน้ำ" }, amount: "48,250", panelType: "promptpay" as const },
-  { from: { initial: "อ", color: "#8a6e9e", name: "อาตีฟ" }, to: { initial: "ต", color: "#c0613e", name: "ต้นน้ำ" }, amount: "34,950", panelType: "promptpay" as const },
+  { from: { initial: "น", color: "#7b8b57", name: "นาย" }, to: { initial: "ต", color: "#c0613e", name: "ต้นน้ำ" }, amount: "2,250", panelType: "promptpay" as const },
+  { from: { initial: "อ", color: "#8a6e9e", name: "อาตีฟ" }, to: { initial: "ต", color: "#c0613e", name: "ต้นน้ำ" }, amount: "2,900", panelType: "promptpay" as const },
+  { from: { initial: "อ", color: "#8a6e9e", name: "อาตีฟ" }, to: { initial: "จ", color: "#4f6e7a", name: "เจมส์" }, amount: "550", panelType: "qr" as const },
 ];
 
 // ─── currency ─────────────────────────────────────────────────────────────────
 const CURRENCIES = [
-  { code: "JPY", sym: "¥",   label: "เยนญี่ปุ่น",         rate: 1       },
-  { code: "THB", sym: "฿",   label: "บาทไทย",             rate: 0.24    },
-  { code: "USD", sym: "$",   label: "ดอลลาร์สหรัฐ",       rate: 0.0067  },
-  { code: "EUR", sym: "€",   label: "ยูโร",               rate: 0.0062  },
-  { code: "GBP", sym: "£",   label: "ปอนด์อังกฤษ",        rate: 0.0052  },
-  { code: "KRW", sym: "₩",   label: "วอนเกาหลี",          rate: 8.89    },
-  { code: "CNY", sym: "元",  label: "หยวนจีน",            rate: 0.048   },
-  { code: "HKD", sym: "HK$", label: "ดอลลาร์ฮ่องกง",      rate: 0.052   },
-  { code: "SGD", sym: "S$",  label: "ดอลลาร์สิงคโปร์",    rate: 0.0091  },
-  { code: "AUD", sym: "A$",  label: "ดอลลาร์ออสเตรเลีย",  rate: 0.010   },
+  { code: "THB", sym: "฿", label: "บาทไทย", rate: 1 },
+  { code: "JPY", sym: "¥", label: "เยนญี่ปุ่น", rate: 0.24 },
+  { code: "USD", sym: "$", label: "ดอลลาร์สหรัฐ", rate: 34 },
+  { code: "EUR", sym: "€", label: "ยูโร", rate: 37 },
+  { code: "GBP", sym: "£", label: "ปอนด์อังกฤษ", rate: 43 },
+  { code: "KRW", sym: "₩", label: "วอนเกาหลี", rate: 0.025 },
+  { code: "CNY", sym: "元", label: "หยวนจีน", rate: 4.7 },
+  { code: "HKD", sym: "HK$", label: "ดอลลาร์ฮ่องกง", rate: 4.35 },
+  { code: "SGD", sym: "S$", label: "ดอลลาร์สิงคโปร์", rate: 25 },
+  { code: "AUD", sym: "A$", label: "ดอลลาร์ออสเตรเลีย", rate: 22 },
 ];
 
 // ─── sub-components ───────────────────────────────────────────────────────────
@@ -148,7 +148,7 @@ function ExpenseDetailSheet({
         onClick={onClose}
       />
       <div
-        className={`fixed bottom-0 left-1/2 z-[60] w-full max-w-[420px] -translate-x-1/2 rounded-t-[25px] bg-[#f7f5f0] transition-transform duration-300 ease-out ${open ? "translate-y-0" : "translate-y-full"}`}
+        className={`responsive-sheet fixed bottom-0 left-1/2 z-[60] w-full max-w-[420px] -translate-x-1/2 rounded-t-[25px] bg-[#f7f5f0] transition-transform duration-300 ease-out ${open ? "translate-y-0" : "translate-y-full"}`}
       >
         {exp && (
           <div className="flex flex-col gap-[20px] px-[24px] pb-[40px] pt-[28px]">
@@ -160,7 +160,7 @@ function ExpenseDetailSheet({
                 </div>
                 <div className="flex flex-col gap-[2px]">
                   <p className="text-[18px] font-medium tracking-[0.08px] text-[#14110d]">{exp.name}</p>
-                  <p className="text-[11px] tracking-[0.08px] text-[#767168]">{categoryLabel}</p>
+                  <p className="text-[12px] tracking-[0.08px] text-[#767168]">{categoryLabel}</p>
                 </div>
               </div>
               <button
@@ -176,29 +176,29 @@ function ExpenseDetailSheet({
 
             <div className="flex items-end justify-between rounded-[18px] border border-[#e5e1d7] bg-white px-[20px] py-[16px]">
               <div className="flex flex-col gap-[3px]">
-                <p className="text-[11px] font-light tracking-[0.08px] text-[#767168]">รวมทั้งหมด</p>
+                <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">รวมทั้งหมด</p>
                 <p className="text-[28px] font-medium tracking-[-0.28px] text-[#14110d]">{sym}{c(exp.total)}</p>
               </div>
               <div className="flex flex-col items-end gap-[3px]">
-                <p className="text-[11px] font-light tracking-[0.08px] text-[#767168]">ต่อคน</p>
+                <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">ต่อคน</p>
                 <p className="text-[18px] font-medium tracking-[0.08px] text-[#14110d]">{sym}{c(exp.perPerson)}</p>
               </div>
             </div>
 
             <div className="flex flex-col gap-[0px] divide-y divide-[#e5e1d7] rounded-[18px] border border-[#e5e1d7] bg-white">
               <div className="flex items-center justify-between px-[20px] py-[14px]">
-                <p className="text-[13px] font-light tracking-[0.08px] text-[#767168]">ผู้จ่าย</p>
+                <p className="text-[13px] font-normal tracking-[0.08px] text-[#767168]">ผู้จ่าย</p>
                 <p className="text-[14px] font-medium tracking-[0.08px] text-[#14110d]">{exp.paidBy}</p>
               </div>
               <div className="flex items-center justify-between px-[20px] py-[14px]">
-                <p className="text-[13px] font-light tracking-[0.08px] text-[#767168]">หารกับ</p>
+                <p className="text-[13px] font-normal tracking-[0.08px] text-[#767168]">หารกับ</p>
                 <div className="flex items-center gap-[8px]">
                   <p className="text-[14px] font-medium tracking-[0.08px] text-[#14110d]">{exp.split} คน</p>
                   <AvatarStack ids={exp.avatarIds} />
                 </div>
               </div>
               <div className="flex items-start justify-between px-[20px] py-[14px]">
-                <p className="text-[13px] font-light tracking-[0.08px] text-[#767168]">สมาชิก</p>
+                <p className="text-[13px] font-normal tracking-[0.08px] text-[#767168]">สมาชิก</p>
                 <p className="text-right text-[13px] font-medium tracking-[0.08px] text-[#14110d]">
                   {exp.avatarIds.map((id) => MEMBER_INFO[id].name).join(" · ")}
                 </p>
@@ -206,12 +206,12 @@ function ExpenseDetailSheet({
             </div>
 
             <div className="flex items-center gap-[10px] rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] py-[13px]">
-              <p className="flex-1 text-[12px] font-light tracking-[0.08px] text-[#767168]">
+              <p className="flex-1 text-[12px] font-normal tracking-[0.08px] text-[#767168]">
                 เพิ่มโดย
               </p>
               <div className="flex items-center gap-[6px]">
                 <div
-                  className="flex size-[22px] shrink-0 items-center justify-center rounded-full text-[11px] font-medium text-white"
+                  className="flex size-[22px] shrink-0 items-center justify-center rounded-full text-[12px] font-medium text-white"
                   style={{ backgroundColor: adder!.color }}
                 >
                   {adder!.initial}
@@ -278,7 +278,7 @@ function SummarySheet({
         onClick={onClose}
       />
       <div
-        className={`fixed bottom-0 left-1/2 z-[60] flex max-h-[90vh] w-full max-w-[420px] -translate-x-1/2 flex-col overflow-y-auto rounded-t-[25px] bg-[#f7f5f0] transition-transform duration-300 ease-out ${open ? "translate-y-0" : "translate-y-full"}`}
+        className={`responsive-sheet fixed bottom-0 left-1/2 z-[60] flex max-h-[90vh] w-full max-w-[420px] -translate-x-1/2 flex-col overflow-y-auto rounded-t-[25px] bg-[#f7f5f0] transition-transform duration-300 ease-out ${open ? "translate-y-0" : "translate-y-full"}`}
       >
         <div className="flex flex-col gap-[10px] px-[20px] py-[34px]">
 
@@ -305,7 +305,7 @@ function SummarySheet({
 
             <div className="flex flex-col gap-[3px]">
               <p className="text-[15px] font-medium tracking-[0.08px] text-[#f7f5f0]">โอนเงินให้ครบ</p>
-              <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">
+              <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">
                 {isBank ? "เมื่อโอนแล้ว แตะเพื่อดูบัญชีธนาคาร" : "เมื่อโอนแล้ว แตะเพื่อเปิดคิวอาร์โค้ด"}
               </p>
             </div>
@@ -367,7 +367,7 @@ function SummarySheet({
                     >
                       <div className="flex items-center gap-[10px]">
                         <img src="/images/img-promptpay.png" alt="" className="size-[24px] rounded-[3px] object-cover" />
-                        <span className="text-[11px] font-medium text-[#14110d]">
+                        <span className="text-[12px] font-medium text-[#14110d]">
                           {bankNumber || "092-424-5***"}
                         </span>
                       </div>
@@ -384,7 +384,7 @@ function SummarySheet({
                     <button
                       type="button"
                       onClick={markPaid}
-                      className={`flex w-full items-center justify-center gap-[6px] rounded-[13px] border border-[#e5e1d7] py-[14px] text-[11px] font-medium text-white transition-colors ${isConfirmed ? "bg-[#2e8b5c]" : "bg-[#e85a2c]"}`}
+                      className={`flex w-full items-center justify-center gap-[6px] rounded-[13px] border border-[#e5e1d7] py-[14px] text-[12px] font-medium text-white transition-colors ${isConfirmed ? "bg-[#2e8b5c]" : "bg-[#e85a2c]"}`}
                     >
                       {isConfirmed ? "โอนแล้ว" : "ยืนยันว่าโอนแล้ว"}
                       {isConfirmed && <CheckBadge />}
@@ -398,14 +398,14 @@ function SummarySheet({
                     <div className="flex w-full gap-[11px]">
                       <button
                         type="button"
-                        className="flex flex-1 items-center justify-center rounded-[13px] border border-[#e5e1d7] bg-white py-[14px] text-[11px] font-medium text-[#14110d]"
+                        className="flex flex-1 items-center justify-center rounded-[13px] border border-[#e5e1d7] bg-white py-[14px] text-[12px] font-medium text-[#14110d]"
                       >
                         บันทึก QR
                       </button>
                       <button
                         type="button"
                         onClick={markPaid}
-                        className={`flex flex-1 items-center justify-center gap-[6px] rounded-[13px] border border-[#e5e1d7] py-[14px] text-[11px] font-medium text-white transition-colors ${isConfirmed ? "bg-[#2e8b5c]" : "bg-[#e85a2c]"}`}
+                        className={`flex flex-1 items-center justify-center gap-[6px] rounded-[13px] border border-[#e5e1d7] py-[14px] text-[12px] font-medium text-white transition-colors ${isConfirmed ? "bg-[#2e8b5c]" : "bg-[#e85a2c]"}`}
                       >
                         {isConfirmed ? "โอนแล้ว" : "ยืนยันว่าโอนแล้ว"}
                         {isConfirmed && <CheckBadge />}
@@ -417,7 +417,7 @@ function SummarySheet({
             )}
           </div>
 
-          <p className="shrink-0 text-[11px] tracking-[0.08px] text-[#767168]">
+          <p className="shrink-0 text-[12px] tracking-[0.08px] text-[#767168]">
             * คำนวณโดยจับคู่ผู้ค้างกับผู้รับให้ใกล้เคียงกัน เพื่อลดจำนวนการโอน
           </p>
         </div>
@@ -442,7 +442,7 @@ function CurrencyPickerSheet({
         onClick={onClose}
       />
       <div
-        className={`fixed bottom-0 left-1/2 z-[70] w-full max-w-[420px] -translate-x-1/2 rounded-t-[25px] bg-[#f7f5f0] transition-transform duration-300 ease-out ${open ? "translate-y-0" : "translate-y-full"}`}
+        className={`responsive-sheet fixed bottom-0 left-1/2 z-[70] w-full max-w-[420px] -translate-x-1/2 rounded-t-[25px] bg-[#f7f5f0] transition-transform duration-300 ease-out ${open ? "translate-y-0" : "translate-y-full"}`}
       >
         <div className="flex flex-col pb-[40px] pt-[24px]">
           <div className="flex items-center justify-between px-[24px] pb-[16px]">
@@ -472,7 +472,7 @@ function CurrencyPickerSheet({
                 </div>
                 <div className="flex flex-1 flex-col items-start gap-[2px]">
                   <p className="text-[14px] font-medium tracking-[0.08px] text-[#14110d]">{cr.label}</p>
-                  <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">{cr.code}</p>
+                  <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">{cr.code}</p>
                 </div>
                 {currentIdx === i && (
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0">
@@ -494,6 +494,7 @@ export default function MemberWalletPage() {
   const [qrImageUrl] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [detailExp, setDetailExp] = useState<typeof EXPENSES[0] | null>(null);
+  const [addedExpenses, setAddedExpenses] = useState<typeof EXPENSES>([]);
   const [currIdx, setCurrIdx] = useState(0);
   const [showCurrPicker, setShowCurrPicker] = useState(false);
 
@@ -504,10 +505,26 @@ export default function MemberWalletPage() {
   const [bankNumber, setBankNumber] = useState<string>("");
 
   useEffect(() => {
-    setPaymentMethod((localStorage.getItem("ton_payment_method") as "qr" | "bank" | null) ?? null);
-    setBankNumber(localStorage.getItem("ton_bank_number") ?? "");
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      setPaymentMethod((localStorage.getItem("ton_payment_method") as "qr" | "bank" | null) ?? null);
+      setBankNumber(localStorage.getItem("ton_bank_number") ?? "");
+      try {
+        const saved = JSON.parse(sessionStorage.getItem(DEMO_EXPENSES_KEY) ?? "[]");
+        if (Array.isArray(saved)) setAddedExpenses(saved);
+      } catch {
+        setAddedExpenses([]);
+      }
+    });
+    return () => { active = false; };
   }, []);
 
+  const allExpenses = [...addedExpenses, ...EXPENSES];
+  const totalExpenses = allExpenses.reduce((sum, expense) => sum + Number(expense.total.replace(/,/g, "")), 0);
+  const myPaidTotal = allExpenses.filter((expense) => expense.paidBy === "ต้นน้ำ").reduce((sum, expense) => sum + Number(expense.total.replace(/,/g, "")), 0);
+  const myShare = allExpenses.reduce((sum, expense) => sum + Number(expense.total.replace(/,/g, "")) / expense.split, 0);
+  const amountOwedToMe = Math.max(0, Math.round(myPaidTotal - myShare));
   const cur = CURRENCIES[currIdx];
   const sym = cur.sym;
 
@@ -522,7 +539,7 @@ export default function MemberWalletPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col pb-[96px] pt-[24px]">
+      <div className="demo-page-content flex w-full max-w-[960px] flex-col pb-[96px] pt-[24px]">
 
         {/* Header */}
         <div className="px-[24px]">
@@ -547,12 +564,12 @@ export default function MemberWalletPage() {
               className="flex items-center gap-[6px] rounded-[10px] bg-[#edeae2] px-[10px] py-[6px] transition-colors active:bg-[#d4cfc2]"
             >
               <span className="text-[14px] font-medium text-[#14110d]">{cur.sym}</span>
-              <span className="text-[11px] font-light text-[#767168]">{cur.code}</span>
+              <span className="text-[12px] font-normal text-[#767168]">{cur.code}</span>
               <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
                 <path d="M1 1L5 5L9 1" stroke="#767168" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
-            <p className="text-[20px] tracking-[-0.32px] text-[#14110d]">{sym}{c("290,800")}</p>
+            <p className="text-[20px] tracking-[-0.32px] text-[#14110d]">{sym}{c(String(totalExpenses))}</p>
           </div>
         </div>
 
@@ -560,10 +577,10 @@ export default function MemberWalletPage() {
         <div className="flex flex-col gap-[9px] px-[24px] pt-[24px]">
           <div className="flex items-center gap-[5px] rounded-[18px] border border-[#e5e1d7] bg-white px-[20px] py-[15px]">
             <div className="flex flex-1 flex-col gap-[5px]">
-              <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">คุณต้องจ่ายเงินเพื่อน</p>
+              <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">เพื่อนต้องคืนคุณ</p>
               <div className="flex items-end gap-[3px]">
                 <span className="mb-[4px] text-[12px] text-[#767168]">{sym}</span>
-                <span className="text-[22px] font-medium tracking-[-0.22px] text-[#e85a2c]">{c("34,950")}</span>
+                <span className="text-[22px] font-medium tracking-[-0.22px] text-[#e85a2c]">{c(String(amountOwedToMe))}</span>
               </div>
             </div>
             <button
@@ -596,19 +613,19 @@ export default function MemberWalletPage() {
 
         {/* Expense list */}
         <div className="flex flex-col px-[20px] pt-[4px]">
-          {EXPENSES.map((exp, i) => (
+          {allExpenses.map((exp, i) => (
             <button
               key={exp.name + i}
               type="button"
               onClick={() => setDetailExp(exp)}
-              className={`flex w-full items-center gap-[12px] py-[14px] text-left ${i < EXPENSES.length - 1 ? "border-b border-[#e5e1d7]" : ""}`}
+              className={`flex w-full items-center gap-[12px] py-[14px] text-left ${i < allExpenses.length - 1 ? "border-b border-[#e5e1d7]" : ""}`}
             >
               <div className="flex size-[36px] shrink-0 items-center justify-center rounded-[10px] bg-[#f2efe8]">
                 <img src={exp.icon} alt="" className="size-[18px]" />
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
                 <p className="text-[14.5px] font-medium tracking-[0.08px] text-[#14110d]">{exp.name}</p>
-                <div className="flex items-center gap-[6px] whitespace-nowrap text-[11px] font-light tracking-[0.08px] text-[#767168]">
+                <div className="flex items-center gap-[6px] whitespace-nowrap text-[12px] font-normal tracking-[0.08px] text-[#767168]">
                   <span>{exp.paidBy} จ่าย</span>
                   <span className="text-[#b5b0a4]">·</span>
                   <span>หาร {exp.split} คน</span>
@@ -618,7 +635,7 @@ export default function MemberWalletPage() {
               </div>
               <div className="flex shrink-0 flex-col items-end gap-[1px]">
                 <p className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">{sym}{c(exp.total)}</p>
-                <p className="text-[10px] tracking-[0.08px] text-[#767168]">{sym}{c(exp.perPerson)} / คน</p>
+                <p className="text-[12px] tracking-[0.08px] text-[#767168]">{sym}{c(exp.perPerson)} / คน</p>
               </div>
             </button>
           ))}

@@ -1,17 +1,63 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1"
+import { handleDemoRequest } from "@/lib/demo-trip-data"
 
-function getToken(): string | null {
-  if (typeof window === "undefined") return null
-  return localStorage.getItem("gogun_token")
+// Same-origin requests also work when a phone opens the computer's LAN address.
+const BASE = "/api/v1"
+
+export type QuestProgress = { quest_id: string; user_id: string; completed: number[]; updated_at: string; user: Pick<User, "id" | "display_name" | "avatar_color"> }
+export type Quest = { id: string; title: string; description: string; targets: string[]; closed: boolean; created_at: string; progress: QuestProgress[] }
+export const getQuests = (tripId: string) => req<Quest[]>(`/trips/${tripId}/quests`)
+export const createQuest = (tripId: string, body: { title: string; description: string; targets: string[] }) => req<Quest>(`/trips/${tripId}/quests`, { method: "POST", body: JSON.stringify(body) })
+export const closeQuest = (tripId: string, id: string, closed: boolean) => req(`/trips/${tripId}/quests/${id}`, { method: "PATCH", body: JSON.stringify({ closed }) })
+export const deleteQuest = (tripId: string, id: string) => req(`/trips/${tripId}/quests/${id}`, { method: "DELETE" })
+export const setQuestProgress = (tripId: string, id: string, completed: number[]) => req<QuestProgress>(`/trips/${tripId}/quests/${id}/progress`, { method: "PUT", body: JSON.stringify({ completed }) })
+
+export type ItemComment = { id: string; text: string; created_at: string; user: { id: string; display_name: string } }
+export type PersonalTemplate = { id: string; name: string; created_at: string }
+export type MyTask = { trip_id: string; trip_name: string; title: string; path: string; kind: string }
+export const getMyTasks = () => req<MyTask[]>("/trips/my-tasks")
+export const getPersonalTemplates = () => req<PersonalTemplate[]>("/trips/templates")
+export const createTripFromTemplate = (id: string) => req<Trip>(`/trips/templates/${id}/use`, { method: "POST" })
+export const deletePersonalTemplate = (id: string) => req(`/trips/templates/${id}`, { method: "DELETE" })
+export const copyTrip = (id: string) => req<Trip>(`/trips/${id}/copy`, { method: "POST" })
+export const savePersonalTemplate = (id: string, name: string) => req<PersonalTemplate>(`/trips/${id}/template`, { method: "POST", body: JSON.stringify({ name }) })
+export const updatePlanningSettings = (id: string, body: { availability_deadline?: string | null; archived?: boolean }) => req<Trip>(`/trips/${id}/planning-settings`, { method: "PATCH", body: JSON.stringify(body) })
+export const getComments = (tripId: string, type: string, id: string) => req<ItemComment[]>(`/trips/${tripId}/comments/${type}/${id}`)
+export const postComment = (tripId: string, type: string, id: string, text: string) => req<ItemComment>(`/trips/${tripId}/comments/${type}/${id}`, { method: "POST", body: JSON.stringify({ text }) })
+
+let migrationPromise: Promise<void> | null = null
+
+async function migrateLegacySession() {
+  if (typeof window === "undefined") return
+  if (!migrationPromise) {
+    migrationPromise = (async () => {
+      const token = localStorage.getItem("gogun_token")
+      if (!token) return
+      try {
+        const response = await fetch(`${BASE}/auth/migrate`, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (response.ok || response.status === 401 || response.status === 403) {
+          localStorage.removeItem("gogun_token")
+        } else {
+          migrationPromise = null
+        }
+      } catch {
+        migrationPromise = null
+      }
+    })()
+  }
+  await migrationPromise
 }
 
-export function saveToken(token: string) {
-  localStorage.setItem("gogun_token", token)
-}
-
-export function clearToken() {
+export async function logout() {
+  if (migrationPromise) await migrationPromise
   localStorage.removeItem("gogun_token")
   localStorage.removeItem("gogun_trip_id")
+  migrationPromise = Promise.resolve()
+  const response = await fetch(`${BASE}/auth/logout`, { method: "POST", credentials: "same-origin" })
+  if (!response.ok) throw new ApiError(response.status, "ออกจากระบบไม่สำเร็จ")
 }
 
 export class ApiError extends Error {
@@ -26,28 +72,31 @@ export class ApiError extends Error {
 const AUTH_PATHS = ["/auth/login", "/auth/register", "/auth/link", "/auth/google"]
 
 function redirectToLogin() {
-  clearToken()
   if (window.location.pathname.startsWith("/login")) return
   const returnTo = window.location.pathname + window.location.search
   window.location.replace(`/login?returnTo=${encodeURIComponent(returnTo)}`)
 }
 
-async function req<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = getToken()
+export type ApiRequestBehavior = { redirectOnUnauthorized?: boolean; signal?: AbortSignal }
+
+async function req<T>(path: string, options: RequestInit = {}, behavior: ApiRequestBehavior = {}): Promise<T> {
+  if (path === "/trips/demo" || path.startsWith("/trips/demo/") || path.startsWith("/trips/demo?")) return handleDemoRequest(path, options) as T
+  await migrateLegacySession()
   const res = await fetch(`${BASE}${path}`, {
     ...options,
+    ...(behavior.signal ? { signal: behavior.signal } : {}),
+    credentials: "same-origin",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers ?? {}),
     },
   })
   const json = await res.json().catch(() => null)
   if (!res.ok) {
-    // มี token แต่โดน 401 = token หมดอายุ/ใช้ไม่ได้ — เคลียร์แล้วพากลับไป login
+    // A protected request returned 401; the server-side session is no longer valid.
     if (
       res.status === 401 &&
-      token &&
+      behavior.redirectOnUnauthorized !== false &&
       typeof window !== "undefined" &&
       !AUTH_PATHS.some((p) => path.startsWith(p))
     ) {
@@ -60,24 +109,24 @@ async function req<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 // ─── AUTH ────────────────────────────────────────────────────
 export const register = (username: string, email: string, password: string) =>
-  req<{ token: string; user: User }>("/auth/register", {
+  req<{ user: User }>("/auth/register", {
     method: "POST",
     body: JSON.stringify({ username, email, password }),
   })
 
 export const login = (username: string, password: string) =>
-  req<{ token: string; user: User }>("/auth/login", {
+  req<{ user: User }>("/auth/login", {
     method: "POST",
     body: JSON.stringify({ username, password }),
   })
 
 export const googleLogin = (credential: string) =>
-  req<{ token: string; user: User }>("/auth/google", {
+  req<{ user: User }>("/auth/google", {
     method: "POST",
     body: JSON.stringify({ credential }),
   })
 
-export const getMe = () => req<User>("/auth/me")
+export const getMe = (behavior?: ApiRequestBehavior) => req<User>("/auth/me", {}, behavior)
 
 export const linkAccount = (email: string, password: string) =>
   req<User>("/auth/link", { method: "POST", body: JSON.stringify({ email, password }) })
@@ -85,33 +134,26 @@ export const linkAccount = (email: string, password: string) =>
 export const googleLinkAccount = (credential: string) =>
   req<User>("/auth/link/google", { method: "POST", body: JSON.stringify({ credential }) })
 
-export const updateMe = (body: { display_name?: string; email?: string; phone?: string }) =>
+export const updateMe = (body: { display_name?: string; email?: string; phone?: string; avatar_color?: string }) =>
   req<User>("/auth/me", { method: "PATCH", body: JSON.stringify(body) })
 
 // ─── TRIPS ───────────────────────────────────────────────────
-export const getMyTrips = () => req<Trip[]>("/trips")
+export const getMyTrips = (behavior?: ApiRequestBehavior) => req<Trip[]>("/trips", {}, behavior)
 
-export const createTrip = (body: CreateTripBody) =>
-  req<Trip>("/trips", { method: "POST", body: JSON.stringify(body) })
+export const createTrip = (body: CreateTripBody, behavior?: ApiRequestBehavior) =>
+  req<Trip>("/trips", { method: "POST", body: JSON.stringify(body) }, behavior)
 
 export const getTripByInvite = (inviteCode: string) =>
-  req<Trip>(`/trips/join/${inviteCode}`)
+  req<Trip>(`/trips/join/${encodeURIComponent(inviteCode)}`, {}, { redirectOnUnauthorized: false })
 
 export const joinTripByInvite = (inviteCode: string) =>
-  req<{ trip_id: string; already_member: boolean }>(`/trips/join/${inviteCode}`, { method: "POST" })
+  req<{ trip_id: string }>(`/trips/join/${encodeURIComponent(inviteCode)}`, { method: "POST", body: JSON.stringify({ confirmed: true }) })
+
+export const joinAsGuest = (inviteCode: string, displayName: string) =>
+  req<{ trip_id: string }>(`/trips/join/${encodeURIComponent(inviteCode)}/guest`, { method: "POST", body: JSON.stringify({ display_name: displayName, confirmed: true }) }, { redirectOnUnauthorized: false })
 
 export const claimMember = (inviteCode: string, memberId: string) =>
-  req<{ token: string; trip_id: string; member: TripMember }>(
-    `/trips/join/${inviteCode}/claim/${memberId}`,
-    { method: "POST" },
-  )
-
-// รวม guest placeholder เข้ากับบัญชีจริงที่ล็อกอินอยู่ (แก้ปัญหาสมาชิกซ้ำ)
-export const mergeMember = (inviteCode: string, memberId: string) =>
-  req<{ trip_id: string; merged: boolean }>(
-    `/trips/join/${inviteCode}/merge/${memberId}`,
-    { method: "POST" },
-  )
+  req<{ trip_id: string }>(`/trips/join/${encodeURIComponent(inviteCode)}/claim/${encodeURIComponent(memberId)}`, { method: "POST", body: JSON.stringify({ confirmed: true }) }, { redirectOnUnauthorized: false })
 
 export const getTrip = (tripId: string) =>
   req<Trip>(`/trips/${tripId}`)
@@ -131,15 +173,6 @@ export const deleteTrip = (tripId: string) =>
 // ─── MEMBERS ─────────────────────────────────────────────────
 export const getMembers = (tripId: string) =>
   req<TripMember[]>(`/trips/${tripId}/members`)
-
-export const joinTrip = (tripId: string) =>
-  req<TripMember>(`/trips/${tripId}/members`, { method: "POST", body: JSON.stringify({}) })
-
-export const addMemberByName = (tripId: string, displayName: string) =>
-  req<TripMember>(`/trips/${tripId}/members/add`, {
-    method: "POST",
-    body: JSON.stringify({ display_name: displayName }),
-  })
 
 export const renameMember = (tripId: string, userId: string, displayName: string) =>
   req<TripMember>(`/trips/${tripId}/members/${userId}`, {
@@ -195,7 +228,7 @@ export const addActivity = (
 export const updateActivity = (
   tripId: string,
   actId: string,
-  body: { time?: string; title?: string },
+  body: { time?: string; title?: string; tags?: string[] },
 ) =>
   req<ItineraryActivity>(`/trips/${tripId}/itinerary/activities/${actId}`, {
     method: "PATCH",
@@ -275,6 +308,18 @@ export const createPoll = (
 ) =>
   req<Poll>(`/trips/${tripId}/polls`, { method: "POST", body: JSON.stringify(body) })
 
+export const updatePoll = (
+  tripId: string,
+  pollId: string,
+  body: {
+    title?: string
+    subtitle?: string
+    status?: "open" | "closed"
+    options?: Array<{ id?: string; text: string; sort_order?: number }>
+  }
+) =>
+  req<Poll>(`/trips/${tripId}/polls/${pollId}`, { method: "PATCH", body: JSON.stringify(body) })
+
 export const closePoll = (tripId: string, pollId: string) =>
   req(`/trips/${tripId}/polls/${pollId}`, { method: "PATCH", body: JSON.stringify({ status: "closed" }) })
 
@@ -294,9 +339,15 @@ export const unvote = (tripId: string, pollId: string) =>
 export const getChecklist = (tripId: string) =>
   req<ChecklistItem[]>(`/trips/${tripId}/checklist`)
 
-export const addChecklistItem = (tripId: string, text: string) =>
+export const addChecklistItem = (tripId: string, text: string, sort_order?: number) =>
   req<ChecklistItem>(`/trips/${tripId}/checklist`, {
     method: "POST",
+    body: JSON.stringify({ text, sort_order }),
+  })
+
+export const updateChecklistItem = (tripId: string, itemId: string, text: string) =>
+  req<ChecklistItem>(`/trips/${tripId}/checklist/${itemId}`, {
+    method: "PATCH",
     body: JSON.stringify({ text }),
   })
 
@@ -376,6 +427,7 @@ export function formatTripDateRange(trip: Trip): string {
 }
 
 export function isTripPast(trip: Trip): boolean {
+  if (trip.archived_at) return true
   const startIso =
     trip.date_status === "confirmed"
       ? trip.confirmed_start_date
@@ -413,10 +465,13 @@ export type User = {
 export type TripTypeCode = "one_day" | "overnight" | "long"
 
 export type Trip = {
+  availability_deadline?: string | null
+  archived_at?: string | null
   id: string
   name: string
   destination: string
   icon: string | null
+  theme?: string | null
   trip_type: TripTypeCode | null
   duration_days: number
   proposed_start_date: string | null
@@ -429,6 +484,9 @@ export type Trip = {
   allow_member_expenses: boolean
   allow_member_itinerary_edit: boolean
   allow_member_invite: boolean
+  allow_member_expense_edit?: boolean
+  allow_member_polls?: boolean
+  allow_member_quests?: boolean
   created_at: string
   organizer: Pick<User, "id" | "display_name" | "avatar_color">
   members: TripMember[]
@@ -438,6 +496,7 @@ export type CreateTripBody = {
   name: string
   destination: string
   icon?: string
+  theme?: string
   trip_type?: TripTypeCode
   duration_days: number
   currency: string
@@ -465,6 +524,7 @@ export type ItineraryDay = {
 }
 
 export type ItineraryActivity = {
+  tags?: string[]
   id: string
   day_id: string
   time: string

@@ -15,10 +15,14 @@ export async function requireAuth(
   }
   const token = header.slice(7)
   try {
-    const { sub } = verifyToken(token)
+    const { sub, guest } = verifyToken(token)
     const user = await prisma.user.findUnique({ where: { id: sub } })
     if (!user) {
       err(res, 401, 'UNAUTHORIZED', 'User not found')
+      return
+    }
+    if (guest && !user.is_guest) {
+      err(res, 401, 'UNAUTHORIZED', 'ชื่อนี้ผูกบัญชีแล้ว กรุณาล็อกอินเพื่อเข้าใช้งาน')
       return
     }
     req.user = user

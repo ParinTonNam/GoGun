@@ -83,7 +83,7 @@ Authorization: Bearer <token>
 
 Get a token via the OTP flow:
 1. \`POST /auth/otp/send\` — receive a 6-digit code (logged to console in dev)
-2. \`POST /auth/otp/verify\` — exchange code for a JWT (valid 90 days)
+2. \`POST /auth/otp/verify\` — exchange code for a JWT (valid 7 days)
 
 ## Response Shape
 **Success:** \`{ "data": <payload>, "meta"?: { "total": N } }\`
@@ -478,7 +478,7 @@ Get a token via the OTP flow:
       post: {
         tags: ['Auth'],
         summary: 'Verify OTP and get JWT token',
-        description: 'Verifies the OTP. Creates a new user account if the phone number is new. Returns a JWT valid for 90 days.',
+        description: 'Verifies the OTP. Creates a new user account if the phone number is new. Returns a JWT valid for 7 days.',
         security: [],
         requestBody: {
           required: true,
@@ -499,7 +499,7 @@ Get a token via the OTP flow:
           '200': dataResponse({
             type: 'object',
             properties: {
-              token: { type: 'string', description: 'JWT Bearer token (90 days)', example: 'eyJhbGci...' },
+              token: { type: 'string', description: 'JWT Bearer token (7 days)', example: 'eyJhbGci...' },
               user: { $ref: '#/components/schemas/User' },
             },
           }),

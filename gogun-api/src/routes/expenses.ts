@@ -1,8 +1,9 @@
 import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { ok, err } from '../lib/response'
-import { computeSettlements } from '../lib/settlements'
+import { outstandingTransfers } from '../lib/outstanding'
 import { param } from '../lib/params'
+import { requireExpenseEditor } from '../middleware/trip'
 
 const router = Router({ mergeParams: true })
 
@@ -60,6 +61,21 @@ async function validateExpenseMoney(
   return null
 }
 
+async function canModifyExpense(
+  tripId: string,
+  userId: string,
+  role: string | undefined,
+  paidByUserId: string,
+): Promise<boolean> {
+  if (role === 'organizer') return true
+  if (paidByUserId !== userId) return false
+  const trip = await prisma.trip.findUnique({
+    where: { id: tripId },
+    select: { allow_member_expense_edit: true },
+  })
+  return !!trip && trip.allow_member_expense_edit !== false
+}
+
 // List expenses
 router.get('/', async (req, res) => {
   const expenses = await prisma.expense.findMany({
@@ -74,7 +90,7 @@ router.get('/', async (req, res) => {
 })
 
 // Add expense
-router.post('/', async (req, res) => {
+router.post('/', requireExpenseEditor, async (req, res) => {
   const { name, category, total_amount, currency, paid_by_user_id, splits } =
     req.body as {
       name?: string
@@ -116,6 +132,9 @@ router.patch('/:expId', async (req, res) => {
     include: { splits: true },
   })
   if (!expense) return err(res, 404, 'NOT_FOUND', 'Expense not found')
+
+  if (!(await canModifyExpense(param(req, 'tripId'), req.user!.id, req.tripMember?.role, expense.paid_by_user_id)))
+    return err(res, 403, 'FORBIDDEN', 'Editing this expense is not permitted')
 
   const { name, category, total_amount, currency, paid_by_user_id, splits } =
     req.body as {
@@ -172,12 +191,24 @@ router.patch('/:expId', async (req, res) => {
 })
 
 // Delete expense
-router.delete('/:expId', async (req, res) => {
+router.delete('/:expId', requireExpenseEditor, async (req, res) => {
   const expense = await prisma.expense.findFirst({
     where: { id: param(req, 'expId'), trip_id: param(req, 'tripId') },
   })
   if (!expense) return err(res, 404, 'NOT_FOUND', 'Expense not found')
-  await prisma.expense.delete({ where: { id: param(req, 'expId') } })
+  if (!(await canModifyExpense(param(req, 'tripId'), req.user!.id, req.tripMember?.role, expense.paid_by_user_id)))
+    return err(res, 403, 'FORBIDDEN', 'Deleting this expense is not permitted')
+
+  // Keep the ownership check on the write as well, in case the payer changes
+  // between reading the expense and deleting it.
+  const deleted = await prisma.expense.deleteMany({
+    where: {
+      id: expense.id,
+      trip_id: param(req, 'tripId'),
+      ...(req.tripMember?.role !== 'organizer' && { paid_by_user_id: req.user!.id }),
+    },
+  })
+  if (deleted.count === 0) return err(res, 404, 'NOT_FOUND', 'Expense not found')
   return ok(res, { deleted: true })
 })
 
@@ -219,42 +250,18 @@ router.get('/balance', async (req, res) => {
   return ok(res, { total_amount, currency, member_count: members.length, balances })
 })
 
-// Settlements
+// Settlements are separated by currency and include confirmed repayments.
 router.get('/settlements', async (req, res) => {
-  const [expenses, members, trip] = await Promise.all([
-    prisma.expense.findMany({
-      where: { trip_id: param(req, 'tripId') },
-      include: { splits: true },
-    }),
-    prisma.tripMember.findMany({
-      where: { trip_id: param(req, 'tripId'), status: { not: 'declined' } },
-      include: { user: { select: memberSelect } },
-    }),
-    prisma.trip.findUnique({ where: { id: param(req, 'tripId') } }),
+  const trip_id = param(req, 'tripId')
+  const [expenses, payments, members] = await Promise.all([
+    prisma.expense.findMany({ where: { trip_id }, include: { splits: true } }),
+    prisma.transferSlip.findMany({ where: { trip_id, status: 'confirmed' } }),
+    prisma.tripMember.findMany({ where: { trip_id }, include: { user: { select: memberSelect } } }),
   ])
-
-  const netBalances = members.map(m => {
-    const paid = expenses
-      .filter(e => e.paid_by_user_id === m.user_id)
-      .reduce((s, e) => s + Number(e.total_amount), 0)
-    const share = expenses
-      .flatMap(e => e.splits)
-      .filter(s => s.user_id === m.user_id)
-      .reduce((s, sp) => s + Number(sp.amount), 0)
-    return { user_id: m.user_id, net: round(paid - share) }
-  })
-
-  const transfers = computeSettlements(netBalances)
-  const currency = expenses[0]?.currency || trip?.currency || 'JPY'
-
-  const enriched = transfers.map(t => ({
-    ...t,
-    currency,
+  return ok(res, outstandingTransfers(expenses, payments).map(t => ({ ...t,
     from_user: members.find(m => m.user_id === t.from_user_id)?.user,
     to_user: members.find(m => m.user_id === t.to_user_id)?.user,
-  }))
-
-  return ok(res, enriched)
+  })))
 })
 
 function round(n: number) {

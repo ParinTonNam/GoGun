@@ -127,7 +127,7 @@ export default function PackingListPage({
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f7f5f0]">
+      <main className="trip-page tool-page flex items-center justify-center bg-background">
         <p className="text-[#767168]">กำลังโหลด...</p>
       </main>
     );
@@ -137,7 +137,7 @@ export default function PackingListPage({
     return (
       <div className={`flex items-center gap-[12px] py-[10px] ${!isLast ? "border-b border-[#e5e1d7]" : ""}`}>
         <Checkbox checked={item.is_checked} onToggle={() => handleToggle(item)} />
-        <p className={`flex-1 text-[14px] font-light tracking-[0.08px] ${item.is_checked ? "line-through text-[#b5b0a4]" : "text-[#14110d]"}`}>
+        <p className={`flex-1 text-[14px] font-normal tracking-[0.08px] ${item.is_checked ? "line-through text-[#b5b0a4]" : "text-[#14110d]"}`}>
           {item.text}
         </p>
         {item.category === "shared" && <AvatarStack users={item.assignees} />}
@@ -156,17 +156,18 @@ export default function PackingListPage({
   }
 
   return (
-    <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col gap-[24px] pb-[100px] pt-[24px] px-[24px]">
+    <main className="trip-page tool-page flex justify-center bg-background">
+      <div className="flex trip-page-content flex-col gap-[24px] pb-[32px] pt-[24px] px-[24px]">
         {/* Header */}
-        <PageHeader title="Packing List" backHref={`/trips/${tripId}/tools`} user={me} />
+        <PageHeader title="Packing List" backHref={`/trips/${tripId}/plan`} user={me} />
 
+        <div className="grid gap-[24px] content-grid lg:items-start">
         {/* Section: ของกลาง */}
         {sharedItems.length > 0 && (
-          <div className="flex flex-col">
+          <div className="flex min-w-0 flex-col lg:rounded-[16px] lg:border lg:border-[#e5e1d7] lg:bg-white lg:p-[20px]">
             <div className="flex items-center justify-between pb-[8px]">
               <p className="text-[13px] font-medium tracking-[0.08px] text-[#14110d]">ของกลาง</p>
-              <p className="text-[10.5px] font-light tracking-[0.63px] text-[#767168]">
+              <p className="text-[12px] font-normal tracking-[0.63px] text-[#767168]">
                 {sharedDone}/{sharedItems.length}
               </p>
             </div>
@@ -178,10 +179,10 @@ export default function PackingListPage({
 
         {/* Section: ของส่วนตัว */}
         {personalItems.length > 0 && (
-          <div className="flex flex-col">
+          <div className="flex min-w-0 flex-col lg:rounded-[16px] lg:border lg:border-[#e5e1d7] lg:bg-white lg:p-[20px]">
             <div className="flex items-center justify-between pb-[8px]">
               <p className="text-[13px] font-medium tracking-[0.08px] text-[#14110d]">ของส่วนตัว · ใครต้องเตรียมเอง</p>
-              <p className="text-[10.5px] font-light tracking-[0.63px] text-[#767168]">
+              <p className="text-[12px] font-normal tracking-[0.63px] text-[#767168]">
                 {personalDone}/{personalItems.length}
               </p>
             </div>
@@ -193,9 +194,11 @@ export default function PackingListPage({
 
         {items.length === 0 && (
           <div className="flex items-center justify-center rounded-[16px] border border-[#e5e1d7] bg-white px-[20px] py-[30px]">
-            <p className="text-[13px] font-light text-[#767168]">ยังไม่มีรายการ</p>
+            <p className="text-[13px] font-normal text-[#767168]">ยังไม่มีรายการ</p>
           </div>
         )}
+
+        </div>
 
         {/* Add item form */}
         <div className="flex flex-col gap-[10px]">

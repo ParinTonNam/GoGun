@@ -11,6 +11,7 @@ const MEMBERS: { id: MemberId; name: string; initial: string; color: string }[] 
   { id: "nai",   name: "นาย",    initial: "น", color: "#7b8b57" },
   { id: "atif",  name: "อาตีฟ",  initial: "อ", color: "#8a6e9e" },
 ];
+const DEMO_EXPENSES_KEY = "demo_expenses";
 
 const CATEGORIES: { id: string; label: string; icon: string }[] = [
   { id: "plane",  label: "เครื่องบิน",   icon: "/images/icon-expense-plane.svg"  },
@@ -79,9 +80,28 @@ export default function AddExpensePage() {
 
   const canSave = name.trim().length > 0 && numAmount > 0;
 
+  function saveExpense() {
+    if (!canSave) return;
+    const item = {
+      icon: CATEGORIES.find((item) => item.id === category)?.icon ?? "/images/icon-expense-more.svg",
+      name: name.trim(),
+      paidBy: MEMBERS.find((member) => member.id === paidBy)?.name ?? "ต้นน้ำ",
+      split: splitAmong.size,
+      avatarIds: [...splitAmong],
+      total: Math.round(numAmount).toLocaleString("en"),
+      perPerson: Math.round(perPerson).toLocaleString("en"),
+      addedBy: paidBy,
+    };
+    try {
+      const existing = JSON.parse(sessionStorage.getItem(DEMO_EXPENSES_KEY) ?? "[]");
+      sessionStorage.setItem(DEMO_EXPENSES_KEY, JSON.stringify([item, ...(Array.isArray(existing) ? existing : [])]));
+    } catch {}
+    router.push("/trips/demo/member/wallet");
+  }
+
   return (
     <main className="flex min-h-screen justify-center bg-[#f7f5f0]">
-      <div className="flex w-full max-w-[420px] flex-col gap-[28px] pb-[48px] pt-[20px]">
+      <div className="demo-page-content flex w-full max-w-[960px] flex-col gap-[28px] pb-[48px] pt-[20px]">
 
         {/* ── Header ── */}
         <div className="flex items-center gap-[12px] px-[24px]">
@@ -99,7 +119,7 @@ export default function AddExpensePage() {
 
         {/* ── Category picker ── */}
         <div className="flex flex-col gap-[10px]">
-          <p className="px-[24px] text-[12px] font-light tracking-[0.08px] text-[#767168]">
+          <p className="px-[24px] text-[12px] font-normal tracking-[0.08px] text-[#767168]">
             หมวดหมู่
           </p>
           <div className="grid grid-cols-6 gap-[6px] px-[24px]">
@@ -134,7 +154,7 @@ export default function AddExpensePage() {
 
         {/* ── Name ── */}
         <div className="flex flex-col gap-[8px] px-[24px]">
-          <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">ชื่อรายการ</p>
+          <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">ชื่อรายการ</p>
           <input
             type="text"
             placeholder="เช่น ตั๋วเครื่องบิน × 4"
@@ -146,10 +166,10 @@ export default function AddExpensePage() {
 
         {/* ── Amount ── */}
         <div className="flex flex-col gap-[8px] px-[24px]">
-          <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">จำนวนเงิน (¥)</p>
+          <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">จำนวนเงิน (฿)</p>
           <div className="flex h-[56px] overflow-hidden rounded-[14px] border border-[#e5e1d7] bg-white focus-within:border-[#14110d]">
             <div className="flex w-[48px] shrink-0 items-center justify-center border-r border-[#e5e1d7]">
-              <span className="text-[16px] font-medium text-[#767168]">¥</span>
+              <span className="text-[16px] font-medium text-[#767168]">฿</span>
             </div>
             <input
               type="number"
@@ -164,7 +184,7 @@ export default function AddExpensePage() {
 
         {/* ── Paid by ── */}
         <div className="flex flex-col gap-[10px] px-[24px]">
-          <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">ใครจ่าย</p>
+          <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">ใครจ่าย</p>
           <div className="flex flex-wrap gap-[6px]">
             {MEMBERS.map((m) => (
               <MemberPill
@@ -180,8 +200,8 @@ export default function AddExpensePage() {
         {/* ── Split among ── */}
         <div className="flex flex-col gap-[10px] px-[24px]">
           <div className="flex items-baseline gap-[6px]">
-            <p className="text-[12px] font-light tracking-[0.08px] text-[#767168]">หารกับ</p>
-            <p className="text-[11px] tracking-[0.08px] text-[#b5b0a4]">{splitAmong.size} คน</p>
+            <p className="text-[12px] font-normal tracking-[0.08px] text-[#767168]">หารกับ</p>
+            <p className="text-[12px] tracking-[0.08px] text-[#b5b0a4]">{splitAmong.size} คน</p>
           </div>
           <div className="flex flex-wrap gap-[6px]">
             {MEMBERS.map((m) => (
@@ -197,11 +217,11 @@ export default function AddExpensePage() {
           {/* Per-person preview */}
           {perPersonFmt && (
             <div className="flex items-center justify-between rounded-[14px] border border-[#e5e1d7] bg-white px-[16px] py-[13px]">
-              <span className="text-[13px] font-light tracking-[0.08px] text-[#767168]">
+              <span className="text-[13px] font-normal tracking-[0.08px] text-[#767168]">
                 ต่อคน ({splitAmong.size} คน)
               </span>
               <span className="text-[15px] font-medium tracking-[0.08px] text-[#14110d]">
-                ¥{perPersonFmt}
+                ฿{perPersonFmt}
               </span>
             </div>
           )}
@@ -212,7 +232,7 @@ export default function AddExpensePage() {
           <button
             type="button"
             disabled={!canSave}
-            onClick={() => router.back()}
+            onClick={saveExpense}
             className={`flex h-[51px] w-full items-center justify-center rounded-[18px] text-[16px] font-medium tracking-[0.08px] transition-opacity ${
               canSave
                 ? "bg-[#c0613e] text-[#fcede3]"
