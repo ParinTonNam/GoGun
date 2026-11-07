@@ -12,7 +12,7 @@ export function AuthScreen({ kind, children }: { kind: Screen; children: ReactNo
       <div className="maew-auth-background" aria-hidden="true" />
       <header className="maew-auth-header">
         <Link href="/" className="maew-auth-brand" aria-label="Maew Tiew หน้าแรก">
-          <img src={`${asset}${kind === "home" ? "logo-home" : "logo"}.svg`} alt="" width="31" height="30" />
+          <img src={`${asset}${kind === "home" ? "home-figma/logo" : "logo"}.svg`} alt="" width="31" height="30" />
           <span className="maew-auth-brand-copy"><strong>Maew Tiew</strong><small>Happy Cats, Easy Trips</small></span>
         </Link>
         <LanguageSwitch />

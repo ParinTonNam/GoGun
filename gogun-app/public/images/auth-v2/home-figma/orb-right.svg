@@ -1,0 +1,24 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="37.3585" height="37.3585" viewBox="0 0 37.3585 37.3585" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame 2095586132">
+<circle id="Ellipse 6234" cx="18.6792" cy="18.6792" r="18.2547" fill="url(#paint0_radial_0_76)" stroke-width="0.849057" stroke="url(#paint1_linear_0_76)"/>
+<path id="Ellipse 6235" d="M11.0935 10.6723C8.77032 12.9986 5.558 14.0508 4.72562 13.2195C3.89324 12.3882 4.98696 10.2989 7.31018 7.97267C9.6334 5.64643 13.2326 4.74693 14.065 5.57823C14.8974 6.40953 13.4168 8.34609 11.0935 10.6723Z" fill="#FEEFE4"/>
+<g id="Subtract" filter="url(#filter0_f_0_76)">
+<path d="M33.5176 14.7432C33.8072 15.9725 33.962 17.2545 33.962 18.5723C33.9618 27.7591 26.5141 35.2061 17.3272 35.2061C10.1454 35.206 4.0271 30.6549 1.69828 24.2793C5.12262 27.6099 9.79693 29.6621 14.9512 29.6621C24.0456 29.662 31.6458 23.2756 33.5176 14.7432Z" fill="#F9B0B4" fill-opacity="0.5"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_f_0_76" x="1.44356" y="14.4884" width="32.7731" height="20.9723" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="0.127358" result="effect1_foregroundBlur_0_76"/>
+</filter>
+<radialGradient id="paint0_radial_0_76" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(5.94339 10.6132) rotate(38.3201) scale(33.5485)">
+<stop stop-color="#FDD4C5"/>
+<stop offset="1" stop-color="#FDB6B7"/>
+</radialGradient>
+<linearGradient id="paint1_linear_0_76" x1="14.434" y1="2.12264" x2="27.1698" y2="39.0566" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FCD1C7"/>
+<stop offset="1" stop-color="#DB8F96"/>
+</linearGradient>
+</defs>
+</svg>
