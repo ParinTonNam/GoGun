@@ -299,8 +299,10 @@ export function MaewTopbar({
 
 export function HomeHeroBanner({
   activeTripsCount = 0,
+  loading = false,
 }: {
   activeTripsCount?: number;
+  loading?: boolean;
 }) {
   return (
     <div className="maew-home-hero-stack">
@@ -313,7 +315,9 @@ export function HomeHeroBanner({
         <div className="maew-home-hero-copy">
           <h1>สรุปทริปทั้งหมด</h1>
           <p>
-            {activeTripsCount > 0
+            {loading
+              ? "กำลังโหลดทริปของคุณ…"
+              : activeTripsCount > 0
               ? `ทริปที่กำลังดำเนินอยู่ ${activeTripsCount} ทริป`
               : "ไม่มีทริปที่ดำเนินอยู่"}
           </p>

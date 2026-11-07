@@ -19,6 +19,7 @@ export function useDragPaint<T extends string>(params: {
   const [dragging, setDragging] = useState(false);
   const paintValueRef = useRef<T | null>(null);
   const paintedRef = useRef<Set<string>>(new Set());
+  const touchTapRef = useRef(false);
 
   // เก็บ callback ล่าสุดไว้ใน ref เพื่อให้ effect ไม่ต้อง re-bind ทุก render
   // (อัปเดตใน effect ไม่ใช่ระหว่าง render — pointer handler ยิงหลัง mount เสมอ)
@@ -30,6 +31,13 @@ export function useDragPaint<T extends string>(params: {
   const onCellPointerDown = useCallback(
     (key: string) => (e: React.PointerEvent) => {
       if (e.button !== 0 || !e.isPrimary || !cbRef.current.paintable(key)) return;
+      // On a phone, let a vertical swipe scroll the page. A completed tap
+      // paints via onClick; mouse and pen users can still drag across days.
+      if (e.pointerType === "touch") {
+        touchTapRef.current = true;
+        return;
+      }
+      touchTapRef.current = false;
       e.preventDefault(); // กัน text-selection / focus / เริ่ม scroll บนมือถือ
       const value = cbRef.current.selectedValue;
       paintValueRef.current = value;
@@ -67,8 +75,12 @@ export function useDragPaint<T extends string>(params: {
   }, [dragging]);
 
   const onCellClick = (key: string) => (e: React.MouseEvent) => {
-    // Pointer presses are already painted; keyboard/assistive activation has detail 0.
-    if (e.detail === 0 && cbRef.current.paintable(key)) cbRef.current.applyPaint(key, cbRef.current.selectedValue);
+    // Pointer presses are already painted, except touch taps. Keyboard and
+    // assistive activation also arrive with detail 0.
+    if ((e.detail === 0 || touchTapRef.current) && cbRef.current.paintable(key)) {
+      cbRef.current.applyPaint(key, cbRef.current.selectedValue);
+    }
+    touchTapRef.current = false;
   };
   return { dragging, onCellPointerDown, onCellClick };
 }

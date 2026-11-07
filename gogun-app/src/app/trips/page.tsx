@@ -105,20 +105,19 @@ export function TripsView({ demoMode = false }: { demoMode?: boolean }) {
 
       <div className="maew-trip-scroll-content">
       {/* Section Hero Banner (Figma 769:8977) */}
-      <HomeHeroBanner activeTripsCount={activeTrips.length} />
+      <HomeHeroBanner activeTripsCount={activeTrips.length} loading={loading} />
 
       {/* Main White Card (Figma 796:6318 / 660:9358) */}
       <section className="maew-home-card" aria-live="polite">
         {loading ? (
-          <div className="maew-home-empty" role="status">
-            <img
-              src="/images/figma-empty-trips-cat.svg"
-              alt=""
-              width={180}
-              height={169}
-              className="maew-home-empty-illustration"
-            />
-            <p className="maew-home-empty-sub">กำลังโหลดทริปของคุณ…</p>
+          <div className="maew-home-loading" role="status" aria-label="กำลังโหลดทริปของคุณ">
+            <span className="maew-home-loading-heading" aria-hidden="true" />
+            {[0, 1, 2].map((item) => (
+              <span className="maew-home-loading-row" aria-hidden="true" key={item}>
+                <span className="maew-home-loading-icon" />
+                <span className="maew-home-loading-lines"><span /><span /></span>
+              </span>
+            ))}
           </div>
         ) : loadError && !unauthorized ? (
           <div className="maew-home-empty" role="alert">

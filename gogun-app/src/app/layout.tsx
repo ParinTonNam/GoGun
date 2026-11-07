@@ -4,6 +4,7 @@ import "./globals.css";
 import "./design-system.css";
 import "./auth-v2.css";
 import "./desktop-gate.css";
+import "./mobile-usability.css";
 import { AppFrame } from "@/components/app-frame";
 
 export const metadata: Metadata = {

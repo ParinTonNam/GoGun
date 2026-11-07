@@ -2,7 +2,8 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 
-const DESKTOP_QUERY = "(min-width: 900px)";
+// A wide phone in landscape can exceed 900px. Keep touch-first devices in the app.
+const DESKTOP_QUERY = "(min-width: 900px) and (hover: hover) and (pointer: fine)";
 
 function DesktopGate() {
   return (
@@ -38,6 +39,30 @@ export function AppFrame({ children }: { children: ReactNode }) {
     update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    const update = () => {
+      const active = document.activeElement;
+      const editing = active instanceof HTMLElement && active.matches('input, textarea, select, [contenteditable="true"]');
+      const obstruction = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
+      const keyboardOffset = editing && obstruction > 120 ? obstruction : 0;
+      document.documentElement.style.setProperty("--maew-visual-height", `${viewport.height}px`);
+      document.documentElement.style.setProperty("--maew-keyboard-offset", `${keyboardOffset}px`);
+    };
+    update();
+    viewport.addEventListener("resize", update);
+    document.addEventListener("focusin", update);
+    document.addEventListener("focusout", update);
+    return () => {
+      viewport.removeEventListener("resize", update);
+      document.removeEventListener("focusin", update);
+      document.removeEventListener("focusout", update);
+      document.documentElement.style.removeProperty("--maew-visual-height");
+      document.documentElement.style.removeProperty("--maew-keyboard-offset");
+    };
   }, []);
 
   return (
