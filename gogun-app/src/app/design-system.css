@@ -789,6 +789,9 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-overview-field-row { width:100%; display:flex; align-items:flex-start; gap:15px; }
 .maew-overview-field-icon { width:24px; height:24px; display:block; flex-shrink:0; margin-top:1px; }
 .maew-overview-field { flex:1 0 0; min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:10px; }
+.maew-overview-field--editable { position:relative; }
+.maew-overview-field--editable .maew-overview-edit-pill { position:absolute; top:0; right:0; }
+.maew-overview-field--editable .maew-overview-value { max-width:calc(100% - 70px); overflow-wrap:anywhere; }
 .maew-overview-field-head { width:100%; display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
 .maew-overview-label { margin:0; font-size:11px; font-weight:300; letter-spacing:.22px; color:#767168; line-height:normal; }
 .maew-overview-value { margin:0; font-size:24px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#e85a2c; }

@@ -257,7 +257,7 @@ export function TripOverview() {
             height={20}
             className="maew-overview-field-icon"
           />
-          <div className="maew-overview-field">
+          <div className={`maew-overview-field${isOrganizer ? " maew-overview-field--editable" : ""}`}>
             <div className="maew-overview-field-head">
               <p className="maew-overview-label">สถานที่เที่ยว</p>
               {isOrganizer && (
