@@ -733,7 +733,7 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-plan-day-activity .maew-wiz-activity-body { display:flex; min-width:0; flex:1; flex-direction:column; align-items:flex-start; gap:5px; }
 .maew-plan-day-activity .maew-wiz-activity-title { width:100%; margin:0; color:#14110d; font-size:14px; font-weight:400; line-height:23px; letter-spacing:-.24px; overflow-wrap:anywhere; }
 .maew-plan-day-activity .maew-wiz-activity-desc { width:100%; margin:0; color:#14110d; opacity:.5; font-size:12px; font-weight:300; line-height:21px; letter-spacing:-.24px; overflow-wrap:anywhere; }
-.maew-plan-day-divider { width:100%; height:1px; overflow:hidden; background:url('/images/plan-day-divider.svg') left center / 328px 1px no-repeat; }
+.maew-plan-day-divider { width:100%; height:1px; flex:none; background:#e5e1d7; }
 
 /* Profile Page & Sheets (Figma 660:10507, 660:10868, 660:11015, 660:11102) */
 .maew-profile-identity { width:100%; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
