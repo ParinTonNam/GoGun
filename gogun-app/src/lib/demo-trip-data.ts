@@ -196,7 +196,12 @@ export function handleDemoRequest(path: string, options: RequestInit = {}): unkn
     if (method === "GET") return clone(state.members);
     const member = state.members.find((item) => item.user_id === id);
     if (method === "PATCH" && member) { member.user.display_name = String(body.display_name ?? member.user.display_name); return clone(member); }
-    if (method === "DELETE") { state.members = state.members.filter((item) => item.user_id === id || item.role === "organizer"); state.trip.members = state.members; return { deleted: true }; }
+    if (method === "DELETE") {
+      if (!member || member.role === "organizer") return { deleted: false };
+      state.members = state.members.filter((item) => item.user_id !== id);
+      state.trip.members = state.members;
+      return { deleted: true };
+    }
   }
   if (section === "itinerary") {
     if (method === "GET") return clone(state.itinerary);
