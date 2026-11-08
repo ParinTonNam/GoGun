@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { ChangeEventHandler, ReactNode } from "react";
+import { useLocale } from "@/lib/locale";
 
 const asset = "/images/auth-v2/";
 type Screen = "home" | "register" | "login" | "reset" | "check";
@@ -23,9 +24,10 @@ export function AuthScreen({ kind, children }: { kind: Screen; children: ReactNo
 }
 
 function LanguageSwitch() {
+  const { locale, setLocale } = useLocale();
   return <div className="maew-auth-language" role="group" aria-label="Language">
-    <button type="button" disabled aria-label="English ยังไม่เปิดใช้งาน">EN</button>
-    <button type="button" aria-pressed="true">TH</button>
+    <button type="button" aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button>
+    <button type="button" aria-pressed={locale === "th"} onClick={() => setLocale("th")}>TH</button>
   </div>;
 }
 

@@ -137,7 +137,7 @@ export default function PackingListPage({
     return (
       <div className={`flex items-center gap-[12px] py-[10px] ${!isLast ? "border-b border-[#e5e1d7]" : ""}`}>
         <Checkbox checked={item.is_checked} onToggle={() => handleToggle(item)} />
-        <p className={`flex-1 text-[14px] font-normal tracking-[0.08px] ${item.is_checked ? "line-through text-[#b5b0a4]" : "text-[#14110d]"}`}>
+        <p data-user-content className={`flex-1 text-[14px] font-normal tracking-[0.08px] ${item.is_checked ? "line-through text-[#b5b0a4]" : "text-[#14110d]"}`}>
           {item.text}
         </p>
         {item.category === "shared" && <AvatarStack users={item.assignees} />}

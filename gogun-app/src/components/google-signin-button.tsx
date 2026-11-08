@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Script from "next/script";
+import { useLocale } from "@/lib/locale";
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
@@ -59,6 +60,7 @@ export default function GoogleSignInButton({
   iconSrc?: string;
   label?: string;
 }) {
+  const { locale } = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const retryRef = useRef<number | null>(null);
   const [scriptError, setScriptError] = useState(false);
@@ -97,12 +99,12 @@ export default function GoogleSignInButton({
         size: "large",
         shape: variant === "icon" ? "circle" : "pill",
         ...(variant === "icon" ? { type: "icon" } : { text: "signin_with" }),
-        locale: "th",
+        locale,
           width: variant === "icon" ? 40 : Math.min(el.clientWidth, 400),
       });
     }
     attempt(0);
-  }, []);
+  }, [locale, variant]);
 
   // เรียกทุกครั้งที่ mount — ครอบเคสที่ GIS script โหลดไว้ก่อนแล้ว (สลับหน้า
   // login/signin/link-account) ซึ่ง onReady ของ <Script> จะไม่ยิงซ้ำให้

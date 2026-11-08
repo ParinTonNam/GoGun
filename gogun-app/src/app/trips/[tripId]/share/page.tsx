@@ -36,7 +36,7 @@ export default function SharePage() {
   }
 
   return <main className="workspace-page">
-    <div className="workspace-page-heading"><div><h1>ชวนเพื่อนเข้าทริป</h1><p className="workspace-meta">{trip.name}</p></div><Link className="workspace-link" href={tripPath(trip.id, "/group")}>กลับไปที่กลุ่ม</Link></div>
+    <div className="workspace-page-heading"><div><h1>ชวนเพื่อนเข้าทริป</h1><p className="workspace-meta" data-user-content>{trip.name}</p></div><Link className="workspace-link" href={tripPath(trip.id, "/group")}>กลับไปที่กลุ่ม</Link></div>
     <div className="workspace-grid">
       <section className="workspace-card">
         <h2>ส่งลิงก์ให้เพื่อน</h2><p>เพื่อนเลือกล็อกอินหรือ Guest ตั้งชื่อเอง แล้วยืนยันเข้าร่วมทริปได้ทันที</p>

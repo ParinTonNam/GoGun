@@ -1615,7 +1615,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                       wordBreak: "break-word",
                     }}
                   >
-                    {item.text}
+                    <span data-user-content>{item.text}</span>
                   </span>
                 </button>
               ))}
@@ -1733,7 +1733,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                           color: "#14110d",
                         }}
                       >
-                        {poll.title}
+                        <span data-user-content>{poll.title}</span>
                       </p>
                     </div>
                     {canCreatePolls && (
@@ -1835,7 +1835,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                                 color: "#14110d",
                               }}
                             >
-                              {opt.text}
+                              <span data-user-content>{opt.text}</span>
                             </span>
                           </div>
                           <div
@@ -2331,7 +2331,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                             textOverflow: "ellipsis",
                           }}
                         >
-                          {isOut ? `ทิ้ง "${opt.text}"` : opt.text}
+                          <span data-user-content>{isOut ? `ทิ้ง "${opt.text}"` : opt.text}</span>
                         </span>
                       </div>
                     </div>
@@ -3960,7 +3960,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                     maxWidth: "100%",
                   }}
                 >
-                  {drawnCatTreat.text}
+                  <span data-user-content>{drawnCatTreat.text}</span>
                 </span>
               </div>
             </div>

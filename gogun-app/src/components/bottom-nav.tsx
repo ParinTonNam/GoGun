@@ -92,7 +92,7 @@ export function BottomNav({ active, user }: { active: Tab; user?: { display_name
       <button type="button" ref={closeButton} className="workspace-menu-close" aria-label="ปิดเมนู" onClick={() => { setMenuOpen(false); toggleButton.current?.focus(); }}>×</button>
       <Link href="/trips" className="workspace-brand" onClick={() => setMenuOpen(false)}><img src="/images/logo.svg" alt="" width={28} height={28} /> GoGun · ไปกัน</Link>
       <nav aria-label="หน้าหลักของ GoGun">{tabs.filter((tab) => tab.id !== "profile").map((tab) => <Link key={tab.id} href={tab.href} onClick={() => setMenuOpen(false)} aria-current={active === tab.id ? "page" : undefined} className="global-menu-item"><tab.Icon color={active === tab.id ? ACTIVE_ICON_COLOR : INACTIVE_ICON_COLOR} /><span>{tab.label}</span></Link>)}</nav>
-      <Link href="/profile" className="workspace-profile" aria-current={active === "profile" ? "page" : undefined} onClick={() => setMenuOpen(false)}><span className="workspace-avatar" style={{ backgroundColor: user?.avatar_color || "#58795b" }}>{user?.display_name.trim().slice(0, 1) || <IconProfile color="#fff" />}</span><span>{user?.display_name || "โปรไฟล์"}<small>บัญชีของฉัน</small></span></Link>
+      <Link href="/profile" className="workspace-profile" aria-current={active === "profile" ? "page" : undefined} onClick={() => setMenuOpen(false)}><span className="workspace-avatar" style={{ backgroundColor: user?.avatar_color || "#58795b" }}>{user?.display_name.trim().slice(0, 1) || <IconProfile color="#fff" />}</span><span><span data-user-content>{user?.display_name || "โปรไฟล์"}</span><small>บัญชีของฉัน</small></span></Link>
     </aside>
   </>;
 }

@@ -21,6 +21,7 @@ import {
 } from "@/components/trip-ticket-selector";
 import { getDemoTrip, getDemoUser } from "@/lib/demo-trip-data";
 import { NOTIFICATIONS_READY } from "@/lib/feature-flags";
+import { useLocale } from "@/lib/locale";
 
 type ActiveSheet = "edit" | "language" | "help" | null;
 
@@ -155,6 +156,7 @@ function CloseButton({ onClick }: { onClick: () => void }) {
 
 export function ProfileView({ demoMode = false }: { demoMode?: boolean }) {
   const router = useRouter();
+  const { locale: language, setLocale: setLanguage } = useLocale();
   const [user, setUser] = useState<User | null>(() => demoMode ? getDemoUser() : null);
   const [trips, setTrips] = useState<Trip[]>(() => demoMode ? [getDemoTrip()] : []);
   const [activeSheet, setActiveSheet] = useState<ActiveSheet>(null);
@@ -162,7 +164,6 @@ export function ProfileView({ demoMode = false }: { demoMode?: boolean }) {
 
   // Settings & Edit states
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [language, setLanguage] = useState<"th" | "en">("th");
   const [draftLanguage, setDraftLanguage] = useState<"th" | "en">("th");
   const [openHelpIdx, setOpenHelpIdx] = useState<number | null>(0);
 
@@ -179,8 +180,6 @@ export function ProfileView({ demoMode = false }: { demoMode?: boolean }) {
     queueMicrotask(() => {
       if (!active) return;
       try {
-        const savedLang = localStorage.getItem("gogun_lang");
-        if (savedLang === "en" || savedLang === "th") setLanguage(savedLang);
         setNotificationsEnabled(localStorage.getItem(demoMode ? "gogun_notif_demo" : "gogun_notif") !== "false");
       } catch {}
     });
@@ -258,10 +257,6 @@ export function ProfileView({ demoMode = false }: { demoMode?: boolean }) {
 
   function handleSaveLanguage() {
     setLanguage(draftLanguage);
-    try {
-      if (demoMode) { closeSheet(); return; }
-      localStorage.setItem("gogun_lang", draftLanguage);
-    } catch {}
     closeSheet();
   }
 

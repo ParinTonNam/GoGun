@@ -7,6 +7,8 @@ import "./desktop-gate.css";
 import "./mobile-usability.css";
 import "./home-v2.css";
 import { AppFrame } from "@/components/app-frame";
+import { LocaleProvider } from "@/lib/locale";
+import { TranslationObserver } from "@/components/translation-observer";
 
 export const metadata: Metadata = {
   title: "Maew Tiew | แมวเที่ยว",
@@ -24,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="th" className={`${kanit.className} h-full antialiased`}>
-      <body className="min-h-full flex flex-col"><AppFrame>{children}</AppFrame></body>
+      <body className="min-h-full flex flex-col"><LocaleProvider><AppFrame>{children}</AppFrame><TranslationObserver /></LocaleProvider></body>
     </html>
   );
 }

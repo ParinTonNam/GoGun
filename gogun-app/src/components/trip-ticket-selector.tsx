@@ -7,6 +7,7 @@ import { type Trip } from "@/lib/api";
 import { getTripCoverImage } from "@/lib/trip-themes";
 import { useNotifications } from "@/lib/use-notifications";
 import { NOTIFICATIONS_READY } from "@/lib/feature-flags";
+import { useLocale } from "@/lib/locale";
 
 export { HomeBottomNav, type HomeBottomNavActiveTab } from "@/components/home-bottom-nav";
 
@@ -304,6 +305,7 @@ export function HomeHeroBanner({
   activeTripsCount?: number;
   loading?: boolean;
 }) {
+  const { locale } = useLocale();
   return (
     <div className="maew-home-hero-stack">
       <section className="maew-home-hero-banner" aria-label="สรุปทริปทั้งหมด">
@@ -318,7 +320,7 @@ export function HomeHeroBanner({
             {loading
               ? "กำลังโหลดทริปของคุณ…"
               : activeTripsCount > 0
-              ? `ทริปที่กำลังดำเนินอยู่ ${activeTripsCount} ทริป`
+              ? locale === "en" ? `${activeTripsCount} active ${activeTripsCount === 1 ? "trip" : "trips"}` : `ทริปที่กำลังดำเนินอยู่ ${activeTripsCount} ทริป`
               : "ไม่มีทริปที่ดำเนินอยู่"}
           </p>
         </div>

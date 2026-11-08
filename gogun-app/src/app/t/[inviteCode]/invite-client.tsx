@@ -86,13 +86,13 @@ export default function InviteClient({ inviteCode }: { inviteCode: string }) {
         <Link href="/trips">กลับหน้าทริปของฉัน</Link>
       </section> : <>
         <section className="maew-invite-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(63,31,87,.25), transparent 75%), url("${getTripCoverImage(trip.theme)}")` }}>
-          <h1>คุณได้รับเชิญเข้าทริป<br /><span>{trip.name}</span></h1>
+          <h1>คุณได้รับเชิญเข้าทริป<br /><span data-user-content>{trip.name}</span></h1>
           <div className="maew-invite-hero-meta"><span>{trip.proposed_start_date || trip.confirmed_start_date ? formatThaiShortDateRange(trip) : "ยังไม่กำหนดวัน"}</span><span className="maew-invite-status">{trip.date_status === "confirmed" ? "ยืนยันแล้ว" : "ยังไม่ยืนยัน"}</span></div>
         </section>
 
         {reviewing ? <section className="maew-invite-card maew-invite-choice" aria-labelledby="join-review">
           <h2 id="join-review">ยืนยันเข้าร่วมทริป</h2>
-          <p>ทริป <strong>{trip.name}</strong></p>
+          <p>ทริป <strong data-user-content>{trip.name}</strong></p>
           <p>ใช้ชื่อ <strong>{selectedName}</strong> · {mode === "guest" ? "Guest" : "บัญชีที่ล็อกอิน"}</p>
           <p className="maew-invite-hint">{mode === "guest" ? "ชื่อ Guest นี้ใครที่มีลิงก์ก็เลือกเข้าใช้ได้ ผูกบัญชีภายหลังเพื่อล็อกชื่อได้" : "ชื่อนี้เข้าใช้ได้ด้วยการล็อกอินบัญชีของคุณเท่านั้น"}</p>
           <p className="maew-invite-hint">ยืนยันแล้วเข้าทริปได้ทันที ไม่ต้องรอผู้จัดอนุมัติ</p>
@@ -106,7 +106,7 @@ export default function InviteClient({ inviteCode }: { inviteCode: string }) {
             <button type="button" className="maew-invite-option" aria-pressed={mode === "guest"} onClick={() => setMode("guest")}><strong>Guest</strong><small>ตั้งชื่อ ไม่ต้องสมัคร</small></button>
           </div>
           {mode === "account" && (accountReady ? <div className="maew-invite-mode-content">
-            <p className="maew-invite-hint">เข้าร่วมในชื่อ <strong>{me.display_name}</strong></p>
+            <p className="maew-invite-hint">เข้าร่วมในชื่อ <strong data-user-content>{me.display_name}</strong></p>
             <button type="button" className="maew-invite-primary" onClick={() => setReviewing(true)}>เข้าทริป</button>
             <Link className="maew-invite-account-link" href={loginHref}>ใช้บัญชีอื่น</Link>
           </div> : <div className="maew-invite-mode-content">
@@ -125,7 +125,7 @@ export default function InviteClient({ inviteCode }: { inviteCode: string }) {
 
         {joined.length > 0 && <section className="maew-invite-card maew-invite-members" aria-labelledby="join-members-heading">
           <h2 id="join-members-heading">สมาชิกที่เข้าร่วมแล้ว</h2>
-          <ul>{joined.map((m, i) => <li key={m.id}><img src={getCatAvatarUrl(m.user.display_name, i, m.user.avatar_color)} alt="" width={48} height={48} /><span>{m.user.display_name}</span>{m.role === "organizer" && <small>HOST</small>}</li>)}</ul>
+          <ul>{joined.map((m, i) => <li key={m.id}><img src={getCatAvatarUrl(m.user.display_name, i, m.user.avatar_color)} alt="" width={48} height={48} /><span data-user-content>{m.user.display_name}</span>{m.role === "organizer" && <small>HOST</small>}</li>)}</ul>
         </section>}
       </>}
   </div></main>;

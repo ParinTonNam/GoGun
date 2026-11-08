@@ -154,7 +154,7 @@ export function TripWorkspace({ tripId, children }: { tripId: string; children: 
           {sectionLinks.length > 0 && <nav className="workspace-sidebar-subnav" aria-label="เมนูย่อยของทริป">
             {sectionLinks.map((link) => <Link key={link.path} href={href(link.path)} aria-current={pathname === href(link.path) ? "page" : undefined}>{link.label}</Link>)}
           </nav>}
-          <Link href="/profile" className="workspace-profile"><span className="workspace-avatar" style={{ backgroundColor: me.avatar_color }}>{me.display_name.trim().slice(0, 1)}</span><span>{me.display_name}<small>{permissions.isOrganizer ? "คนจัดทริป" : "สมาชิก"}</small></span></Link>
+          <Link href="/profile" className="workspace-profile"><span className="workspace-avatar" style={{ backgroundColor: me.avatar_color }}>{me.display_name.trim().slice(0, 1)}</span><span><span data-user-content>{me.display_name}</span><small>{permissions.isOrganizer ? "คนจัดทริป" : "สมาชิก"}</small></span></Link>
         </aside>
         <div className="workspace-main">
           <header className="workspace-header">

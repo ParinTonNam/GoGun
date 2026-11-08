@@ -382,7 +382,7 @@ export default function ItineraryPage({
                       // Read-only row (โหมดดู)
                       <div key={act.id} className="flex flex-wrap items-center gap-[8px] py-[6px]">
                         <span className="w-[44px] shrink-0 text-[12px] text-[#767168]">{act.time}</span>
-                        <span className="flex-1 text-[13px] text-[#14110d]">{act.title}</span>
+                        <span data-user-content className="flex-1 text-[13px] text-[#14110d]">{act.title}</span>
                         <ActivityExtras tripId={tripId} activity={act} canEdit={canEdit} onUpdate={tags => setDays(prev => prev.map(d => ({ ...d, activities: d.activities.map(a => a.id === act.id ? { ...a, tags } : a) })))} />
                       </div>
                     ) : editActId === act.id ? (
@@ -436,7 +436,7 @@ export default function ItineraryPage({
                           className="flex flex-1 items-center gap-[8px] text-left active:opacity-60"
                         >
                           <span className="w-[44px] shrink-0 text-[12px] text-[#767168]">{act.time}</span>
-                          <span className="flex-1 text-[13px] text-[#14110d]">{act.title}</span>
+                          <span data-user-content className="flex-1 text-[13px] text-[#14110d]">{act.title}</span>
                           <svg width="13" height="13" viewBox="0 0 14 14" fill="none" className="shrink-0 opacity-30">
                             <path d="M9.5 2.5l2 2L5 11l-2.5.5L3 9l6.5-6.5Z" stroke="#14110d" strokeWidth="1.2" strokeLinejoin="round" />
                           </svg>
