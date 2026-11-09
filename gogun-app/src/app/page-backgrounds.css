@@ -22,6 +22,12 @@ body,
   background-repeat: no-repeat;
 }
 
+/* Match the Figma mountain placement only on the trip list. */
+.maew-home-scene.maew-trip-list-scene {
+  background-position: center -81px, center bottom, center;
+  background-size: 109% auto, 100% auto, cover;
+}
+
 /* The welcome, login, registration, and password screens have no mountain header. */
 .app-frame-mobile > main.maew-auth,
 .app-frame-mobile > main.auth-scene,

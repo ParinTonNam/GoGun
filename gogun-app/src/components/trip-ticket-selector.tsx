@@ -301,16 +301,18 @@ export function MaewTopbar({
 export function HomeHeroBanner({
   activeTripsCount = 0,
   loading = false,
+  variant = "default",
 }: {
   activeTripsCount?: number;
   loading?: boolean;
+  variant?: "default" | "trip-list";
 }) {
   const { locale } = useLocale();
   return (
     <div className="maew-home-hero-stack">
-      <section className="maew-home-hero-banner" aria-label="สรุปทริปทั้งหมด">
+      <section className={`maew-home-hero-banner${variant === "trip-list" ? " maew-home-hero-banner--trip-list" : ""}`} aria-label="สรุปทริปทั้งหมด">
         <div className="maew-home-hero-bg" aria-hidden="true">
-          <img src="/images/figma-hero-banner.png" alt="" className="maew-home-hero-img" />
+          <img src={variant === "trip-list" ? "/images/trip-list-hero-hills.png" : "/images/figma-hero-banner.png"} alt="" className="maew-home-hero-img" />
           <div className="maew-home-hero-overlay" />
         </div>
 
@@ -325,6 +327,7 @@ export function HomeHeroBanner({
           </p>
         </div>
       </section>
+      {variant === "trip-list" && <img className="maew-home-hero-cat" src="/images/trip-list-hero-cat.svg" alt="" width={126} height={94} aria-hidden="true" />}
     </div>
   );
 }

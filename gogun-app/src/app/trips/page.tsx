@@ -99,13 +99,13 @@ export function TripsView({ demoMode = false }: { demoMode?: boolean }) {
   const userCatAvatar = getCatAvatarUrl(user?.display_name, 0, user?.avatar_color);
 
   return (
-    <main className="maew-home-scene maew-app-fixed-scene">
+    <main className="maew-home-scene maew-app-fixed-scene maew-trip-list-scene">
       {/* Top Bar (Figma 660:7089) */}
       <MaewTopbar me={user} />
 
       <div className="maew-trip-scroll-content">
       {/* Section Hero Banner (Figma 769:8977) */}
-      <HomeHeroBanner activeTripsCount={activeTrips.length} loading={loading} />
+      <HomeHeroBanner activeTripsCount={activeTrips.length} loading={loading} variant="trip-list" />
 
       {/* Main White Card (Figma 796:6318 / 660:9358) */}
       <section className="maew-home-card" aria-live="polite">
