@@ -1,4 +1,4 @@
-/* Shared page scenery: mountains at the top, sea at the bottom. */
+/* Shared page scenery: sea at the bottom, clear space behind headers. */
 body,
 .app-frame-mobile > main,
 .demo-main > main,
@@ -14,11 +14,10 @@ body,
 .auth-scene--register::before,
 .maew-invite-page.maew-invite-page::before {
   background-image:
-    url("/images/background-mountain.png"),
     url("/images/background-sea.png"),
     linear-gradient(180deg, #fff9f4 0%, #ffeee7 52%, #fff7f1 100%);
-  background-position: center -100px, center bottom, center;
-  background-size: 100% auto, 100% auto, cover;
+  background-position: center bottom, center;
+  background-size: 100% auto, cover;
   background-repeat: no-repeat;
 }
 
