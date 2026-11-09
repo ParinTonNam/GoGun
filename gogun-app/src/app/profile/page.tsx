@@ -296,13 +296,13 @@ export function ProfileView({ demoMode = false }: { demoMode?: boolean }) {
     : 4;
 
   return (
-    <main className="maew-home-scene maew-profile-page-scene">
+    <main className="maew-home-scene maew-profile-page-scene maew-central-scene">
       {/* Top Bar (Figma 660:7089) */}
       <MaewTopbar me={user} />
 
       <div className="maew-trip-scroll-content">
       {/* Section Hero Banner (Figma 769:8977) */}
-      <HomeHeroBanner activeTripsCount={activeTripsCount} />
+      <HomeHeroBanner activeTripsCount={activeTripsCount} variant="central" />
 
       {/* Main White Card (Figma 660:10560) */}
       <section className="maew-home-card" aria-label="ข้อมูลโปรไฟล์และการตั้งค่า">

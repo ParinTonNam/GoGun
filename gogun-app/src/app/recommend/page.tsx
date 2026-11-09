@@ -198,13 +198,13 @@ export function RecommendView({ demoMode = false }: { demoMode?: boolean }) {
     selectedTemplate?.days[selectedDayIdx] ?? selectedTemplate?.days[0] ?? null;
 
   return (
-    <main className="maew-home-scene maew-app-fixed-scene">
+    <main className="maew-home-scene maew-app-fixed-scene maew-central-scene">
       {/* Top Bar (Figma 660:7089) */}
       <MaewTopbar me={user} />
 
       <div className="maew-trip-scroll-content">
       {/* Section Hero Banner (Figma 769:8977) */}
-      <HomeHeroBanner activeTripsCount={activeTripsCount} />
+      <HomeHeroBanner activeTripsCount={activeTripsCount} variant="central" />
 
       {/* Main White Card (Figma 660:9544) */}
       <section className="maew-home-card" aria-label="รายการทริปแนะนำ">

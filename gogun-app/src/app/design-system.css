@@ -495,9 +495,9 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-home-hero-copy { position:relative; z-index:1; width:240px; max-width:calc(100% - 10px); display:flex; flex-direction:column; align-items:flex-start; gap:15px; min-width:0; color:#fff; }
 .maew-home-hero-copy h1 { margin:0; font-size:24px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 .maew-home-hero-copy p { margin:0; font-size:14px; font-weight:400; line-height:26.4px; letter-spacing:-.24px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
-.maew-home-hero-banner--trip-list .maew-home-hero-bg { overflow:hidden; border-radius:inherit; background:#f26b57; }
-.maew-home-hero-banner--trip-list .maew-home-hero-img { inset:auto; left:-2.28%; top:-17.04%; width:135.37%; height:126%; object-fit:fill; mix-blend-mode:color-burn; }
-.maew-home-hero-banner--trip-list .maew-home-hero-overlay { display:none; }
+.maew-home-hero-banner--central .maew-home-hero-bg { overflow:hidden; border-radius:inherit; background:#f26b57; }
+.maew-home-hero-banner--central .maew-home-hero-img { inset:auto; left:-2.28%; top:-17.04%; width:135.37%; height:126%; object-fit:fill; mix-blend-mode:color-burn; }
+.maew-home-hero-banner--central .maew-home-hero-overlay { display:none; }
 .maew-home-hero-cat { position:absolute; z-index:3; top:41px; right:30px; display:block; width:126px; height:94px; pointer-events:none; }
 @media (max-width:360px) { .maew-home-hero-cat { top:47px; right:12px; width:96px; height:auto; } }
 .maew-home-hero-add-btn { position:absolute; top:24px; right:24px; z-index:1; width:76px; height:78px; border-radius:14px; background:#fff; padding:5px 17px; display:flex; align-items:center; justify-content:center; text-decoration:none; flex-shrink:0; box-sizing:border-box; transition:transform .14s ease; }
