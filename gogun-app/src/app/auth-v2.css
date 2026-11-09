@@ -1,8 +1,8 @@
 html:has(.maew-auth){scrollbar-gutter:auto}
 .maew-auth{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;width:100%;min-height:100dvh;margin:0;padding:32px 20px max(32px,env(safe-area-inset-bottom));border-radius:0;color:#14110d;background:#f7f5f0}
-.maew-auth-background{position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(to bottom,#ffeee7 0%,#ffeee7 75.172%,rgba(247,245,240,0) 119.28%),url('/images/figma-scene-bg.png');background-position:center,center bottom;background-size:100% 100%,cover;background-repeat:no-repeat}
+.maew-auth-background{position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(to bottom,#ffeee7 0%,#ffeee7 75.172%,#f7f5f0 100%)}
 .maew-auth--home{background:linear-gradient(159.602deg,#f7f5f0 3.273%,#ffeee7 46.678%,#ff7237 82.863%)}
-.maew-auth--home .maew-auth-background{background-image:linear-gradient(to bottom,#ffeee7 30.034%,rgba(247,245,240,0) 69.451%),url('/images/figma-scene-bg.png');background-size:100% 100%,cover}
+.maew-auth--home .maew-auth-background{background:linear-gradient(to bottom,#ffeee7 30.034%,#f7f5f0 100%)}
 .maew-auth-header{position:relative;z-index:4;display:flex;width:100%;max-width:520px;min-height:33px;align-items:center;justify-content:space-between;gap:12px}
 .maew-auth-brand{display:flex;align-items:center;gap:8.962px;text-decoration:none}
 .maew-auth-brand>img{display:block;flex:none;width:31px;height:29.757px}

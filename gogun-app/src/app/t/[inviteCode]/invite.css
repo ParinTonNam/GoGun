@@ -1,5 +1,5 @@
 .maew-invite-page{min-height:100dvh;isolation:isolate;background:#f7f5f0;color:#14110d}
-.maew-invite-page::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,#ffeee7 14%,rgba(251,241,235,.7) 60%,rgba(249,243,238,.8) 78%,rgba(247,245,240,.2)),url('/images/figma-scene-bg.png') center bottom/cover no-repeat}
+.maew-invite-page::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,#ffeee7 14%,#fbf1eb 60%,#f9f3ee 78%,#f7f5f0 100%)}
 .maew-invite-content{position:relative;width:min(100%,402px);min-height:100dvh;margin-inline:auto;padding:55px 20px calc(55px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:13px}
 .maew-invite-brand{height:49px;display:flex;align-items:center;flex:none}
 .maew-invite-hero{position:relative;min-height:159px;margin-inline:-7px;padding:27px 17px 12px;border-radius:14px;background-position:center center;background-size:cover;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;color:#fff}

@@ -3,7 +3,7 @@
 
 @media (min-width:900px) and (hover:hover) and (pointer:fine){
   .app-frame-mobile{display:none}
-  .desktop-gate{position:relative;display:flex;min-height:100dvh;justify-content:center;overflow:hidden;padding:clamp(40px,10vh,102px) 24px 40px;background:linear-gradient(180deg,#ffeee7 29%,rgba(247,245,240,0) 108%),url('/images/desktop-gate/background.png') center bottom/cover no-repeat,#f7f5f0;color:#14110d}
+  .desktop-gate{position:relative;display:flex;min-height:100dvh;justify-content:center;overflow:hidden;padding:clamp(40px,10vh,102px) 24px 40px;background:linear-gradient(180deg,#ffeee7 29%,#f7f5f0 100%);color:#14110d}
   .desktop-gate-stage{position:relative;width:100%;max-width:1200px;min-height:739px}
   .desktop-gate-card{position:relative;z-index:1;display:flex;width:min(580px,100%);min-height:739px;flex-direction:column;align-items:center;justify-content:center;gap:30px;margin:0 auto;padding:20px 17px;border-radius:14px;background:#fff;box-shadow:-28px -7px 15px rgba(0,0,0,.09),-7px -2px 8px rgba(0,0,0,.1)}
   .desktop-gate-brand{display:flex;align-items:center;gap:30px}

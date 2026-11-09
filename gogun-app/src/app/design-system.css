@@ -370,7 +370,7 @@ button, a, input, select, textarea { touch-action: manipulation; }
 
 /* Figma register screen · node 671:4247 */
 .auth-scene.auth-scene--register { width:min(100%,402px); min-height:100dvh; margin:0 auto; padding:0; overflow-x:hidden; isolation:isolate; border-radius:48px; background-color:#f7f5f0; color:#14110d; }
-.auth-scene--register::before { position:absolute; inset:0; z-index:0; content:""; pointer-events:none; background-image:linear-gradient(to bottom,#ffeee7 0%,#ffeee7 75.172%,rgba(247,245,240,0) 119.28%),url("/images/figma-scene-bg.png"); background-repeat:no-repeat; background-position:center,center; background-size:100% 100%,100% 100%; }
+.auth-scene--register::before { position:absolute; inset:0; z-index:0; content:""; pointer-events:none; background:linear-gradient(to bottom,#ffeee7 0%,#ffeee7 75.172%,#f7f5f0 100%); }
 .auth-register-status { position:absolute; z-index:4; inset:0 24px auto; height:48px; color:#14110d; }
 .auth-register-time { position:absolute; top:19px; left:0; font-family:Arial,sans-serif; font-size:17px; font-weight:400; line-height:22px; }
 .auth-register-notch { position:absolute; top:11px; left:50%; width:126px; height:37px; transform:translateX(-50%); border-radius:24px; background:#14110d; }
@@ -421,7 +421,7 @@ button, a, input, select, textarea { touch-action: manipulation; }
 }
 
 /* Logged-in homepage & trip screens tuned to Figma artboards 660:13132, 590:6103 & 639:1168 (402 × 874). */
-.maew-home-scene { width:100%; min-height:100dvh; margin:0 auto; padding:55px 20px calc(107px + env(safe-area-inset-bottom)); position:relative; overflow-x:hidden; isolation:isolate; background:linear-gradient(180deg,#ffeee7 54.977%,rgba(247,245,240,0) 100%),url("/images/figma-scene-bg.png") center/cover no-repeat,#f7f5f0; color:#14110d; display:flex; flex-direction:column; align-items:center; }
+.maew-home-scene { width:100%; min-height:100dvh; margin:0 auto; padding:55px 20px calc(107px + env(safe-area-inset-bottom)); position:relative; overflow-x:hidden; isolation:isolate; background:linear-gradient(180deg,#ffeee7 54.977%,#f7f5f0 100%); color:#14110d; display:flex; flex-direction:column; align-items:center; }
 /* Keep the top bar and floating menu in place while the banner and cards scroll together. */
 html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),body:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene) { height:100%; overflow:hidden; }
 .maew-home-scene:is(.maew-trip-fixed-scene,.maew-app-fixed-scene) { height:100dvh; min-height:0; overflow:hidden; padding-bottom:calc(16px + env(safe-area-inset-bottom)); }
