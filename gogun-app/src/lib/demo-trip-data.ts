@@ -36,7 +36,7 @@ const DEMO_USER: User = {
 const DEMO_TRIP: Trip = {
   id: DEMO_ID, name: "ทริปทะเลเกาะล้าน", destination: "เกาะล้าน, พัทยา", icon: "🌊",
   trip_type: "overnight", duration_days: 3, proposed_start_date: "2026-11-20",
-  confirmed_start_date: "2026-11-20", date_status: "confirmed", currency: "THB",
+  confirmed_start_date: null, date_status: "proposed", currency: "THB",
   invite_code: "", organizer_id: "demo-ton", budget_per_person: 3450,
   allow_member_expenses: true, allow_member_itinerary_edit: true, allow_member_invite: false,
   allow_member_expense_edit: true, allow_member_polls: true, allow_member_quests: true,
@@ -190,7 +190,20 @@ export function handleDemoRequest(path: string, options: RequestInit = {}): unkn
   const [section, id, sub, subId] = parts;
   if (!section) {
     if (method === "GET") return clone(state.trip);
-    if (method === "PATCH") { state.trip = { ...state.trip, ...body, allow_member_invite: false } as Trip; return clone(state.trip); }
+    if (method === "PATCH") {
+      state.trip = { ...state.trip, ...body, allow_member_invite: false } as Trip;
+      if (state.trip.date_status === "confirmed" && state.trip.confirmed_start_date) {
+        const start = new Date(`${state.trip.confirmed_start_date}T00:00:00Z`);
+        if (!Number.isNaN(start.getTime())) {
+          state.itinerary = state.itinerary.map((day, index) => {
+            const date = new Date(start);
+            date.setUTCDate(date.getUTCDate() + index);
+            return { ...day, date: date.toISOString().slice(0, 10) };
+          });
+        }
+      }
+      return clone(state.trip);
+    }
   }
   if (section === "members") {
     if (method === "GET") return clone(state.members);
