@@ -142,10 +142,7 @@ function ConfirmDateSheet({
 
   return (
     <div className="responsive-sheet fixed bottom-0 left-1/2 z-20 w-full max-w-[420px] -translate-x-1/2 overflow-hidden rounded-tl-[25px] rounded-tr-[25px] bg-[#f7f5f0] shadow-[0_-4px_24px_rgba(0,0,0,0.10)]">
-      {/* Drag handle */}
-      <div className="flex justify-center pt-[10px]">
-        <div className="h-[4px] w-[36px] rounded-[2px] bg-[#d4cfc2]" />
-      </div>
+      <div className="maew-plan-modal-handle" aria-hidden="true" />
 
       {/* Scrollable body */}
       <div className="flex max-h-[88vh] flex-col gap-[10px] overflow-y-auto px-[20px] pb-[36px] pt-[20px]">
@@ -155,6 +152,7 @@ function ConfirmDateSheet({
           <button
             type="button"
             onClick={onClose}
+            data-sheet-swipe-close
             className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-[#e5e1d7]"
           >
             <img src="/images/icon-close.svg" alt="" className="size-[14px]" />

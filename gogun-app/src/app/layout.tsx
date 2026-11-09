@@ -9,6 +9,7 @@ import "./home-v2.css";
 import { AppFrame } from "@/components/app-frame";
 import { LocaleProvider } from "@/lib/locale";
 import { TranslationObserver } from "@/components/translation-observer";
+import { SheetSwipeDismiss } from "@/components/sheet-swipe-dismiss";
 
 export const metadata: Metadata = {
   title: "Maew Tiew | แมวเที่ยว",
@@ -26,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="th" className={`${kanit.className} h-full antialiased`}>
-      <body className="min-h-full flex flex-col"><LocaleProvider><AppFrame>{children}</AppFrame><TranslationObserver /></LocaleProvider></body>
+      <body className="min-h-full flex flex-col"><LocaleProvider><AppFrame>{children}</AppFrame><TranslationObserver /><SheetSwipeDismiss /></LocaleProvider></body>
     </html>
   );
 }

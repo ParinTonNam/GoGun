@@ -182,10 +182,7 @@ export default function MembersPage() {
             onClick={() => setShowSheet(false)}
           />
           <div className="responsive-sheet fixed bottom-0 left-1/2 z-20 w-full max-w-[420px] -translate-x-1/2 overflow-hidden rounded-tl-[24px] rounded-tr-[24px] bg-[#f7f5f0] pt-[8px]">
-            {/* Handle */}
-            <div className="flex justify-center pb-0">
-              <div className="h-[4px] w-[36px] rounded-[2px] bg-[#d4cfc2]" />
-            </div>
+            <div className="maew-plan-modal-handle" aria-hidden="true" />
             {/* Sheet header */}
             <div className="flex items-center justify-between px-[20px] pb-[8px] pt-[14px]">
               <p className="text-[18px] font-medium tracking-[0.08px] text-[#14110d]">
@@ -194,6 +191,7 @@ export default function MembersPage() {
               <button
                 type="button"
                 onClick={() => setShowSheet(false)}
+                data-sheet-swipe-close
                 className="flex size-[32px] items-center justify-center rounded-[16px] bg-[#f2efe8]"
               >
                 <img src="/images/icon-close.svg" alt="" className="size-[16px]" />

@@ -150,6 +150,7 @@ function ExpenseDetailSheet({
       <div
         className={`responsive-sheet fixed bottom-0 left-1/2 z-[60] w-full max-w-[420px] -translate-x-1/2 rounded-t-[25px] bg-[#f7f5f0] transition-transform duration-300 ease-out ${open ? "translate-y-0" : "translate-y-full"}`}
       >
+        <div className="maew-plan-modal-handle" aria-hidden="true" />
         {exp && (
           <div className="flex flex-col gap-[20px] px-[24px] pb-[40px] pt-[28px]">
 
@@ -166,6 +167,7 @@ function ExpenseDetailSheet({
               <button
                 type="button"
                 onClick={onClose}
+                data-sheet-swipe-close
                 className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-[#edeae2]"
               >
                 <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -280,6 +282,7 @@ function SummarySheet({
       <div
         className={`responsive-sheet fixed bottom-0 left-1/2 z-[60] flex max-h-[90vh] w-full max-w-[420px] -translate-x-1/2 flex-col overflow-y-auto rounded-t-[25px] bg-[#f7f5f0] transition-transform duration-300 ease-out ${open ? "translate-y-0" : "translate-y-full"}`}
       >
+        <div className="maew-plan-modal-handle" aria-hidden="true" />
         <div className="flex flex-col gap-[10px] px-[20px] py-[34px]">
 
           <div className="flex h-[36px] shrink-0 items-center justify-between">
@@ -287,6 +290,7 @@ function SummarySheet({
             <button
               type="button"
               onClick={onClose}
+              data-sheet-swipe-close
               className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-[#edeae2]"
             >
               <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -444,12 +448,14 @@ function CurrencyPickerSheet({
       <div
         className={`responsive-sheet fixed bottom-0 left-1/2 z-[70] w-full max-w-[420px] -translate-x-1/2 rounded-t-[25px] bg-[#f7f5f0] transition-transform duration-300 ease-out ${open ? "translate-y-0" : "translate-y-full"}`}
       >
+        <div className="maew-plan-modal-handle" aria-hidden="true" />
         <div className="flex flex-col pb-[40px] pt-[24px]">
           <div className="flex items-center justify-between px-[24px] pb-[16px]">
             <p className="text-[18px] font-medium tracking-[0.08px] text-[#14110d]">เลือกสกุลเงิน</p>
             <button
               type="button"
               onClick={onClose}
+              data-sheet-swipe-close
               className="flex size-[36px] items-center justify-center rounded-full bg-[#edeae2]"
             >
               <svg width="11" height="11" viewBox="0 0 11 11" fill="none">

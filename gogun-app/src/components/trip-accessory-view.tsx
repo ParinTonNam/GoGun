@@ -2994,20 +2994,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
               gap: 15,
             }}
           >
-            {/* Top Drag Pill */}
-            <div
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                top: 11,
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 139,
-                height: 5,
-                borderRadius: 100,
-                backgroundColor: "rgba(0, 0, 0, 0.25)",
-              }}
-            />
+            <div className="maew-plan-modal-handle" aria-hidden="true" />
 
             {/* Header: Event Title + Close Button */}
             <div
@@ -3414,19 +3401,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
               overflowY: "auto",
             }}
           >
-            <div
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                top: 11,
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 139,
-                height: 5,
-                borderRadius: 100,
-                backgroundColor: "rgba(0, 0, 0, 0.25)",
-              }}
-            />
+            <div className="maew-plan-modal-handle" aria-hidden="true" />
 
             <div
               style={{
@@ -3647,19 +3622,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
               overflowY: "auto",
             }}
           >
-            <div
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                top: 11,
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 139,
-                height: 5,
-                borderRadius: 100,
-                backgroundColor: "rgba(0, 0, 0, 0.25)",
-              }}
-            />
+            <div className="maew-plan-modal-handle" aria-hidden="true" />
 
             <div
               style={{
