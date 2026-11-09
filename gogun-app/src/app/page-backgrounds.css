@@ -1,0 +1,23 @@
+/* Shared page scenery: mountains at the top, sea at the bottom. */
+body,
+.app-frame-mobile > main,
+.demo-main > main,
+.maew-home-scene,
+.maew-auth,
+.maew-auth.maew-auth--home,
+.auth-scene,
+.auth-scene.auth-scene--home,
+.auth-scene.auth-scene--login,
+.maew-invite-page,
+.desktop-gate,
+.maew-auth-background,
+.auth-scene--register::before,
+.maew-invite-page.maew-invite-page::before {
+  background-image:
+    url("/images/background-mountain.png"),
+    url("/images/background-sea.png"),
+    linear-gradient(180deg, #fff9f4 0%, #ffeee7 52%, #fff7f1 100%);
+  background-position: center -100px, center bottom, center;
+  background-size: 100% auto, 100% auto, cover;
+  background-repeat: no-repeat;
+}

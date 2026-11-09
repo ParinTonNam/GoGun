@@ -7,6 +7,7 @@ import "./desktop-gate.css";
 import "./mobile-usability.css";
 import "./home-v2.css";
 import "./ui-consistency.css";
+import "./page-backgrounds.css";
 import { AppFrame } from "@/components/app-frame";
 import { LocaleProvider } from "@/lib/locale";
 import { TranslationObserver } from "@/components/translation-observer";
