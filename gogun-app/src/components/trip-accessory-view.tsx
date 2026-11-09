@@ -2132,7 +2132,8 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                         style={{
                           backgroundColor: "#14110d",
                           borderRadius: 12.43,
-                          padding: "5.327px 8.879px",
+                          minHeight: 36,
+                          padding: "6px 10px",
                           border: "none",
                           display: "inline-flex",
                           alignItems: "center",

@@ -15,7 +15,7 @@
 
 /* Primary actions: the same visible height and label size across forms and trip pages. */
 .app-frame-mobile :is(
-  .auth-submit, .auth-register-submit, .maew-auth-home-login,
+  .auth-submit, .auth-register-submit, .maew-auth-primary, .maew-auth-home-login,
   .maew-create-primary-btn, .maew-plan-modal-submit, .maew-plan-primary-btn,
   .maew-notifications-test-button, .maew-home-retry-btn,
   .workspace-button-primary, .maew-demo-register-link
