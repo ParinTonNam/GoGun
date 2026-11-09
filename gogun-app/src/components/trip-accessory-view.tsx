@@ -1475,6 +1475,8 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
               alignItems: "flex-start",
               justifyContent: "space-between",
               width: "100%",
+              flexWrap: "wrap",
+              gap: 8,
             }}
           >
             <h2
@@ -1495,13 +1497,13 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                 type="button"
                 onClick={() => openChecklistModal("add")}
                 style={{
-                  height: 26,
-                  padding: "6px 10px",
+                  height: 40,
+                  padding: "8px 12px",
                   borderRadius: 18,
                   border: "1px solid #e5e1d7",
                   backgroundColor: "#e85a2c",
                   color: "#ffffff",
-                  fontSize: 11.25,
+                  fontSize: 13,
                   fontWeight: 500,
                   lineHeight: "normal",
                   letterSpacing: "0.06px",
@@ -1517,14 +1519,14 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                 disabled={checklistItems.length === 0}
                 onClick={() => openChecklistModal("edit")}
                 style={{
-                  height: 26,
-                  padding: "6px 10px",
+                  height: 40,
+                  padding: "8px 12px",
                   borderRadius: 18,
                   border: "1px solid #e5e1d7",
                   backgroundColor: "#767168",
                   opacity: 0.5,
                   color: "#ffffff",
-                  fontSize: 11.25,
+                  fontSize: 13,
                   fontWeight: 500,
                   lineHeight: "normal",
                   letterSpacing: "0.06px",
@@ -1666,13 +1668,13 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                 type="button"
                 onClick={openAddPollModal}
                 style={{
-                  height: 26,
-                  padding: "6px 10px",
+                  height: 40,
+                  padding: "8px 12px",
                   borderRadius: 18,
                   border: "1px solid #e5e1d7",
                   backgroundColor: "#e85a2c",
                   color: "#ffffff",
-                  fontSize: 11.25,
+                  fontSize: 13,
                   fontWeight: 500,
                   lineHeight: "normal",
                   letterSpacing: "0.06px",
@@ -1741,14 +1743,14 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                         type="button"
                         onClick={() => openEditPollModal(poll)}
                         style={{
-                          height: 26,
-                          padding: "6px 10px",
+                          height: 40,
+                          padding: "8px 12px",
                           borderRadius: 18,
                           border: "1px solid #e5e1d7",
                           backgroundColor: "#767168",
                           opacity: 0.5,
                           color: "#ffffff",
-                          fontSize: 11.25,
+                          fontSize: 13,
                           fontWeight: 500,
                           lineHeight: "normal",
                           letterSpacing: "0.06px",
@@ -1770,7 +1772,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                     style={{
                       margin: 0,
                       paddingBottom: 12,
-                      fontSize: 11.5,
+                      fontSize: 12,
                       fontWeight: 300,
                       lineHeight: "normal",
                       letterSpacing: "0.08px",
@@ -1868,7 +1870,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                             width: 22,
                             flexShrink: 0,
                             textAlign: "right",
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 300,
                             letterSpacing: "0.08px",
                             color: "#767168",
@@ -1888,6 +1890,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
       ) : initialTab === "wheel" ? (
         /* Main White Card: แมวสุ่ม / กงล้อสุ่ม (Figma 788:3872 & 666:15742) */
         <section
+          className="maew-random-card"
           aria-label={wheelFunMode ? "แมวสุ่ม" : "กงล้อสุ่ม"}
           onClick={() => setSelectedCatTreatId(null)}
           style={{
@@ -1914,6 +1917,8 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
               alignItems: "flex-start",
               justifyContent: "space-between",
               width: "100%",
+              flexWrap: "wrap",
+              gap: 8,
             }}
           >
             <h2
@@ -1924,7 +1929,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                 lineHeight: "26.4px",
                 letterSpacing: "-0.24px",
                 color: "#e85a2c",
-                whiteSpace: "nowrap",
+                whiteSpace: "normal",
               }}
             >
               {wheelFunMode ? "แมวสุ่ม" : "กงล้อสุ่ม"}
@@ -1940,8 +1945,8 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                   setWheelFunMode((prev) => !prev);
                 }}
                 style={{
-                  height: 26,
-                  padding: "6px 10px",
+                  height: 40,
+                  padding: "8px 12px",
                   borderRadius: 18,
                   border: "1px solid #e5e1d7",
                   backgroundColor: "#e85a2c",
@@ -1957,7 +1962,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
               >
                 <span
                   style={{
-                    fontSize: 11.25,
+                    fontSize: 13,
                     fontWeight: 500,
                     lineHeight: "normal",
                     letterSpacing: "0.06px",
@@ -2011,13 +2016,13 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                   void handleClearWheel();
                 }}
                 style={{
-                  height: 26,
-                  padding: "6px 10px",
+                  height: 40,
+                  padding: "8px 12px",
                   borderRadius: 18,
                   border: "1px solid #e5e1d7",
                   backgroundColor: "#ffffff",
                   color: wheelOptions.length > 0 ? "#767168" : "#b5b0a4",
-                  fontSize: 11.25,
+                  fontSize: 13,
                   fontWeight: 500,
                   lineHeight: "normal",
                   letterSpacing: "0.06px",
@@ -2047,6 +2052,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
+                  width: "100%",
                   flexShrink: 0,
                   position: "relative",
                   zIndex: 30,
@@ -2056,8 +2062,9 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                 <div
                   style={{
                     position: "relative",
-                    width: 325.844,
-                    height: 73.654,
+                    width: "100%",
+                    maxWidth: 325.844,
+                    aspectRatio: "325.844 / 73.654",
                     flexShrink: 0,
                   }}
                 >
@@ -2068,6 +2075,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                     style={{
                       position: "absolute",
                       left: 7.99,
+                      right: 7.99,
                       top: "calc(50% - 0.06px)",
                       transform: "translateY(-50%)",
                       backgroundColor: "#ffffff",
@@ -2081,7 +2089,8 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                   >
                     <div
                       style={{
-                        width: 210.422,
+                        flex: "1 1 auto",
+                        minWidth: 0,
                         padding: "8.879px 0",
                         display: "flex",
                         alignItems: "center",
@@ -2157,7 +2166,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                         </svg>
                         <span
                           style={{
-                            fontSize: 9.988,
+                            fontSize: 12,
                             fontWeight: 500,
                             lineHeight: "normal",
                             letterSpacing: "0.1154px",
@@ -2320,7 +2329,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                         <span
                           style={{
                             width: isSelected || isDragging ? "100%" : 92,
-                            fontSize: 10.146,
+                            fontSize: 12,
                             fontWeight: isSelected || isDragging ? 500 : 400,
                             lineHeight: "normal",
                             color: isOut ? "#e85a2c" : isSelected || isDragging ? "#14110d" : "#757575",
@@ -2761,7 +2770,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                     </svg>
                     <span
                       style={{
-                        fontSize: 11.25,
+                        fontSize: 13,
                         fontWeight: 500,
                         lineHeight: "normal",
                         letterSpacing: "0.13px",
@@ -2892,7 +2901,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                           border: "1px solid #e5e1d7",
                           backgroundColor: running ? "#2e8b5c" : "#d9d9d9",
                           color: "#ffffff",
-                          fontSize: 11.25,
+                          fontSize: 13,
                           fontWeight: 500,
                           lineHeight: 1,
                           letterSpacing: "0.06px",
@@ -2929,13 +2938,13 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                         openYourColorSheet(preset);
                       }}
                       style={{
-                        height: 26,
-                        padding: "6px 10px",
+                        height: 40,
+                        padding: "8px 12px",
                         borderRadius: 18,
                         border: "1px solid #e5e1d7",
                         backgroundColor: "#e85a2c",
                         color: "#ffffff",
-                        fontSize: 11.25,
+                        fontSize: 13,
                         fontWeight: 500,
                         lineHeight: 1,
                         letterSpacing: "0.06px",
@@ -3043,7 +3052,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                 <p
                   style={{
                     margin: 0,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 400,
                     lineHeight: 1.5,
                     color: "#767168",
@@ -3114,7 +3123,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
                 <p
                   style={{
                     margin: 0,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 400,
                     lineHeight: 1.5,
                     color: "#767168",
