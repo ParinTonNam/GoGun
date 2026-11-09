@@ -1,4 +1,4 @@
-/* Shared page scenery: sea at the bottom, clear space behind headers. */
+/* Shared page scenery: mountains above and sea below on app pages. */
 body,
 .app-frame-mobile > main,
 .demo-main > main,
@@ -14,6 +14,20 @@ body,
 .auth-scene--register::before,
 .maew-invite-page.maew-invite-page::before {
   background-image:
+    url("/images/background-mountain.png"),
+    url("/images/background-sea.png"),
+    linear-gradient(180deg, #fff9f4 0%, #ffeee7 52%, #fff7f1 100%);
+  background-position: center -100px, center bottom, center;
+  background-size: 100% auto, 100% auto, cover;
+  background-repeat: no-repeat;
+}
+
+/* The welcome, login, registration, and password screens have no mountain header. */
+.app-frame-mobile > main.maew-auth,
+.app-frame-mobile > main.auth-scene,
+.maew-auth > .maew-auth-background,
+.auth-scene--register.auth-scene--register::before {
+  background-image:
     url("/images/background-sea.png"),
     linear-gradient(180deg, #fff9f4 0%, #ffeee7 52%, #fff7f1 100%);
   background-position: center bottom, center;
@@ -27,17 +41,15 @@ body,
 .maew-profile-page-scene > .maew-home-topbar,
 .app-page-brand-row,
 .workspace-header,
-.maew-invite-brand,
-.maew-auth:not(.maew-auth--home, .maew-auth--login) .maew-auth-header,
-.auth-scene:not(.auth-scene--home, .auth-scene--login) .auth-brand-header {
+.maew-invite-brand {
   background-color: rgb(255 249 244 / 78%);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* The first screen and login keep an unobstructed scenic header. */
-.maew-auth:is(.maew-auth--home, .maew-auth--login) .maew-auth-header,
-.auth-scene:is(.auth-scene--home, .auth-scene--login) .auth-brand-header {
+/* Auth headers have no separate background panel. */
+.maew-auth .maew-auth-header,
+.auth-scene .auth-brand-header {
   background-color: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
