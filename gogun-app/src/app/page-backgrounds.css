@@ -35,16 +35,16 @@ body,
   background-repeat: no-repeat;
 }
 
-/* Let the scenery show softly through logo headers on app pages. */
+/* Keep logo headers clear so the page scenery continues behind them. */
 .maew-home-topbar,
 .maew-home-scene:is(.maew-trip-fixed-scene, .maew-app-fixed-scene) > .maew-home-topbar,
 .maew-profile-page-scene > .maew-home-topbar,
 .app-page-brand-row,
 .workspace-header,
 .maew-invite-brand {
-  background-color: rgb(255 249 244 / 78%);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* Auth headers have no separate background panel. */
