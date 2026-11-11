@@ -305,7 +305,7 @@ export function ProfileView({ demoMode = false }: { demoMode?: boolean }) {
       <HomeHeroBanner activeTripsCount={activeTripsCount} variant="central" />
 
       {/* Main White Card (Figma 660:10560) */}
-      <section className="maew-home-card" aria-label="ข้อมูลโปรไฟล์และการตั้งค่า">
+      <section className="maew-home-card maew-profile-card" aria-label="ข้อมูลโปรไฟล์และการตั้งค่า">
         {/* Identity Row (Figma 660:10679) */}
         <div className="maew-profile-identity">
           <div className="maew-profile-identity-left">

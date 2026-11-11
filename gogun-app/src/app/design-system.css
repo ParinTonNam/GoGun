@@ -543,6 +543,7 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-home-ticket-copy p { margin:0; font-size:12px; font-weight:400; line-height:30.8px; letter-spacing:-.28px; color:rgba(255,255,255,.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 .maew-home-ticket-action { position:absolute; top:0; right:0; width:24.17%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4.18px; color:#fcede3; text-decoration:none; font-size:13.929px; font-weight:400; letter-spacing:.1114px; line-height:normal; text-align:center; }
 .maew-home-card { width:100%; max-width:362px; min-height:507px; flex-shrink:0; margin-top:10px; padding:20px 17px; border-radius:14px; background:#fff; display:flex; flex-direction:column; gap:15px; box-sizing:border-box; }
+.maew-trip-scroll-content > :is(.maew-home-trips-card,.maew-profile-card) { min-height:0; flex-grow:0; }
 .maew-home-empty { flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; padding:19px 30px 18px; text-align:center; box-sizing:border-box; }
 .maew-home-empty-avatar { width:110px; height:110px; border-radius:85px; overflow:hidden; background:transparent; display:flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:500; line-height:1; }
 .maew-home-empty-cat { width:100%; height:100%; object-fit:cover; display:block; }
@@ -819,7 +820,7 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-overview-date-help a { color:#b54b26; font-weight:600; text-decoration:underline; text-underline-offset:2px; }
 .maew-overview-divider { width:100%; height:1px; background:#e5e1d7; border:0; margin:0; }
 
-.maew-overview-members-card { width:100%; max-width:362px; min-height:352px; border-radius:14px; background:#fff; padding:20px 17px; display:flex; flex-direction:column; gap:25px; margin-top:10px; box-sizing:border-box; }
+.maew-overview-members-card { width:100%; max-width:362px; border-radius:14px; background:#fff; padding:20px 17px; display:flex; flex-direction:column; gap:20px; margin-top:10px; box-sizing:border-box; }
 .maew-overview-members-head { width:100%; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
 .maew-overview-members-title-wrap { display:flex; align-items:center; gap:10px; min-width:0; }
 .maew-overview-members-icon { width:24px; height:24px; display:block; flex-shrink:0; }

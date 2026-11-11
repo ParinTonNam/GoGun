@@ -108,7 +108,7 @@ export function TripsView({ demoMode = false }: { demoMode?: boolean }) {
       <HomeHeroBanner activeTripsCount={activeTrips.length} loading={loading} variant="central" />
 
       {/* Main White Card (Figma 796:6318 / 660:9358) */}
-      <section className="maew-home-card" aria-live="polite">
+      <section className="maew-home-card maew-home-trips-card" aria-live="polite">
         {loading ? (
           <div className="maew-home-loading" role="status" aria-label="กำลังโหลดทริปของคุณ">
             <span className="maew-home-loading-heading" aria-hidden="true" />
