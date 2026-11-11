@@ -510,8 +510,10 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-trip-hero-content { position:relative; z-index:1; width:100%; display:flex; flex-direction:column; align-items:flex-start; gap:15px; }
 .maew-trip-hero-top-row { width:100%; display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
 .maew-trip-hero-title { margin:0; font-size:24px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#fff; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.maew-trip-hero-edit-btn { height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e5e1d7; background:#fcede3; color:#767168; font-size:11.25px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; flex-shrink:0; white-space:nowrap; transition:transform .12s ease,background-color .15s ease,color .15s ease; }
+.maew-trip-hero-edit-btn { height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e85a2c; background:#fcede3; color:#a73d10; font-size:11.25px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; flex-shrink:0; white-space:nowrap; transition:transform .12s ease,background-color .15s ease,color .15s ease; }
 .maew-trip-hero-edit-btn[aria-current="page"] { background:#f0732b; color:#fff; border-color:#f0732b; }
+.maew-trip-hero-edit-btn:hover { background:#f9dbc8; }
+.maew-trip-hero-edit-btn[aria-current="page"]:hover { background:#d94d23; }
 .maew-trip-hero-edit-btn:active { transform:scale(.97); }
 .maew-trip-hero-date-row { display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap; }
 .maew-trip-hero-date { margin:0; font-size:20px; font-weight:300; line-height:26.4px; letter-spacing:-.24px; color:#fff; white-space:nowrap; }
@@ -562,6 +564,11 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-home-trip-row-title { margin:0; height:22px; font-size:14.5px; font-weight:500; line-height:22px; letter-spacing:.08px; color:#14110d; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 .maew-home-trip-row-sub { margin:0; min-height:20px; display:flex; align-items:center; flex-wrap:wrap; font-size:12px; font-weight:400; line-height:1.4; letter-spacing:-.28px; color:#615b53; max-width:100%; }
 .maew-floating-menu-backdrop { position:fixed; inset:0; z-index:58; width:100%; height:100%; border:0; padding:0; background:rgba(0,0,0,.75); cursor:default; }
+/* Reserve space inside the element that actually scrolls, including profile and short desktop viewports. */
+.maew-home-scene:has(> .maew-floating-menu) > .maew-trip-scroll-content { padding-bottom:calc(132px + env(safe-area-inset-bottom)); }
+@media (max-width:899px), (hover:none) and (pointer:coarse) {
+  .maew-home-scene:is(.maew-trip-fixed-scene,.maew-app-fixed-scene):has(> .maew-floating-menu) { padding-bottom:16px; }
+}
 .maew-floating-menu { position:fixed; right:calc(37px + env(safe-area-inset-right)); bottom:calc(34px + env(safe-area-inset-bottom)); z-index:59; width:min(220px,calc(100vw - 48px)); height:306px; pointer-events:none; }
 .maew-floating-menu-items { position:absolute; right:0; bottom:95px; width:100%; display:flex; flex-direction:column; gap:12px; opacity:0; visibility:hidden; transform:translateY(10px); pointer-events:none; transition:opacity .2s ease,transform .2s ease,visibility 0s linear .2s; }
 .maew-floating-menu.is-open .maew-floating-menu-items { opacity:1; visibility:visible; transform:translateY(0); pointer-events:auto; transition:opacity .2s ease,transform .2s ease,visibility 0s; }
@@ -751,7 +758,9 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-profile-info { display:flex; flex-direction:column; align-items:flex-start; gap:5px; min-width:0; flex:1; }
 .maew-profile-name { margin:0; font-size:15px; font-weight:500; letter-spacing:.08px; color:#14110d; line-height:normal; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .maew-profile-sub { margin:0; font-size:13px; font-weight:300; letter-spacing:.08px; color:#767168; line-height:normal; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.maew-profile-edit-btn { height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e5e1d7; background:#e85a2c; color:#fff; font:inherit; font-size:11.25px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+.maew-profile-edit-btn { height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e85a2c; background:#fcede3; color:#a73d10; font:inherit; font-size:11.25px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background-color .15s,transform .15s; }
+.maew-profile-edit-btn:hover { background:#f9dbc8; }
+.maew-profile-edit-btn:active { transform:scale(.97); }
 .maew-profile-stats { width:100%; padding:10px; border-radius:18px; border:1px solid #e5e1d7; background:#fff; display:flex; align-items:center; justify-content:center; gap:10px; }
 .maew-profile-stat-col { flex:1 0 0; min-width:0; display:flex; flex-direction:column; align-items:center; gap:5px; }
 .maew-profile-stat-num { margin:0; font-size:20px; font-weight:500; letter-spacing:.08px; color:#14110d; line-height:normal; text-align:center; }
@@ -818,9 +827,10 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-overview-members-actions { display:flex; align-items:center; justify-content:flex-end; gap:5px; flex-shrink:0; }
 .maew-overview-copy-btn { height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e5e1d7; background:#e85a2c; color:#fff; font:inherit; font-size:11.25px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:opacity .15s,transform .15s; }
 .maew-overview-copy-btn:active { transform:scale(.97); }
-.maew-overview-edit-pill { height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e5e1d7; background:#767168; opacity:.5; color:#fff; font:inherit; font-size:11.25px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:opacity .15s,transform .15s; }
-.maew-overview-edit-pill--solid { opacity:1; }
-.maew-overview-edit-pill:hover { opacity:.85; }
+.maew-overview-edit-pill { height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e85a2c; background:#fcede3; color:#a73d10; font:inherit; font-size:11.25px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background-color .15s,color .15s,transform .15s; }
+.maew-overview-edit-pill[aria-pressed="true"] { background:#e85a2c; color:#fff; }
+.maew-overview-edit-pill:hover { background:#f9dbc8; }
+.maew-overview-edit-pill[aria-pressed="true"]:hover { background:#d94d23; }
 .maew-overview-edit-pill:active { transform:scale(.97); }
 .maew-overview-members-grid { width:100%; display:grid; grid-template-columns:repeat(4,1fr); row-gap:25px; column-gap:12px; justify-items:center; align-items:start; }
 .maew-overview-member-item { position:relative; width:64px; display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; }

@@ -557,6 +557,7 @@ export function TripExpensesView({
               <button
                 type="button"
                 className="maew-overview-edit-pill"
+                aria-pressed={editingList}
                 onClick={() => setEditingList((v) => !v)}
               >
                 {editingList ? "เสร็จสิ้น" : "แก้ไข"}

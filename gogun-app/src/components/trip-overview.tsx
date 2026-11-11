@@ -330,7 +330,8 @@ export function TripOverview() {
             {isOrganizer && (
               <button
                 type="button"
-                className="maew-overview-edit-pill maew-overview-edit-pill--solid"
+                className="maew-overview-edit-pill"
+                aria-pressed={editingMembers}
                 onClick={() => setEditingMembers((v) => !v)}
               >
                 {editingMembers ? "เสร็จสิ้น" : "แก้ไข"}

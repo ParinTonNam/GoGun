@@ -956,6 +956,7 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
               <button
                 type="button"
                 className="maew-overview-edit-pill"
+                aria-pressed={editingItineraryList}
                 onClick={() => setEditingItineraryList((v) => !v)}
               >
                 {editingItineraryList ? "เสร็จสิ้น" : "แก้ไข"}
