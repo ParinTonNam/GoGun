@@ -219,6 +219,8 @@ function wheelSlicePath(startDeg: number, endDeg: number): string {
 
 type EventPresetId = "color_hunting" | "photo_hunt_bingo";
 
+const DISABLED_EVENT_PRESET_IDS = new Set<EventPresetId>(["photo_hunt_bingo"]);
+
 type EventPresetConfig = {
   id: EventPresetId;
   title: string;
@@ -1217,6 +1219,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
 
   const visiblePresets = useMemo(() => {
     return EVENT_PRESETS.filter((preset) => {
+      if (DISABLED_EVENT_PRESET_IDS.has(preset.id)) return false;
       const running = isPresetRunning(preset);
       if (eventFilter === "running") return running;
       if (eventFilter === "not_started") return !running;
@@ -1252,7 +1255,7 @@ export function TripAccessoryView({ initialTab = "event" }: { initialTab?: Acces
   }
 
   async function handleStartEvent() {
-    if (!activePreset || startingEvent || !canStartEvents) return;
+    if (!activePreset || DISABLED_EVENT_PRESET_IDS.has(activePreset.id) || startingEvent || !canStartEvents) return;
     setStartingEvent(true);
     try {
       const existing = findQuestForPreset(activePreset);
