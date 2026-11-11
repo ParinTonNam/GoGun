@@ -430,7 +430,7 @@ export function TripTicketSelector({
   titleOverride?: string;
   subtitleOverride?: string;
 }) {
-  const statusText = trip.date_status === "confirmed" ? "ยืนยันแล้ว" : "ยังไม่ยืนยัน";
+  const statusText = trip.date_status === "confirmed" ? "ยืนยันแล้ว" : "รอยืนยันวัน";
   const displayTitle = titleOverride ?? (trip.destination || trip.name);
   const displayDate = subtitleOverride ?? formatThaiShortDateRange(trip);
 

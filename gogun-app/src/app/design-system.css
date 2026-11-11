@@ -515,7 +515,7 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-trip-hero-edit-btn:active { transform:scale(.97); }
 .maew-trip-hero-date-row { display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap; }
 .maew-trip-hero-date { margin:0; font-size:20px; font-weight:300; line-height:26.4px; letter-spacing:-.24px; color:#fff; white-space:nowrap; }
-.maew-trip-hero-status-pill { height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e5e1d7; background:#fcede3; color:#d96843; font-size:11.25px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; white-space:nowrap; flex-shrink:0; }
+.maew-trip-hero-status-pill { height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e5e1d7; background:#fcede3; color:#b54b26; font-size:12px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; white-space:nowrap; flex-shrink:0; }
 
 .maew-section-tabs-card { position:relative; z-index:3; width:100%; max-width:362px; height:67.179px; margin-top:-26px; border-radius:14px; background:#fff; padding:5px 17px; display:flex; align-items:flex-start; justify-content:space-between; box-sizing:border-box; }
 .maew-section-tab-btn { flex:1 0 0; min-width:1px; align-self:stretch; height:57.179px; padding:5px 0; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4.179px; text-decoration:none; color:#767168; opacity:.5; transition:opacity .15s ease,background-color .15s ease,color .15s ease,transform .12s ease; box-sizing:border-box; }
@@ -560,7 +560,7 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-home-trip-row-icon { width:36px; height:36px; border-radius:10px; background:#f2efe8; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
 .maew-home-trip-row-body { display:flex; flex-direction:column; align-items:flex-start; min-width:0; flex:1; }
 .maew-home-trip-row-title { margin:0; height:22px; font-size:14.5px; font-weight:500; line-height:22px; letter-spacing:.08px; color:#14110d; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
-.maew-home-trip-row-sub { margin:0; height:20px; display:flex; align-items:center; font-size:10px; font-weight:400; line-height:20px; letter-spacing:-.28px; color:#767168; opacity:.5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.maew-home-trip-row-sub { margin:0; min-height:20px; display:flex; align-items:center; flex-wrap:wrap; font-size:12px; font-weight:400; line-height:1.4; letter-spacing:-.28px; color:#615b53; max-width:100%; }
 .maew-floating-menu-backdrop { position:fixed; inset:0; z-index:58; width:100%; height:100%; border:0; padding:0; background:rgba(0,0,0,.75); cursor:default; }
 .maew-floating-menu { position:fixed; right:calc(37px + env(safe-area-inset-right)); bottom:calc(34px + env(safe-area-inset-bottom)); z-index:59; width:min(220px,calc(100vw - 48px)); height:306px; pointer-events:none; }
 .maew-floating-menu-items { position:absolute; right:0; bottom:95px; width:100%; display:flex; flex-direction:column; gap:12px; opacity:0; visibility:hidden; transform:translateY(10px); pointer-events:none; transition:opacity .2s ease,transform .2s ease,visibility 0s linear .2s; }
@@ -802,9 +802,12 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-overview-field--editable .maew-overview-value { max-width:calc(100% - 70px); overflow-wrap:anywhere; }
 .maew-overview-field-head { width:100%; display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
 .maew-overview-label { margin:0; font-size:11px; font-weight:300; letter-spacing:.22px; color:#767168; line-height:normal; }
+.maew-overview-date-label { font-size:13px; font-weight:400; color:#615b53; }
 .maew-overview-value { margin:0; font-size:24px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#e85a2c; }
 .maew-overview-date-row { display:flex; align-items:flex-end; gap:14px; flex-wrap:wrap; color:#e85a2c; width:100%; }
-.maew-overview-date-status { margin:0; font-size:15px; font-weight:400; line-height:26.4px; color:#e85a2c; opacity:.5; white-space:nowrap; }
+.maew-overview-date-status { margin:0; font-size:15px; font-weight:400; line-height:26.4px; color:#b54b26; white-space:nowrap; }
+.maew-overview-date-help { margin:0; max-width:100%; color:#615b53; font-size:13px; line-height:1.5; }
+.maew-overview-date-help a { color:#b54b26; font-weight:600; text-decoration:underline; text-underline-offset:2px; }
 .maew-overview-divider { width:100%; height:1px; background:#e5e1d7; border:0; margin:0; }
 
 .maew-overview-members-card { width:100%; max-width:362px; min-height:352px; border-radius:14px; background:#fff; padding:20px 17px; display:flex; flex-direction:column; gap:25px; margin-top:10px; box-sizing:border-box; }
@@ -871,8 +874,9 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-plan-cal-cell:not(:disabled):active { transform:scale(.95); }
 .maew-plan-cal-daynum { font-size:13px; font-weight:500; letter-spacing:.08px; line-height:1.1; }
 .maew-plan-cal-sub { font-size:8.5px; font-weight:300; line-height:1; white-space:nowrap; }
+.maew-plan-calendar-note { margin:0; width:100%; color:#615b53; font-size:13px; line-height:1.5; }
 
-.maew-plan-hint { margin:0; font-size:12px; font-weight:400; line-height:22px; letter-spacing:-.24px; color:#e85a2c; opacity:.5; width:100%; text-align:left; }
+.maew-plan-hint { margin:0; font-size:13px; font-weight:400; line-height:1.5; letter-spacing:-.24px; color:#b54b26; width:100%; text-align:left; }
 .maew-plan-brush-row { width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .maew-plan-brush-label { margin:0; font-size:15px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#e85a2c; white-space:nowrap; }
 .maew-plan-brush-pills { display:flex; align-items:center; gap:5px; flex-wrap:wrap; justify-content:flex-end; }

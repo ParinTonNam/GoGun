@@ -248,6 +248,7 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
   const [confirmStartDate, setConfirmStartDate] = useState("");
   const [confirmEndDate, setConfirmEndDate] = useState("");
   const [confirmingSaving, setConfirmingSaving] = useState(false);
+  const [confirmError, setConfirmError] = useState("");
   const [datesConfirmedLocal, setDatesConfirmedLocal] = useState(
     trip.date_status === "confirmed"
   );
@@ -428,6 +429,7 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
     const fallback = getTripStartEndIso(trip);
     setConfirmStartDate(startIso || fallback.startIso);
     setConfirmEndDate(endIso || fallback.endIso);
+    setConfirmError("");
     setConfirmSheetClosing(false);
     setConfirmSheetOpen(true);
   }
@@ -443,8 +445,7 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
   async function handleConfirmTripDates() {
     if (confirmingSaving || !confirmStartDate || !confirmEndDate) return;
     setConfirmingSaving(true);
-    setConfirmedRangeOverride({ start: confirmStartDate, end: confirmEndDate });
-    setDatesConfirmedLocal(true);
+    setConfirmError("");
     try {
       const start = new Date(`${confirmStartDate}T00:00:00`);
       const end = new Date(`${confirmEndDate}T00:00:00`);
@@ -458,10 +459,12 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
         date_status: "confirmed",
         duration_days: duration,
       });
+      setConfirmedRangeOverride({ start: confirmStartDate, end: confirmEndDate });
+      setDatesConfirmedLocal(true);
       refresh();
       closeConfirmDaySheet();
     } catch {
-      closeConfirmDaySheet();
+      setConfirmError("ยืนยันวันไม่สำเร็จ กรุณาลองอีกครั้ง");
     } finally {
       setConfirmingSaving(false);
     }
@@ -701,6 +704,12 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
             </div>
           </div>
 
+          <p className="maew-plan-calendar-note">
+            {isSummaryMode
+              ? "สีเขียว = ทุกคนว่างตรงกัน ยังไม่ใช่วันเดินทางที่ยืนยันแล้ว"
+              : "สีเขียว = วันว่างของสมาชิกที่เลือก ยังไม่ใช่วันเดินทางที่ยืนยันแล้ว"}
+          </p>
+
           {/* 7-Column Calendar Grid */}
           <div className="maew-plan-cal-grid">
             <div className="maew-plan-cal-row">
@@ -801,6 +810,7 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
           {/* Footer Controls inside Card 1 */}
           {isSummaryMode ? (
             <>
+              <p className="maew-plan-calendar-note">เลือกช่วงวันที่ แล้วกด “ยืนยันวัน” เพื่อกำหนดวันเดินทาง</p>
               <hr className="maew-overview-divider" />
 
               <div className="maew-plan-summary-sec">
@@ -852,8 +862,11 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
             </>
           ) : (
             <>
-              <p className="maew-plan-hint">
-                สามารถเลือกเลือกสถานะแล้วสามารกลากเพื่อแก้ไขวันได้เลย
+              <p className="maew-plan-hint">เลือกสถานะแล้วลากบนปฏิทินเพื่อระบุวันว่าง</p>
+              <p className="maew-plan-calendar-note">
+                {isOrganizer
+                  ? "ต่อไป กด “สรุปวันว่าง” เพื่อเลือกช่วงวัน แล้วกด “ยืนยันวัน”"
+                  : "ระบุวันว่างของคุณ แล้วรอผู้จัดทริปยืนยันวันเดินทาง"}
               </p>
 
               <div className="maew-plan-brush-row">
@@ -1241,6 +1254,7 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
               </div>
             </div>
 
+            {confirmError && <p className="maew-plan-modal-error" role="alert">{confirmError}</p>}
             <button
               type="button"
               className="maew-plan-modal-submit"

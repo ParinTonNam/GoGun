@@ -87,7 +87,7 @@ export default function InviteClient({ inviteCode }: { inviteCode: string }) {
       </section> : <>
         <section className="maew-invite-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(63,31,87,.25), transparent 75%), url("${getTripCoverImage(trip.theme)}")` }}>
           <h1>คุณได้รับเชิญเข้าทริป<br /><span data-user-content>{trip.name}</span></h1>
-          <div className="maew-invite-hero-meta"><span>{trip.proposed_start_date || trip.confirmed_start_date ? formatThaiShortDateRange(trip) : "ยังไม่กำหนดวัน"}</span><span className="maew-invite-status">{trip.date_status === "confirmed" ? "ยืนยันแล้ว" : "ยังไม่ยืนยัน"}</span></div>
+          <div className="maew-invite-hero-meta"><span>{trip.proposed_start_date || trip.confirmed_start_date ? formatThaiShortDateRange(trip) : "ยังไม่กำหนดวัน"}</span><span className="maew-invite-status">{trip.date_status === "confirmed" ? "ยืนยันแล้ว" : "รอยืนยันวัน"}</span></div>
         </section>
 
         {reviewing ? <section className="maew-invite-card maew-invite-choice" aria-labelledby="join-review">

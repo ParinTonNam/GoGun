@@ -35,7 +35,7 @@ function SectionChevron({ isOpen }: { isOpen: boolean }) {
 }
 
 function TripListItem({ trip, demoMode = false }: { trip: Trip; demoMode?: boolean }) {
-  const statusText = trip.date_status === "confirmed" ? "ยืนยันแล้ว" : "ยังไม่ยืนยัน";
+  const statusText = trip.date_status === "confirmed" ? "ยืนยันแล้ว" : "วันที่เสนอ · รอยืนยันวัน";
   return (
     <Link href={demoMode ? "/trips/demo/trip" : `/trips/${trip.id}`} className="maew-home-trip-row">
       <div className="maew-home-trip-row-icon" aria-hidden="true">
@@ -52,7 +52,7 @@ function TripListItem({ trip, demoMode = false }: { trip: Trip; demoMode?: boole
       <div className="maew-home-trip-row-body">
         <p className="maew-home-trip-row-title">{trip.name}</p>
         <p className="maew-home-trip-row-sub">
-          {formatTripDateRange(trip)} · {statusText}
+          <span>{formatTripDateRange(trip)}</span><span aria-hidden="true"> · </span><span>{statusText}</span>
         </p>
       </div>
     </Link>

@@ -285,13 +285,21 @@ export function TripOverview() {
             className="maew-overview-field-icon"
           />
           <div className="maew-overview-field">
-            <p className="maew-overview-label">วันที่เดินทาง</p>
+            <p className="maew-overview-label maew-overview-date-label">{trip.date_status === "confirmed" ? "วันที่เดินทาง" : "ช่วงวันที่เสนอ"}</p>
             <div className="maew-overview-date-row">
               <p className="maew-overview-value">{formatThaiShortDateRange(trip)}</p>
               <p className="maew-overview-date-status">
-                {trip.date_status === "confirmed" ? "(ยืนยันแล้ว)" : "(ยังไม่ยืนยัน)"}
+                {trip.date_status === "confirmed" ? "(ยืนยันแล้ว)" : "(รอยืนยันวัน)"}
               </p>
             </div>
+            {trip.date_status !== "confirmed" && (
+              <p className="maew-overview-date-help">
+                วันสีเขียวในปฏิทินหมายถึงวันว่าง ยังไม่ใช่วันเดินทางที่ยืนยันแล้ว{" "}
+                <Link href={`/trips/${trip.id}/plan`}>
+                  {isOrganizer ? "ดูวันว่างและยืนยันวัน" : "ดูวันว่างของฉัน"}
+                </Link>
+              </p>
+            )}
           </div>
         </div>
       </section>
