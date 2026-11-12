@@ -18,6 +18,8 @@ import {
 import { inviteUrl } from "@/lib/invite";
 import { TRIP_ICONS, TRIP_THEMES, type TripThemeId } from "@/lib/trip-themes";
 import { HomeBottomNav, MaewTopbar } from "@/components/trip-ticket-selector";
+import { useLocale } from "@/lib/locale";
+import { formatTripDayLabel } from "@/lib/day-label";
 import {
   localCalendarDate,
   readTripDraft,
@@ -90,6 +92,7 @@ const PROGRESS_CONFIG: Record<1 | 2 | 3 | 4, { width: string; catLeft: string }>
 };
 
 export default function NewTripPage() {
+  const { locale } = useLocale();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -332,7 +335,7 @@ export default function NewTripPage() {
             const savedDay = await addDay(trip.id, {
               day_number: day.dayNumber,
               date: isoDate,
-              label: `Day ${day.dayNumber}`,
+              label: formatTripDayLabel(day.dayNumber, locale),
             });
             for (let i = 0; i < day.activities.length; i++) {
               const act = day.activities[i];
@@ -486,7 +489,7 @@ export default function NewTripPage() {
 
               <h1 className="maew-create-title">แต่ละวันเที่ยวไหนบ้าง</h1>
               <p className="maew-create-subtitle maew-create-subtitle--spaced">
-                ปรับได้ทุกอย่างทีหลังในเมนู Plan Trip
+                ปรับได้ทุกอย่างทีหลังในเมนูแพลนวันเที่ยว
               </p>
 
               {days.length > 0 && <div className="maew-create-divider" />}
@@ -494,7 +497,7 @@ export default function NewTripPage() {
               {days.map((day) => (
                 <div key={day.dayNumber} className="maew-create-day-block">
                   <div className="maew-create-day-head">
-                    <h2 className="maew-create-day-title">Day {day.dayNumber}</h2>
+                    <h2 className="maew-create-day-title">{formatTripDayLabel(day.dayNumber, locale)}</h2>
                     <button
                       type="button"
                       onClick={() => openPlanModal(day.dayNumber)}

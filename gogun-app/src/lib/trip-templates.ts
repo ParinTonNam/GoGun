@@ -27,7 +27,7 @@ export type TripTemplate = {
 export const TEMPLATE_FILTERS = [
   "ทั้งหมด",
   "มาแรงช่วงนี้",
-  "1 เดย์ทริป",
+  "เที่ยววันเดียว",
   "ทริปใหญ่ก๊วนเพื่อน",
   "ทริปต่างประเทศ",
 ] as const;
@@ -150,7 +150,7 @@ export const TRIP_TEMPLATES: TripTemplate[] = [
           {
             time: "08:30",
             title: "ถึงสนามบินอินชอน",
-            description: "นั่ง AREX เข้าตัวเมืองโซลและฝากกระเป๋า",
+            description: "นั่งรถไฟด่วนเข้าเมืองโซลและฝากกระเป๋า",
           },
           {
             time: "11:00",
@@ -200,7 +200,7 @@ export const TRIP_TEMPLATES: TripTemplate[] = [
     trip_type: "overnight",
     duration_days: 2,
     currency: "THB",
-    tags: ["มาแรงช่วงนี้", "1 เดย์ทริป", "ทริปใหญ่ก๊วนเพื่อน"],
+    tags: ["มาแรงช่วงนี้", "ทริปใหญ่ก๊วนเพื่อน"],
     days: [
       {
         label: "เมืองเก่าภูเก็ต · แหลมพรหมเทพ",
@@ -281,7 +281,7 @@ export const TRIP_TEMPLATES: TripTemplate[] = [
           {
             time: "14:00",
             title: "ขึ้นกระเช้าสู่กรินเดลวัลด์ เฟิร์ส",
-            description: "เดินเทรล Bachalpsee และถ่ายรูปวิวเทือกเขาแอลป์",
+            description: "เดินเส้นทางทะเลสาบบาคาลป์เซและถ่ายรูปวิวเทือกเขาแอลป์",
           },
           {
             time: "18:30",
@@ -295,12 +295,12 @@ export const TRIP_TEMPLATES: TripTemplate[] = [
         activities: [
           {
             time: "08:30",
-            title: "รถไฟขึ้นจุดชมวิว Gornergrat",
+            title: "รถไฟขึ้นจุดชมวิวกอร์เนอร์กรัท",
             description: "ชมยอดเขาแมทเทอร์ฮอร์นแบบพาโนรามา",
           },
           {
             time: "12:00",
-            title: "เดินเทรลทะเลสาบ Riffelsee",
+            title: "เดินเส้นทางทะเลสาบริฟเฟลเซ",
             description: "ถ่ายภาพเงาสะท้อนยอดเขาแมทเทอร์ฮอร์นบนผิวน้ำ",
           },
           {
@@ -329,7 +329,7 @@ export const TRIP_TEMPLATES: TripTemplate[] = [
           {
             time: "09:00",
             title: "ถึงสนามบินเถาหยวน เข้าเมืองไทเป",
-            description: "นั่งรถไฟด่วนเข้าสถานี Taipei Main Station",
+            description: "นั่งรถไฟด่วนเข้าสถานีไทเปเมน",
           },
           {
             time: "11:30",
@@ -379,19 +379,19 @@ export const TRIP_TEMPLATES: TripTemplate[] = [
     trip_type: "one_day",
     duration_days: 1,
     currency: "SGD",
-    tags: ["1 เดย์ทริป", "ทริปต่างประเทศ"],
+    tags: ["เที่ยววันเดียว", "ทริปต่างประเทศ"],
     days: [
       {
         label: "มารีน่าเบย์ · การ์เด้นส์ บาย เดอะ เบย์",
         activities: [
           {
             time: "09:00",
-            title: "ถึงสนามบินชางงี & น้ำตก Jewel",
-            description: "ถ่ายรูปน้ำตกในร่ม HSBC Rain Vortex",
+            title: "ถึงสนามบินชางงีและน้ำตกจูเวล",
+            description: "ถ่ายรูปน้ำตกในร่มเรนวอร์เท็กซ์",
           },
           {
             time: "11:30",
-            title: "ข้าวมันไก่เทียนเทียน Maxwell Food Centre",
+            title: "ข้าวมันไก่เทียนเทียนที่ศูนย์อาหารแมกซ์เวลล์",
             description: "มื้อเที่ยงสตรีทฟู้ดชื่อดังย่านไชน่าทาวน์",
           },
           {
@@ -401,13 +401,13 @@ export const TRIP_TEMPLATES: TripTemplate[] = [
           },
           {
             time: "17:00",
-            title: "Gardens by the Bay",
-            description: "เดินชม Cloud Forest และ Supertree Grove",
+            title: "สวนการ์เด้นส์ บาย เดอะ เบย์",
+            description: "เดินชมสวนคลาวด์ฟอเรสต์และกลุ่มต้นไม้ยักษ์",
           },
           {
             time: "19:45",
-            title: "โชว์แสงสีเสียง Garden Rhapsody",
-            description: "ชมการแสดงไฟใต้ต้นยักษ์ Supertree ยามค่ำคืน",
+            title: "ชมการแสดงแสงสีเสียงการ์เด้นแรปโซดี",
+            description: "ชมการแสดงไฟใต้ต้นไม้ยักษ์ยามค่ำคืน",
           },
         ],
       },
@@ -418,14 +418,14 @@ export const TRIP_TEMPLATES: TripTemplate[] = [
 const LEGACY_TEMPLATES: TripTemplate[] = [
   {
     id: "bangsaen",
-    name: "One Day Trip บางแสน",
+    name: "เที่ยวบางแสนวันเดียว",
     destination: "บางแสน ชลบุรี",
     emoji: "🏖️",
     meta: "ชลบุรี 5 คน",
     trip_type: "one_day",
     duration_days: 1,
     currency: "THB",
-    tags: ["มาแรงช่วงนี้", "1 เดย์ทริป"],
+    tags: ["มาแรงช่วงนี้", "เที่ยววันเดียว"],
     days: [
       {
         label: "เที่ยวบางแสน",
@@ -447,7 +447,7 @@ const LEGACY_TEMPLATES: TripTemplate[] = [
     trip_type: "one_day",
     duration_days: 1,
     currency: "THB",
-    tags: ["1 เดย์ทริป"],
+    tags: ["เที่ยววันเดียว"],
     days: [
       {
         label: "รอบเกาะเมืองอยุธยา",

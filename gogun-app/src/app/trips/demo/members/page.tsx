@@ -144,7 +144,7 @@ export default function MembersPage() {
                       className="text-[12px] font-medium tracking-[0.08px]"
                       style={{ color: member.isOrganizer ? "#e85a2c" : "#d9a21b" }}
                     >
-                      {member.isOrganizer ? "คนจัดทริป · HOST" : "รอเข้าร่วม"}
+                      {member.isOrganizer ? "ผู้จัดทริป" : "รอเข้าร่วม"}
                     </p>
                   </div>
                 </div>

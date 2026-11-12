@@ -16,6 +16,8 @@ import {
 } from "@/lib/api";
 import { HomeBottomNav, HomeHeroBanner, MaewDropdown, MaewTopbar } from "@/components/trip-ticket-selector";
 import { getDemoTrip, getDemoUser } from "@/lib/demo-trip-data";
+import { useLocale } from "@/lib/locale";
+import { formatTripDayLabel } from "@/lib/day-label";
 import {
   TEMPLATE_FILTERS,
   TRIP_TEMPLATES,
@@ -93,6 +95,7 @@ function TicketBanner() {
 }
 
 export function RecommendView({ demoMode = false }: { demoMode?: boolean }) {
+  const { locale } = useLocale();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(() => demoMode ? getDemoUser() : null);
   const [trips, setTrips] = useState<Trip[]>(() => demoMode ? [getDemoTrip()] : []);
@@ -316,10 +319,10 @@ export function RecommendView({ demoMode = false }: { demoMode?: boolean }) {
                 <MaewDropdown
                   ariaLabel="เลือกวันเที่ยว"
                   value={String(selectedDayIdx)}
-                  displayLabel={`Day ${selectedDayIdx + 1}`}
+                  displayLabel={formatTripDayLabel(selectedDayIdx + 1, locale)}
                   options={selectedTemplate.days.map((d, idx) => ({
                     value: String(idx),
-                    label: `Day ${idx + 1} — ${d.label}`,
+                    label: `${formatTripDayLabel(idx + 1, locale)} — ${d.label}`,
                   }))}
                   onChange={(val) => setSelectedDayIdx(Number(val))}
                   minMenuWidth={160}

@@ -13,6 +13,8 @@ import {
 } from "@/lib/api";
 import { getTemplate } from "@/lib/trip-templates";
 import { MaewDropdown } from "@/components/trip-ticket-selector";
+import { useLocale } from "@/lib/locale";
+import { formatTripDayLabel } from "@/lib/day-label";
 
 function upcomingSaturdayISO(offsetDays = 0): string {
   const d = new Date();
@@ -28,6 +30,7 @@ export default function TemplateDetailPage({
 }) {
   const { templateId } = use(params);
   const router = useRouter();
+  const { locale } = useLocale();
   const template = getTemplate(templateId);
 
   const [user, setUser] = useState<User | null>(null);
@@ -150,10 +153,10 @@ export default function TemplateDetailPage({
           <MaewDropdown
             ariaLabel="เลือกวันเที่ยว"
             value={String(selectedDayIdx)}
-            displayLabel={`Day ${selectedDayIdx + 1}`}
+            displayLabel={formatTripDayLabel(selectedDayIdx + 1, locale)}
             options={template.days.map((d, idx) => ({
               value: String(idx),
-              label: `Day ${idx + 1} — ${d.label}`,
+              label: `${formatTripDayLabel(idx + 1, locale)} — ${d.label}`,
             }))}
             onChange={(val) => setSelectedDayIdx(Number(val))}
             minMenuWidth={160}

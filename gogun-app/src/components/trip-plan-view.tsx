@@ -28,6 +28,8 @@ import {
   type Trip,
 } from "@/lib/api";
 import { useDragPaint } from "@/lib/use-drag-paint";
+import { useLocale } from "@/lib/locale";
+import { formatTripDayLabel } from "@/lib/day-label";
 
 type AvailabilityStatus = "available" | "uncertain" | "unavailable";
 
@@ -195,6 +197,7 @@ function CalendarInputIcon() {
 }
 
 export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMode?: boolean }) {
+  const { locale } = useLocale();
   const { trip, me, permissions, refresh } = useTripWorkspace();
   const isOrganizer = permissions.isOrganizer;
   const avatarBg = me?.avatar_color || "#c0613e";
@@ -939,14 +942,14 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
             <MaewDropdown
               ariaLabel="เลือกวันที่ต้องการดูแพลน"
               value={String(activeDay?.day_number ?? 1)}
-              displayLabel={`Day ${activeDay ? activeDay.day_number : 1}`}
+              displayLabel={formatTripDayLabel(activeDay?.day_number ?? 1, locale)}
               options={
                 days.length > 0
                   ? days.map((d) => ({
                       value: String(d.day_number),
-                      label: `Day ${d.day_number}`,
+                      label: formatTripDayLabel(d.day_number, locale),
                     }))
-                  : [{ value: "1", label: "Day 1" }]
+                  : [{ value: "1", label: formatTripDayLabel(1, locale) }]
               }
               onChange={(val) => setSelectedDayNum(Number(val))}
               minMenuWidth={120}
@@ -1020,8 +1023,8 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
                         <p className="maew-wiz-activity-time">{act.time || "--:--"}</p>
                       </div>
                       <div className="maew-wiz-activity-body">
-                        <p className="maew-wiz-activity-title">{title}</p>
-                        {desc && <p className="maew-wiz-activity-desc">{desc}</p>}
+                        <p className="maew-wiz-activity-title" data-user-content>{title}</p>
+                        {desc && <p className="maew-wiz-activity-desc" data-user-content>{desc}</p>}
                       </div>
                     </div>
 

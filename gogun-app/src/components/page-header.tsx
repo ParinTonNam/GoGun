@@ -42,7 +42,7 @@ export function PageHeader({
             >
               {user.display_name.trim().slice(0, 1)}
             </span>
-            <span className="text-[14px] font-medium text-[#14110d]">
+            <span className="text-[14px] font-medium text-[#14110d]" data-user-content>
               {user.display_name}
             </span>
           </Link>

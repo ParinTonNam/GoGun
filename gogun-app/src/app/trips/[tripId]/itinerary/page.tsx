@@ -337,7 +337,7 @@ export default function ItineraryPage({
                 {/* Day label — แก้/ลบ ได้เฉพาะโหมดแก้ไข */}
                 <div className="mb-[8px] flex h-[32px] items-center gap-[8px]">
                   {!editMode ? (
-                    <p className="flex-1 text-left text-[15px] font-medium text-[#14110d]">
+                    <p className="flex-1 text-left text-[15px] font-medium text-[#14110d]" data-user-content>
                       {day.label}
                     </p>
                   ) : editLabelId === day.id ? (
@@ -355,6 +355,7 @@ export default function ItineraryPage({
                       type="button"
                       onClick={() => startEditLabel(day)}
                       className="flex-1 text-left text-[15px] font-medium text-[#14110d]"
+                      data-user-content
                     >
                       {day.label}
                     </button>

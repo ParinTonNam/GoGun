@@ -219,6 +219,7 @@ export default function ItineraryPage() {
                       type="button"
                       onClick={() => startEditLabel(day)}
                       className="text-left text-[15px] font-medium text-[#14110d]"
+                      data-user-content
                     >
                       {day.label}
                     </button>
@@ -231,7 +232,7 @@ export default function ItineraryPage() {
                     <div className="w-[44px] shrink-0">
                       <p className="text-[12px] text-[#767168]">{act.time}</p>
                     </div>
-                    <p className="flex-1 text-[13px] text-[#14110d]">{act.title}</p>
+                    <p className="flex-1 text-[13px] text-[#14110d]" data-user-content>{act.title}</p>
                   </div>
                 ))}
 

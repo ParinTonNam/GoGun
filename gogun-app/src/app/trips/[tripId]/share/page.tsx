@@ -39,7 +39,7 @@ export default function SharePage() {
     <div className="workspace-page-heading"><div><h1>ชวนเพื่อนเข้าทริป</h1><p className="workspace-meta" data-user-content>{trip.name}</p></div><Link className="workspace-link" href={tripPath(trip.id, "/group")}>กลับไปที่กลุ่ม</Link></div>
     <div className="workspace-grid">
       <section className="workspace-card">
-        <h2>ส่งลิงก์ให้เพื่อน</h2><p>เพื่อนเลือกล็อกอินหรือ Guest ตั้งชื่อเอง แล้วยืนยันเข้าร่วมทริปได้ทันที</p>
+        <h2>ส่งลิงก์ให้เพื่อน</h2><p>เพื่อนเลือกล็อกอินหรือเข้าร่วมชั่วคราว ตั้งชื่อเอง แล้วยืนยันเข้าร่วมทริปได้ทันที</p>
         <label htmlFor="trip-invite-link">ลิงก์เชิญ</label>
         <input ref={input} id="trip-invite-link" value={url} readOnly onFocus={(event) => event.target.select()} className="min-h-[48px] w-full min-w-0 rounded-[12px] border border-[#e5e1d7] bg-white px-[12px] py-[10px]" />
         <div className="workspace-actions"><button className="workspace-button workspace-button-primary" onClick={copyLink}>คัดลอกลิงก์</button><button className="workspace-button" onClick={shareLink}>แชร์ลิงก์</button></div>

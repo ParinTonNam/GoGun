@@ -23,9 +23,9 @@ export type TripType = {
 };
 
 export const TRIP_TYPES: TripType[] = [
-  { code: "one_day", label: "เที่ยววันเดียว (One Day Trip)", defaultDays: 1 },
+  { code: "one_day", label: "เที่ยววันเดียว", defaultDays: 1 },
   { code: "overnight", label: "เที่ยวค้างคืน 2-3 วัน", defaultDays: 3 },
-  { code: "long", label: "ทริปยาว (Weekend Trip)", defaultDays: 5 },
+  { code: "long", label: "ทริปยาว", defaultDays: 5 },
 ];
 
 export type Currency = {

@@ -368,7 +368,7 @@ export function TripOverview() {
                   )}
                 </div>
                 <p className="maew-overview-member-name">{member.user.display_name}</p>
-                {isHost && <p className="maew-overview-member-host">HOST</p>}
+                {isHost && <p className="maew-overview-member-host">ผู้จัดทริป</p>}
               </div>
             );
           })}

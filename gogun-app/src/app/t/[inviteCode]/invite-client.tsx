@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import { getTripByInvite, claimMember, joinAsGuest, joinTripByInvite, getMe, ApiError, type Trip, type User } from "@/lib/api";
 import { getCatAvatarUrl, formatThaiShortDateRange } from "@/components/trip-ticket-selector";
 import { getTripCoverImage } from "@/lib/trip-themes";
+import { useLocale } from "@/lib/locale";
 import "./invite.css";
 
 export default function InviteClient({ inviteCode }: { inviteCode: string }) {
+  const { locale } = useLocale();
   const router = useRouter();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [me, setMe] = useState<User | null>(null);
@@ -93,8 +95,8 @@ export default function InviteClient({ inviteCode }: { inviteCode: string }) {
         {reviewing ? <section className="maew-invite-card maew-invite-choice" aria-labelledby="join-review">
           <h2 id="join-review">ยืนยันเข้าร่วมทริป</h2>
           <p>ทริป <strong data-user-content>{trip.name}</strong></p>
-          <p>ใช้ชื่อ <strong>{selectedName}</strong> · {mode === "guest" ? "Guest" : "บัญชีที่ล็อกอิน"}</p>
-          <p className="maew-invite-hint">{mode === "guest" ? "ชื่อ Guest นี้ใครที่มีลิงก์ก็เลือกเข้าใช้ได้ ผูกบัญชีภายหลังเพื่อล็อกชื่อได้" : "ชื่อนี้เข้าใช้ได้ด้วยการล็อกอินบัญชีของคุณเท่านั้น"}</p>
+          <p>ใช้ชื่อ <strong data-user-content>{selectedName}</strong> · {mode === "guest" ? "ผู้เข้าร่วมชั่วคราว" : "บัญชีที่ล็อกอิน"}</p>
+          <p className="maew-invite-hint">{mode === "guest" ? "ชื่อนี้ใครที่มีลิงก์ก็เลือกเข้าใช้ได้ ผูกบัญชีภายหลังเพื่อล็อกชื่อได้" : "ชื่อนี้เข้าใช้ได้ด้วยการล็อกอินบัญชีของคุณเท่านั้น"}</p>
           <p className="maew-invite-hint">ยืนยันแล้วเข้าทริปได้ทันที ไม่ต้องรอผู้จัดอนุมัติ</p>
           {error && <p className="maew-invite-form-error" role="alert">{error}</p>}
           <button type="button" className="maew-invite-primary" onClick={confirmJoin} disabled={busy}>{busy ? "กำลังเข้าทริป…" : "ยืนยันและเข้าทริป"}</button>
@@ -103,7 +105,7 @@ export default function InviteClient({ inviteCode }: { inviteCode: string }) {
           <h2 id="join-choice-heading">ต้องการเข้าร่วมแบบไหน?</h2>
           <div className="maew-invite-options">
             <button type="button" className="maew-invite-option" aria-pressed={mode === "account"} onClick={() => setMode("account")}><strong>ล็อกอิน</strong><small>ใช้บัญชีของฉัน</small></button>
-            <button type="button" className="maew-invite-option" aria-pressed={mode === "guest"} onClick={() => setMode("guest")}><strong>Guest</strong><small>ตั้งชื่อ ไม่ต้องสมัคร</small></button>
+            <button type="button" className="maew-invite-option" aria-pressed={mode === "guest"} onClick={() => setMode("guest")}><strong>ผู้เข้าร่วมชั่วคราว</strong><small>ตั้งชื่อ ไม่ต้องสมัคร</small></button>
           </div>
           {mode === "account" && (accountReady ? <div className="maew-invite-mode-content">
             <p className="maew-invite-hint">เข้าร่วมในชื่อ <strong data-user-content>{me.display_name}</strong></p>
@@ -115,17 +117,17 @@ export default function InviteClient({ inviteCode }: { inviteCode: string }) {
             <p className="maew-invite-signup">ถ้ายังไม่มีแอคเคาท์ ? <Link href={`/signin?returnTo=${encodeURIComponent(returnTo)}`}>ลงทะเบียนเลย</Link></p>
           </div>)}
           {mode === "guest" && <form className="maew-invite-mode-content maew-invite-guest-form" onSubmit={e => { e.preventDefault(); if (selectedGuest || name.trim()) setReviewing(true); }}>
-            <p className="maew-invite-hint">ใครมีลิงก์ก็เข้าร่วมเป็น Guest ได้ เมื่อตั้งชื่อจะปรากฏในสมาชิกทริป</p>
-            {guests.length > 0 && <label className="maew-invite-field"><span>Guest ใหม่ หรือชื่อเดิมของคุณ</span><select value={guestId} onChange={e => setGuestId(e.target.value)}><option value="">ตั้งชื่อ Guest ใหม่</option>{guests.map(m => <option key={m.id} value={m.id}>{m.user.display_name} · Guest</option>)}</select></label>}
+            <p className="maew-invite-hint">ใครมีลิงก์ก็เข้าร่วมชั่วคราวได้ เมื่อตั้งชื่อจะปรากฏในสมาชิกทริป</p>
+            {guests.length > 0 && <label className="maew-invite-field"><span>ตั้งชื่อใหม่หรือเลือกชื่อเดิมของคุณ</span><select value={guestId} onChange={e => setGuestId(e.target.value)}><option value="">ตั้งชื่อผู้เข้าร่วมชั่วคราว</option>{guests.map(m => <option key={m.id} value={m.id} data-user-content>{m.user.display_name} · {locale === "th" ? "ผู้เข้าร่วมชั่วคราว" : "Guest"}</option>)}</select></label>}
             {!guestId && <label className="maew-invite-field"><span>ชื่อที่แสดงในทริป <small>({name.length}/50 ตัวอักษร)</small></span><input autoComplete="nickname" required maxLength={50} value={name} onChange={e => setName(e.target.value)} placeholder="ต้นน้ำ" /></label>}
-            {me && !me.is_guest && <p className="maew-invite-hint">การเข้าด้วย Guest จะสลับจากบัญชี {me.display_name} ไปใช้ชื่อ Guest</p>}
+            {me && !me.is_guest && <p className="maew-invite-hint">การเข้าร่วมชั่วคราวจะสลับจากบัญชี <span data-user-content>{me.display_name}</span> ไปใช้ชื่อชั่วคราว</p>}
             <button className="maew-invite-primary" disabled={!selectedGuest && !name.trim()}>เข้าทริป</button>
           </form>}
         </section>}
 
         {joined.length > 0 && <section className="maew-invite-card maew-invite-members" aria-labelledby="join-members-heading">
           <h2 id="join-members-heading">สมาชิกที่เข้าร่วมแล้ว</h2>
-          <ul>{joined.map((m, i) => <li key={m.id}><img src={getCatAvatarUrl(m.user.display_name, i, m.user.avatar_color)} alt="" width={48} height={48} /><span data-user-content>{m.user.display_name}</span>{m.role === "organizer" && <small>HOST</small>}</li>)}</ul>
+          <ul>{joined.map((m, i) => <li key={m.id}><img src={getCatAvatarUrl(m.user.display_name, i, m.user.avatar_color)} alt="" width={48} height={48} /><span data-user-content>{m.user.display_name}</span>{m.role === "organizer" && <small>ผู้จัดทริป</small>}</li>)}</ul>
         </section>}
       </>}
   </div></main>;
