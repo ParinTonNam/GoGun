@@ -16,6 +16,7 @@ import {
 } from "@/lib/api";
 import { HomeBottomNav, HomeHeroBanner, MaewDropdown, MaewTopbar } from "@/components/trip-ticket-selector";
 import { getDemoTrip, getDemoUser } from "@/lib/demo-trip-data";
+import { localizeTemplate } from "@/lib/trip-template-locales";
 import { useLocale } from "@/lib/locale";
 import { formatTripDayLabel } from "@/lib/day-label";
 import {
@@ -123,10 +124,11 @@ export function RecommendView({ demoMode = false }: { demoMode?: boolean }) {
     return () => controller.abort();
   }, [demoMode]);
 
-  const filtered =
+  const filtered = (
     activeFilter === "ทั้งหมด"
       ? TRIP_TEMPLATES
-      : TRIP_TEMPLATES.filter((t) => t.tags.includes(activeFilter));
+      : TRIP_TEMPLATES.filter((t) => t.tags.includes(activeFilter))
+  ).map((template) => localizeTemplate(template, locale));
 
   const activeTripsCount = trips.filter((t) => !isTripPast(t)).length;
 

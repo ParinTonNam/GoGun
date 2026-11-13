@@ -571,6 +571,8 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
   .maew-home-scene:is(.maew-trip-fixed-scene,.maew-app-fixed-scene):has(> .maew-floating-menu) { padding-bottom:16px; }
 }
 .maew-floating-menu { position:fixed; right:calc(37px + env(safe-area-inset-right)); bottom:calc(34px + env(safe-area-inset-bottom)); z-index:59; width:min(220px,calc(100vw - 48px)); height:306px; pointer-events:none; }
+.maew-floating-menu.is-reading:not(:focus-within) .maew-floating-menu-trigger { opacity:0; transform:translateY(16px); pointer-events:none; }
+.maew-floating-menu.is-reading:focus-within .maew-floating-menu-trigger { opacity:1; transform:none; pointer-events:auto; }
 .maew-floating-menu-items { position:absolute; right:0; bottom:95px; width:100%; display:flex; flex-direction:column; gap:12px; opacity:0; visibility:hidden; transform:translateY(10px); pointer-events:none; transition:opacity .2s ease,transform .2s ease,visibility 0s linear .2s; }
 .maew-floating-menu.is-open .maew-floating-menu-items { opacity:1; visibility:visible; transform:translateY(0); pointer-events:auto; transition:opacity .2s ease,transform .2s ease,visibility 0s; }
 .maew-floating-menu-link { width:100%; min-height:44px; flex:none; display:flex; align-items:center; gap:16px; padding:0; border:0; background:transparent; color:#feefe4; text-decoration:none; font-size:14px; font-weight:400; line-height:1.2; letter-spacing:.08px; }
@@ -583,7 +585,7 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-floating-menu-link-icon.is-trips img { width:20px; height:21px; }
 .maew-floating-menu-link-icon.is-recommend img { position:absolute; left:calc(50% - 12.5px); top:calc(50% - 14.5px); width:31.25px; height:29.167px; }
 .maew-floating-menu-link-icon.is-profile img { width:25px; height:25px; }
-.maew-floating-menu-trigger { position:absolute; right:0; bottom:0; width:73px; height:73px; padding:0; border:0; background:transparent; border-radius:50%; cursor:pointer; pointer-events:auto; touch-action:manipulation; filter:drop-shadow(0 4px 3px rgba(0,0,0,.16)) drop-shadow(0 7px 8px rgba(0,0,0,.11)); }
+.maew-floating-menu-trigger { position:absolute; right:0; bottom:0; width:73px; height:73px; padding:0; border:0; background:transparent; border-radius:50%; cursor:pointer; pointer-events:auto; touch-action:manipulation; transition:opacity .18s ease,transform .18s ease; filter:drop-shadow(0 4px 3px rgba(0,0,0,.16)) drop-shadow(0 7px 8px rgba(0,0,0,.11)); }
 .maew-floating-menu-trigger:active { transform:scale(.96); }
 .maew-floating-menu-trigger img,.maew-floating-menu-close-icon { position:absolute; display:block; pointer-events:none; }
 .maew-floating-menu-base { inset:0; width:73px; height:73px; }
@@ -800,7 +802,7 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-profile-help-btn { width:100%; padding:0; border:0; background:transparent; display:flex; align-items:center; justify-content:space-between; gap:12px; font:inherit; color:#14110d; cursor:pointer; text-align:left; transition:opacity .15s; }
 .maew-profile-help-btn.is-collapsed { opacity:.3; }
 .maew-profile-help-q { margin:0; font-size:14.5px; font-weight:500; letter-spacing:.08px; line-height:22px; color:#14110d; }
-.maew-profile-help-a { margin:0; font-size:10px; font-weight:400; line-height:20px; color:#767168; opacity:.5; }
+.maew-profile-help-a { margin:0; font-size:13px; font-weight:400; line-height:1.5; color:#615b53; opacity:1; }
 
 /* Trip Overview Page (Figma 666:14631, 590:6103, 660:8587, 673:5354) */
 .maew-overview-card { width:100%; max-width:362px; border-radius:14px; background:#fff; padding:20px 17px; display:flex; flex-direction:column; gap:20px; margin-top:10px; box-sizing:border-box; }
@@ -843,7 +845,7 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-overview-member-delete:active { transform:scale(.95); }
 .maew-overview-member-delete:disabled { opacity:.5; cursor:not-allowed; }
 .maew-overview-member-name { margin:0; font-size:11px; font-weight:400; letter-spacing:.08px; color:#14110d; line-height:normal; max-width:72px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.maew-overview-member-host { margin:0; font-size:9px; font-weight:300; letter-spacing:1.08px; text-transform:uppercase; color:#e85a2c; line-height:normal; }
+.maew-overview-member-host { margin:0; font-size:12px; font-weight:500; letter-spacing:.08px; color:#b54b26; line-height:1.3; }
 
 .maew-demo-register-card { width:100%; max-width:362px; margin-top:10px; padding:18px; border:1px solid #f2c4a9; border-radius:14px; background:#fff0e7; box-sizing:border-box; }
 .maew-demo-register-card h2 { margin:0; color:#b9431e; font-size:17px; font-weight:600; }
@@ -884,8 +886,9 @@ html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),bod
 .maew-plan-cal-cell:disabled { cursor:default; }
 .maew-plan-cal-cell:not(:disabled):active { transform:scale(.95); }
 .maew-plan-cal-daynum { font-size:13px; font-weight:500; letter-spacing:.08px; line-height:1.1; }
-.maew-plan-cal-sub { font-size:8.5px; font-weight:300; line-height:1; white-space:nowrap; }
+.maew-plan-cal-sub { font-size:12px; font-weight:500; line-height:1.15; white-space:nowrap; }
 .maew-plan-calendar-note { margin:0; width:100%; color:#615b53; font-size:13px; line-height:1.5; }
+.maew-plan-calendar-note--action { color:#533f34; font-weight:500; }
 
 .maew-plan-hint { margin:0; font-size:13px; font-weight:400; line-height:1.5; letter-spacing:-.24px; color:#b54b26; width:100%; text-align:left; }
 .maew-plan-brush-row { width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; }

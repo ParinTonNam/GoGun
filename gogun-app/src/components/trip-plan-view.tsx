@@ -707,12 +707,6 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
             </div>
           </div>
 
-          <p className="maew-plan-calendar-note">
-            {isSummaryMode
-              ? "สีเขียว = ทุกคนว่างตรงกัน ยังไม่ใช่วันเดินทางที่ยืนยันแล้ว"
-              : "สีเขียว = วันว่างของสมาชิกที่เลือก ยังไม่ใช่วันเดินทางที่ยืนยันแล้ว"}
-          </p>
-
           {/* 7-Column Calendar Grid */}
           <div className="maew-plan-cal-grid">
             <div className="maew-plan-cal-row">
@@ -756,11 +750,9 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
                     const textColor = isAllAvail
                       ? "#ffffff"
                       : hasSomeOrUncertain
-                      ? "#d9a21b"
+                      ? "#8a5b00"
                       : "#14110d";
-                    const subLabel = isAllAvail
-                      ? "ทุกคนว่าง"
-                      : `${availCount}/${mCount}`;
+                    const subLabel = `${availCount}/${mCount}`;
 
                     return (
                       <button
@@ -788,7 +780,7 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
                     st === "available"
                       ? "#ffffff"
                       : st === "uncertain"
-                      ? "#d9a21b"
+                      ? "#8a5b00"
                       : "#14110d";
 
                   return (
@@ -813,7 +805,6 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
           {/* Footer Controls inside Card 1 */}
           {isSummaryMode ? (
             <>
-              <p className="maew-plan-calendar-note">เลือกช่วงวันที่ แล้วกด “ยืนยันวัน” เพื่อกำหนดวันเดินทาง</p>
               <hr className="maew-overview-divider" />
 
               <div className="maew-plan-summary-sec">
@@ -848,6 +839,10 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
                 </div>
               </div>
 
+              <p className="maew-plan-calendar-note maew-plan-calendar-note--action">
+                สีเขียว = ทุกคนว่าง (ยังไม่ยืนยัน) · เลือกช่วงวันแล้วกด “ยืนยันวัน”
+              </p>
+
               <button
                 type="button"
                 className={`maew-plan-primary-btn${selectedRecommendIdx === null ? " is-soft" : ""}`}
@@ -865,11 +860,10 @@ export function TripPlanView({ initialSummaryMode = false }: { initialSummaryMod
             </>
           ) : (
             <>
-              <p className="maew-plan-hint">เลือกสถานะแล้วลากบนปฏิทินเพื่อระบุวันว่าง</p>
               <p className="maew-plan-calendar-note">
                 {isOrganizer
-                  ? "ต่อไป กด “สรุปวันว่าง” เพื่อเลือกช่วงวัน แล้วกด “ยืนยันวัน”"
-                  : "ระบุวันว่างของคุณ แล้วรอผู้จัดทริปยืนยันวันเดินทาง"}
+                  ? "สีเขียว = วันที่ว่าง · เลือกสถานะแล้วลาก จากนั้นดูสรุปวันว่าง"
+                  : "สีเขียว = วันที่ว่าง · เลือกสถานะแล้วลาก รอผู้จัดทริปยืนยันวัน"}
               </p>
 
               <div className="maew-plan-brush-row">

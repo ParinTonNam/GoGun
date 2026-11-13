@@ -25,9 +25,43 @@ export function HomeBottomNav({ active = "trips" }: { active?: HomeBottomNavActi
   const { locale } = useLocale();
   const demoMode = pathname.startsWith("/trips/demo");
   const [openPath, setOpenPath] = useState<string | null>(null);
+  const [scrollingDownAt, setScrollingDownAt] = useState<string | null>(null);
+  const [calendarInViewAt, setCalendarInViewAt] = useState<string | null>(null);
   const open = openPath === pathname;
   const menuRef = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const scrollArea = document.querySelector<HTMLElement>(".maew-trip-scroll-content");
+    const targets: Array<Window | HTMLElement> = scrollArea ? [window, scrollArea] : [window];
+    const lastPositions = new Map<Window | HTMLElement, number>();
+    for (const target of targets) {
+      lastPositions.set(target, target === window ? window.scrollY : (target as HTMLElement).scrollTop);
+    }
+    const onScroll = (event: Event) => {
+      const target = event.currentTarget as Window | HTMLElement;
+      const current = target === window ? window.scrollY : (target as HTMLElement).scrollTop;
+      const previous = lastPositions.get(target) ?? current;
+      lastPositions.set(target, current);
+      if (current < 20) setScrollingDownAt(null);
+      else if (current - previous > 5) setScrollingDownAt(pathname);
+      else if (previous - current > 5) setScrollingDownAt(null);
+    };
+    for (const target of targets) target.addEventListener("scroll", onScroll, { passive: true });
+
+    const calendar = document.querySelector(".maew-plan-cal-grid");
+    const calendarObserver = calendar && typeof IntersectionObserver !== "undefined"
+      ? new IntersectionObserver(([entry]) => setCalendarInViewAt(entry.isIntersecting ? pathname : null), {
+          rootMargin: "0px 0px -90px 0px",
+        })
+      : null;
+    if (calendar && calendarObserver) calendarObserver.observe(calendar);
+
+    return () => {
+      for (const target of targets) target.removeEventListener("scroll", onScroll);
+      calendarObserver?.disconnect();
+    };
+  }, [pathname]);
 
   useEffect(() => {
     if (!open) return;
@@ -74,7 +108,7 @@ export function HomeBottomNav({ active = "trips" }: { active?: HomeBottomNavActi
           }}
         />
       )}
-      <nav ref={menuRef} className={"maew-floating-menu" + (open ? " is-open" : "")} aria-label={locale === "th" ? "เมนูหลัก" : "Main menu"}>
+      <nav ref={menuRef} className={"maew-floating-menu" + (open ? " is-open" : "") + (!open && (scrollingDownAt === pathname || calendarInViewAt === pathname) ? " is-reading" : "")} aria-label={locale === "th" ? "เมนูหลัก" : "Main menu"}>
         <div id="maew-floating-menu-items" className="maew-floating-menu-items" aria-hidden={!open}>
           {MENU_ITEMS.map((item) => (
             <Link

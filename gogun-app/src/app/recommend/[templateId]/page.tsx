@@ -12,6 +12,7 @@ import {
   type User,
 } from "@/lib/api";
 import { getTemplate } from "@/lib/trip-templates";
+import { localizeTemplate } from "@/lib/trip-template-locales";
 import { MaewDropdown } from "@/components/trip-ticket-selector";
 import { useLocale } from "@/lib/locale";
 import { formatTripDayLabel } from "@/lib/day-label";
@@ -31,7 +32,8 @@ export default function TemplateDetailPage({
   const { templateId } = use(params);
   const router = useRouter();
   const { locale } = useLocale();
-  const template = getTemplate(templateId);
+  const sourceTemplate = getTemplate(templateId);
+  const template = sourceTemplate ? localizeTemplate(sourceTemplate, locale) : undefined;
 
   const [user, setUser] = useState<User | null>(null);
   const [selectedDayIdx, setSelectedDayIdx] = useState(0);
