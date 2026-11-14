@@ -1,0 +1,82 @@
+/* Recommend Trip Page (Figma 660:9491) & Add Fav Trip Sheet (Figma 660:9923) */
+.maew-recommend-filters { display:flex; flex-wrap:wrap; align-items:center; column-gap:8px; row-gap:10px; width:100%; }
+.maew-recommend-pill { padding:9px 13px; border-radius:999px; border:1px solid #e5e1d7; background:#fff; color:#14110d; font:inherit; font-size:12px; font-weight:300; letter-spacing:.08px; line-height:normal; white-space:nowrap; cursor:pointer; transition:background-color .15s,border-color .15s,color .15s; }
+.maew-recommend-pill.is-active { padding:9px 16px; border-color:#d96843; background:#d96843; color:#f7f5f0; }
+.maew-recommend-list { display:flex; flex-direction:column; align-items:flex-start; width:100%; }
+.maew-recommend-list .maew-home-trip-row { background:transparent; border-left:0; border-right:0; border-top:0; font:inherit; text-align:left; cursor:pointer; }
+.maew-recommend-list .maew-home-trip-row:last-child { border-bottom:0; }
+
+.maew-fav-sheet { position:relative; width:min(100%,402px); max-height:92dvh; overflow-y:auto; border-radius:25px 25px 0 0; background:#f7f5f0; padding:34px 20px calc(34px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:15px; box-shadow:0 -12px 40px rgba(20,17,13,.22); animation:maew-sheet-slide-up .3s cubic-bezier(.16,1,.3,1) forwards; will-change:transform; }
+.maew-fav-sheet.is-closing { animation:maew-sheet-slide-down .24s cubic-bezier(.32,0,.67,0) forwards; }
+.maew-fav-page-scene { width:100%; min-height:100dvh; margin:0 auto; position:relative; background:#f7f5f0; padding:34px 20px calc(34px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:15px; }
+.maew-fav-page-scene.maew-fav-fixed-scene { height:100dvh; min-height:0; overflow:hidden; }
+.maew-fav-fixed-scene > .maew-plan-modal-head,.maew-fav-fixed-scene > .maew-plan-modal-submit { flex-shrink:0; }
+.maew-fav-fixed-scene > .maew-fav-card { min-height:0; flex:0 1 auto; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.maew-fav-fixed-scene > .maew-fav-card::-webkit-scrollbar { display:none; }
+.maew-fav-card { width:100%; border-radius:14px; background:#fff; padding:20px 17px; display:flex; flex-direction:column; gap:20px; }
+.maew-fav-card-head { width:100%; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.maew-fav-card-title { margin:0; font-size:24px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#e85a2c; }
+.maew-fav-day-pill { position:relative; height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e5e1d7; background:#e85a2c; color:#fff; font-size:11.25px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; gap:10px; flex-shrink:0; cursor:pointer; }
+.maew-fav-day-select { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; border:0; background:transparent; }
+.maew-fav-activities { display:flex; flex-direction:column; gap:10px; width:100%; }
+.maew-fav-activity-row { display:flex; align-items:flex-start; gap:12px; width:100%; }
+.maew-fav-divider { width:100%; height:1px; background:#e5e1d7; border:0; margin:0; }
+.maew-plan-day-activity { display:flex; width:100%; flex-direction:column; gap:10px; }
+.maew-plan-day-activity-line { display:flex; width:100%; align-items:flex-start; gap:10px; }
+.maew-plan-day-activity .maew-fav-activity-row { flex:1; min-width:0; }
+.maew-plan-day-activity .maew-wiz-activity-time { width:45px; flex:none; margin:0; color:#14110d; font-size:15px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; }
+.maew-plan-day-activity .maew-wiz-activity-body { display:flex; min-width:0; flex:1; flex-direction:column; align-items:flex-start; gap:5px; }
+.maew-plan-day-activity .maew-wiz-activity-title { width:100%; margin:0; color:#14110d; font-size:14px; font-weight:400; line-height:23px; letter-spacing:-.24px; overflow-wrap:anywhere; }
+.maew-plan-day-activity .maew-wiz-activity-desc { width:100%; margin:0; color:#14110d; opacity:.5; font-size:12px; font-weight:300; line-height:21px; letter-spacing:-.24px; overflow-wrap:anywhere; }
+.maew-plan-day-divider { width:100%; height:1px; flex:none; background:#e5e1d7; }
+
+/* Profile Page & Sheets (Figma 660:10507, 660:10868, 660:11015, 660:11102) */
+.maew-profile-identity { width:100%; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.maew-profile-identity-left { display:flex; align-items:flex-start; gap:30px; min-width:0; flex:1; }
+.maew-profile-avatar { width:75px; height:75px; border-radius:85px; background:transparent; overflow:hidden; color:#fff; font-size:20px; font-weight:500; line-height:1; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.maew-profile-avatar-cat { width:100%; height:100%; object-fit:cover; display:block; }
+.maew-profile-info { display:flex; flex-direction:column; align-items:flex-start; gap:5px; min-width:0; flex:1; }
+.maew-profile-name { margin:0; font-size:15px; font-weight:500; letter-spacing:.08px; color:#14110d; line-height:normal; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.maew-profile-sub { margin:0; font-size:13px; font-weight:300; letter-spacing:.08px; color:#767168; line-height:normal; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.maew-profile-edit-btn { height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e85a2c; background:#fcede3; color:#a73d10; font:inherit; font-size:11.25px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background-color .15s,transform .15s; }
+.maew-profile-edit-btn:hover { background:#f9dbc8; }
+.maew-profile-edit-btn:active { transform:scale(.97); }
+.maew-profile-stats { width:100%; padding:10px; border-radius:18px; border:1px solid #e5e1d7; background:#fff; display:flex; align-items:center; justify-content:center; gap:10px; }
+.maew-profile-stat-col { flex:1 0 0; min-width:0; display:flex; flex-direction:column; align-items:center; gap:5px; }
+.maew-profile-stat-num { margin:0; font-size:20px; font-weight:500; letter-spacing:.08px; color:#14110d; line-height:normal; text-align:center; }
+.maew-profile-stat-label { margin:0; font-size:12px; font-weight:300; letter-spacing:.08px; color:#767168; line-height:normal; text-align:center; white-space:nowrap; }
+.maew-profile-stat-divider { width:1px; height:48px; background:#e5e1d7; flex-shrink:0; }
+.maew-profile-menu-list { display:flex; flex-direction:column; width:100%; }
+.maew-profile-menu-row { width:100%; min-height:57px; padding:13px 16px 14px; border:0; border-bottom:1px solid #e5e1d7; background:transparent; display:flex; align-items:center; gap:12px; font:inherit; text-align:left; color:inherit; cursor:pointer; }
+.maew-profile-menu-row--tall { min-height:65px; cursor:default; }
+.maew-profile-menu-icon { width:36px; height:36px; border-radius:9.6px; background:#f2efe8; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.maew-profile-menu-copy { flex:1 0 0; min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:1px; }
+.maew-profile-menu-title { margin:0; font-size:14px; font-weight:400; letter-spacing:.08px; color:#14110d; line-height:normal; }
+.maew-profile-menu-sub { margin:0; font-size:11px; font-weight:300; letter-spacing:.08px; color:#767168; line-height:normal; }
+.maew-profile-menu-val { font-size:13px; font-weight:300; letter-spacing:.08px; color:#767168; line-height:normal; padding-right:4px; white-space:nowrap; }
+.maew-profile-menu-chevron { width:14px; height:14px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+/* Edit Profile Sheet (Figma 660:10868) */
+.maew-profile-edit-fields { width:100%; display:flex; flex-direction:column; gap:10px; }
+.maew-profile-edit-field { width:100%; display:flex; flex-direction:column; align-items:flex-start; gap:10px; }
+.maew-profile-edit-avatar-options { width:100%; min-height:68px; display:flex; align-items:center; justify-content:space-between; gap:5px; padding:10px 0; }
+.maew-profile-edit-avatar-option { width:min(48px,calc((100% - 25px)/6)); aspect-ratio:1; flex:none; overflow:hidden; border:0; border-radius:50%; padding:0; background:transparent; cursor:pointer; }
+.maew-profile-edit-avatar-option img { width:100%; height:100%; display:block; border-radius:50%; object-fit:cover; }
+.maew-profile-edit-avatar-option[aria-pressed="true"] { outline:2px solid #e85a2c; outline-offset:2px; }
+.maew-profile-edit-avatar-option:focus-visible { outline:2px solid #14110d; outline-offset:2px; }
+
+/* Language Sheet (Figma 660:11015) */
+.maew-profile-lang-list { width:100%; display:flex; flex-direction:column; }
+.maew-profile-lang-row { width:100%; height:57px; padding:13px 0 14px; border:0; border-bottom:1px solid #e5e1d7; background:transparent; display:flex; align-items:center; justify-content:space-between; font:inherit; color:#14110d; cursor:pointer; transition:opacity .15s; }
+.maew-profile-lang-row:last-child { border-bottom:0; }
+.maew-profile-lang-row.is-inactive { opacity:.45; }
+.maew-profile-lang-main { font-size:18px; font-weight:400; letter-spacing:.08px; line-height:normal; }
+.maew-profile-lang-sub { font-size:14px; font-weight:400; letter-spacing:.08px; line-height:normal; }
+
+/* Help Sheet (Figma 660:11102) */
+.maew-profile-help-card { width:100%; border-radius:14px; background:#fff; padding:20px 17px; display:flex; flex-direction:column; gap:15px; }
+.maew-profile-help-item { width:100%; display:flex; flex-direction:column; gap:15px; }
+.maew-profile-help-btn { width:100%; padding:0; border:0; background:transparent; display:flex; align-items:center; justify-content:space-between; gap:12px; font:inherit; color:#14110d; cursor:pointer; text-align:left; transition:opacity .15s; }
+.maew-profile-help-btn.is-collapsed { opacity:.3; }
+.maew-profile-help-q { margin:0; font-size:14.5px; font-weight:500; letter-spacing:.08px; line-height:22px; color:#14110d; }
+.maew-profile-help-a { margin:0; font-size:13px; font-weight:400; line-height:1.5; color:#615b53; opacity:1; }

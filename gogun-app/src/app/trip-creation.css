@@ -1,0 +1,120 @@
+/* Create Trip 4-step wizard + Add Plan modal (Figma 660:13299, 660:13482, 660:13807, 666:14345, 664:14189, 660:13965). */
+.maew-create-card { width:100%; max-width:362px; min-height:658px; margin-top:12px; padding:20px 17px; border-radius:14px; background:#fff; display:flex; flex-direction:column; justify-content:space-between; gap:20px; }
+.maew-create-card--settings { gap:10px; }
+.maew-create-top { display:flex; flex-direction:column; align-items:flex-start; gap:15px; width:100%; }
+.maew-create-progress { position:relative; width:100%; height:60px; flex-shrink:0; }
+.maew-create-progress-row { position:absolute; left:0; right:0; top:24px; height:36px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.maew-create-progress-track { flex:1; max-width:286px; height:3px; border-radius:2px; background:#f2efe8; overflow:hidden; }
+.maew-create-progress-fill { height:100%; border-radius:2px; background:#14110d; transition:width .65s cubic-bezier(.34,1.25,.64,1); will-change:width; }
+.maew-create-progress-count { font-size:10px; font-weight:300; letter-spacing:1.6px; color:#767168; white-space:nowrap; line-height:1; }
+.maew-create-progress-cat { position:absolute; top:0; width:43.5px; height:47.05px; display:flex; align-items:center; justify-content:center; pointer-events:none; transition:left .65s cubic-bezier(.34,1.25,.64,1); will-change:left; }
+.maew-create-progress-cat img { width:32px; height:38.15px; display:block; transform:rotate(159.1deg) scaleY(-1); transition:transform .15s ease; }
+.maew-create-progress-cat.is-walking img { animation:maew-cat-walk .22s ease-in-out infinite; }
+@keyframes maew-cat-walk { 0%,100% { transform:rotate(159.1deg) scaleY(-1) translateY(0); } 50% { transform:rotate(166deg) scaleY(-1) translateY(-6px); } }
+.maew-create-badge-row { display:flex; align-items:center; gap:6px; height:22px; }
+.maew-create-badge-num { width:22px; height:22px; border-radius:11px; background:#14110d; color:#f7f5f0; font-size:11px; font-weight:500; display:inline-flex; align-items:center; justify-content:center; line-height:1; }
+.maew-create-badge-label { font-size:11px; font-weight:300; color:#767168; letter-spacing:.44px; line-height:1; }
+.maew-create-title { margin:0; font-size:24px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#e85a2c; }
+.maew-create-subtitle { margin:0; font-size:13px; font-weight:300; line-height:19.5px; color:#767168; }
+.maew-create-subtitle--spaced { padding-bottom:20px; }
+.maew-create-field { display:flex; flex-direction:column; align-items:flex-start; gap:15px; width:100%; }
+.maew-create-label { margin:0; font-size:11px; font-weight:400; letter-spacing:.44px; color:#767168; line-height:1; }
+.maew-create-label-req { color:#e85a2c; }
+.maew-create-name-wrap { width:100%; height:68px; padding:10px 0; border-bottom:1px solid #e85a2c; display:flex; align-items:center; }
+.maew-create-name-input { width:100%; border:0; outline:0; background:transparent; font:inherit; font-size:26px; font-weight:500; letter-spacing:-.26px; color:#14110d; line-height:1.2; }
+.maew-create-name-input::placeholder { color:#767168; }
+.maew-create-chips-grid { display:flex; flex-direction:column; gap:6px; width:100%; }
+.maew-create-chips-row { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.maew-create-chip { height:36px; padding:9px 13px; border-radius:999px; border:1px solid #e5e1d7; background:#fff; color:#14110d; font:inherit; font-size:12px; line-height:1; display:inline-flex; align-items:center; gap:6px; cursor:pointer; transition:border-color .15s,background-color .15s,color .15s; }
+.maew-create-chip.is-selected { border-color:#e85a2c; background:#ffeee7; color:#e85a2c; }
+.maew-create-chip-code { font-weight:500; }
+.maew-create-chip-name { font-weight:300; }
+.maew-create-divider { width:100%; height:1px; background:#e5e1d7; }
+.maew-create-day-block { display:flex; flex-direction:column; gap:15px; width:100%; }
+.maew-create-day-head { display:flex; align-items:center; justify-content:space-between; width:100%; }
+.maew-create-day-title { margin:0; font-size:20px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#e85a2c; }
+.maew-create-add-plan-btn { height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e5e1d7; background:#e85a2c; color:#fff; font:inherit; font-size:11.25px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+.maew-create-activity-row { display:flex; align-items:flex-start; gap:12px; width:100%; padding:6px 8px; margin:-6px -8px; border-radius:12px; cursor:pointer; transition:background-color .15s ease; }
+.maew-create-activity-row:hover { background-color:#f9f7f2; }
+.maew-create-activity-time { width:45px; flex-shrink:0; margin:0; font-size:15px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#14110d; }
+.maew-create-activity-body { flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; }
+.maew-create-activity-title { margin:0; font-size:15px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#14110d; }
+.maew-create-activity-desc { margin:0; font-size:12px; font-weight:300; line-height:21px; letter-spacing:-.24px; color:#14110d; opacity:.5; }
+.maew-create-outline-btn { width:100%; height:48px; padding:0 20px; border-radius:14px; border:1px solid #b5b0a4; background:#fff; color:#767168; font:inherit; font-size:14px; font-weight:500; letter-spacing:.14px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.maew-create-primary-btn { width:100%; height:48px; padding:0 20px; border-radius:14px; border:0; background:#e85a2c; color:#fff; font:inherit; font-size:14px; font-weight:500; letter-spacing:.14px; display:flex; align-items:center; justify-content:center; cursor:pointer; text-decoration:none; transition:opacity .15s; }
+.maew-create-primary-btn:disabled { opacity:.4; cursor:not-allowed; }
+.maew-create-settings-list { display:flex; flex-direction:column; width:100%; margin-top:5px; }
+.maew-create-setting-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 16px; border-bottom:1px solid #e5e1d7; }
+.maew-create-setting-row:last-child { border-bottom:0; }
+.maew-create-setting-copy { display:flex; flex-direction:column; gap:2px; min-width:0; flex:1; }
+.maew-create-setting-title { margin:0; font-size:14px; font-weight:500; color:#14110d; line-height:1.35; }
+.maew-create-setting-sub { margin:0; font-size:11.5px; font-weight:300; color:#767168; line-height:1.35; }
+.maew-create-switch { position:relative; width:44px; height:26px; border-radius:13px; border:0; padding:0; background:#ebe8e0; cursor:pointer; flex-shrink:0; transition:background-color .2s; }
+.maew-create-switch[aria-checked="true"] { background:#e85a2c; }
+.maew-create-switch-knob { position:absolute; top:2px; left:2px; width:22px; height:22px; border-radius:11px; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.16); transition:left .2s; }
+.maew-create-switch[aria-checked="true"] .maew-create-switch-knob { left:20px; }
+.maew-create-appearance-row { width:100%; border:0; border-bottom:1px solid #e5e1d7; background:transparent; font:inherit; text-align:left; cursor:pointer; }
+.maew-create-appearance-row:last-child { border-bottom:1px solid #e5e1d7; }
+.maew-create-icon-preview { width:50.5px; height:50.5px; flex:none; display:flex; align-items:center; justify-content:center; border:1.175px solid #e5e1d7; border-radius:14px; background:#fff; }
+.maew-create-icon-preview img { width:28px; height:28px; object-fit:contain; transform:rotate(-90deg); }
+.maew-create-theme-preview { width:105px; height:53px; flex:none; border-radius:7px; object-fit:fill; }
+.maew-create-success-wrap { display:flex; flex-direction:column; align-items:center; gap:20px; width:100%; }
+.maew-create-success-hero { display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; text-align:center; }
+.maew-create-success-cat { width:212px; height:198.765px; display:block; }
+.maew-create-success-title { margin:0; font-size:26px; font-weight:500; letter-spacing:-.26px; color:#14110d; line-height:normal; }
+.maew-create-success-sub { margin:0; font-size:13.5px; font-weight:300; line-height:21.6px; letter-spacing:.08px; color:#767168; }
+.maew-create-bottom-stack { display:flex; flex-direction:column; gap:10px; width:100%; }
+.maew-create-invite-box { width:100%; padding:12px 14px; border-radius:12px; background:#f2efe8; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.maew-create-invite-url { flex:1; min-width:0; margin:0; padding:9px 0; font-family:var(--font-sans),sans-serif; font-size:12.5px; font-weight:400; letter-spacing:.08px; color:#14110d; line-height:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.maew-create-invite-copy { padding:7px 12px; border-radius:8px; border:0; background:#14110d; color:#f7f5f0; font:inherit; font-size:12px; font-weight:500; cursor:pointer; flex-shrink:0; }
+.maew-create-error { margin:0; font-size:12px; color:#c0392b; line-height:1.5; }
+
+/* Add Plan Modal Sheet (Figma 660:13965) — slides up from bottom of screen & slides down when closing. */
+@keyframes maew-backdrop-fade-in { from { opacity:0; } to { opacity:1; } }
+@keyframes maew-backdrop-fade-out { from { opacity:1; } to { opacity:0; } }
+@keyframes maew-sheet-slide-up { from { transform:translateY(100%); } to { transform:translateY(0); } }
+@keyframes maew-sheet-slide-down { from { transform:translateY(0); } to { transform:translateY(100%); } }
+.maew-plan-modal-backdrop { position:fixed; inset:0; z-index:80; background:rgba(20,17,13,.45); display:flex; align-items:flex-end; justify-content:center; padding:0; animation:maew-backdrop-fade-in .24s ease-out forwards; }
+.maew-plan-modal-backdrop.is-closing { animation:maew-backdrop-fade-out .24s ease-in forwards; }
+.maew-plan-modal-sheet { position:relative; width:min(100%,402px); border-radius:25px 25px 0 0; background:#f7f5f0; padding:34px 20px calc(34px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:10px; box-shadow:0 -12px 40px rgba(20,17,13,.22); animation:maew-sheet-slide-up .3s cubic-bezier(.16,1,.3,1) forwards; will-change:transform; }
+.maew-plan-modal-sheet.is-closing { animation:maew-sheet-slide-down .24s cubic-bezier(.32,0,.67,0) forwards; }
+.maew-plan-modal-handle { position:absolute; top:0; left:50%; transform:translateX(-50%); width:327px; max-width:100%; height:24px; padding-bottom:8px; display:flex; align-items:flex-end; justify-content:center; touch-action:none; cursor:grab; }
+.maew-plan-modal-handle:active { cursor:grabbing; }
+.maew-plan-modal-handle::after { content:""; width:139px; height:5px; border-radius:100px; background:rgba(0,0,0,.25); display:block; }
+.maew-plan-modal-handle span { display:none; }
+.maew-plan-modal-head { height:36px; width:100%; display:flex; align-items:center; justify-content:space-between; }
+.maew-plan-modal-head h2 { margin:0; font-size:20px; font-weight:500; letter-spacing:.08px; color:#14110d; line-height:normal; }
+.maew-plan-modal-close { width:36px; height:36px; padding:0; border:0; background:transparent; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+.maew-plan-modal-label { margin:0; height:23px; font-size:15px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#d96843; }
+.maew-plan-modal-input { width:100%; height:52px; padding:15px 20px; border-radius:18px; border:1px solid #e5e1d7; background:#fff; font:inherit; font-size:12px; font-weight:300; letter-spacing:.08px; color:#14110d; outline:none; }
+.maew-plan-modal-input::placeholder, .maew-plan-modal-textarea::placeholder { color:#767168; opacity:.5; }
+.maew-plan-modal-error { margin:0; color:#aa2f16; font-size:12px; line-height:1.5; }
+.maew-checklist-edit-input:focus-visible { outline:2px solid #e85a2c; outline-offset:1px; }
+.maew-option-edit-input { flex:1 1 auto; min-width:0; height:44px; border-radius:12px; border:1px solid #e5e1d7; background:#fff; padding:10px 16px; font:inherit; font-size:12px; font-weight:300; letter-spacing:.08px; color:#14110d; box-sizing:border-box; }
+.maew-option-edit-input:focus-visible { outline:2px solid #e85a2c; outline-offset:1px; }
+.maew-option-remove-button { width:24px; height:44px; border:0; background:transparent; padding:0; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.maew-plan-modal-textarea { width:100%; height:118px; padding:15px 20px; border-radius:18px; border:1px solid #e5e1d7; background:#fff; font:inherit; font-size:12px; font-weight:300; letter-spacing:.08px; color:#14110d; resize:none; outline:none; }
+.maew-plan-modal-time-row { height:42px; width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.maew-plan-modal-time-controls { height:42px; display:flex; align-items:center; gap:10px; }
+.maew-plan-modal-time-select-wrap { position:relative; width:90px; height:42px; border-radius:18px; border:1px solid #e5e1d7; background:#fff; padding:0 14px 0 16px; display:flex; align-items:center; justify-content:space-between; gap:6px; flex-shrink:0; cursor:pointer; }
+.maew-plan-modal-time-select-wrap.is-disabled { opacity:.4; pointer-events:none; }
+.maew-plan-modal-time-val { font-size:15px; font-weight:300; letter-spacing:.08px; color:#767168; line-height:1; pointer-events:none; }
+.maew-plan-modal-time-native { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:5; border:0; background:transparent; }
+.maew-plan-modal-notime-btn { width:200px; max-width:calc(100vw - 190px); height:42px; border-radius:18px; border:1px solid #e5e1d7; background:#fff; padding:0 20px; display:flex; align-items:center; gap:10px; font:inherit; font-size:11.25px; font-weight:500; letter-spacing:.06px; color:#767168; cursor:pointer; }
+.maew-plan-modal-checkbox { width:16px; height:16px; border-radius:7px; border:1px solid #d4cfc2; background:#fff; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.maew-plan-modal-checkbox.is-checked { border-color:#e85a2c; background:#e85a2c; color:#fff; }
+.maew-plan-modal-submit { width:100%; height:51px; border-radius:59px; border:1px solid #e5e1d7; background:#e85a2c; color:#fcede3; font:inherit; font-size:16px; font-weight:500; letter-spacing:.08px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.maew-plan-modal-submit:disabled { opacity:.6; cursor:not-allowed; }
+.maew-plan-modal-delete-btn { background:none; border:0; color:#c0392b; font:inherit; font-size:13px; font-weight:400; text-decoration:underline; text-underline-offset:2px; cursor:pointer; align-self:center; margin-top:2px; }
+.maew-appearance-sheet { max-height:calc(100dvh - 24px); overflow-y:auto; }
+.maew-appearance-close { width:36px; height:36px; padding:0; border:0; background:transparent; color:#767168; font:inherit; font-size:30px; font-weight:300; line-height:1; cursor:pointer; }
+.maew-appearance-label { margin:0; min-height:23px; color:#d96843; font-size:15px; font-weight:500; line-height:23px; letter-spacing:-.24px; }
+.maew-appearance-icon-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px 11.75px; width:100%; }
+.maew-appearance-icon-option { aspect-ratio:1; width:100%; min-width:0; border:1.175px solid #e5e1d7; border-radius:14px; background:#fff; display:flex; align-items:center; justify-content:center; padding:0; cursor:pointer; }
+.maew-appearance-icon-option img { width:56%; height:56%; object-fit:contain; }
+.maew-appearance-icon-option:first-child img { transform:rotate(-90deg); }
+.maew-appearance-icon-option[aria-pressed="true"] { border:2px solid #e85a2c; box-shadow:0 0 0 2px #fcede3; }
+.maew-appearance-theme-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; width:100%; }
+.maew-appearance-theme-option { aspect-ratio:113.46 / 57.27; width:100%; min-width:0; border:0; border-radius:8px; padding:0; overflow:hidden; background:#d9d9d9; cursor:pointer; }
+.maew-appearance-theme-option img { width:100%; height:100%; display:block; object-fit:fill; }
+.maew-appearance-theme-option[aria-pressed="true"] { outline:3px solid #e85a2c; outline-offset:2px; }

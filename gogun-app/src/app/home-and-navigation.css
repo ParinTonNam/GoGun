@@ -1,0 +1,179 @@
+/* Logged-in homepage & trip screens tuned to Figma artboards 660:13132, 590:6103 & 639:1168 (402 × 874). */
+.maew-home-scene { width:100%; min-height:100dvh; margin:0 auto; padding:55px 20px calc(107px + env(safe-area-inset-bottom)); position:relative; overflow-x:hidden; isolation:isolate; background:linear-gradient(180deg,#ffeee7 54.977%,#f7f5f0 100%); color:#14110d; display:flex; flex-direction:column; align-items:center; }
+/* Keep the top bar and floating menu in place while the banner and cards scroll together. */
+html:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene),body:has(.maew-trip-fixed-scene,.maew-app-fixed-scene,.maew-fav-fixed-scene) { height:100%; overflow:hidden; }
+.maew-home-scene:is(.maew-trip-fixed-scene,.maew-app-fixed-scene) { height:100dvh; min-height:0; overflow:hidden; padding-bottom:calc(16px + env(safe-area-inset-bottom)); }
+.maew-home-scene:is(.maew-trip-fixed-scene,.maew-app-fixed-scene) > .maew-home-topbar,.maew-trip-scroll-content > .maew-trip-header-stack { flex-shrink:0; }
+.maew-trip-scroll-content { width:100%; max-width:362px; min-height:0; flex:1; display:flex; flex-direction:column; align-items:center; padding-bottom:10px; box-sizing:border-box; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.maew-home-scene:is(.maew-trip-fixed-scene,.maew-app-fixed-scene) > .maew-trip-scroll-content { margin-top:10px; }
+.maew-home-scene:is(.maew-trip-fixed-scene,.maew-app-fixed-scene) > .maew-trip-scroll-content > .maew-trip-header-stack { margin-top:4px; }
+.maew-home-scene:is(.maew-trip-fixed-scene,.maew-app-fixed-scene) > .maew-trip-scroll-content > .maew-home-hero-stack { margin-top:0; }
+.maew-home-scene:is(.maew-trip-fixed-scene,.maew-app-fixed-scene) > .maew-trip-scroll-content > .maew-create-card { margin-top:2px; }
+.maew-trip-fixed-scene > .maew-trip-scroll-content { width:calc(100% + 14px); max-width:376px; padding-inline:7px; box-sizing:border-box; }
+.maew-trip-scroll-content::-webkit-scrollbar { display:none; }
+.maew-trip-scroll-content > .maew-expense-list-card.is-empty { flex-grow:1; }
+.maew-trip-scroll-content > .maew-day-plan-card { flex:1 0 auto; }
+.maew-trip-scroll-content > :is(.maew-home-card,.maew-create-card) { flex-grow:1; }
+.maew-profile-page-scene { overflow:visible; padding-bottom:calc(16px + env(safe-area-inset-bottom)); }
+.maew-profile-page-scene > .maew-home-topbar { position:sticky; top:0; z-index:3; width:calc(100% + 40px); max-width:402px; height:95px; margin-top:-55px; padding:55px 20px 0; background:#ffeee7; flex-shrink:0; }
+.maew-profile-page-scene > .maew-trip-scroll-content { flex:1 0 auto; overflow:visible; padding-bottom:10px; }
+.maew-day-plan-card > .maew-create-outline-btn:last-child { margin-top:auto; }
+.maew-home-topbar { width:100%; max-width:362px; height:40px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.maew-home-brand { display:inline-flex; align-items:center; gap:8.962px; color:#a14a20; font-size:20px; font-weight:400; letter-spacing:.1216px; line-height:1; white-space:nowrap; text-decoration:none; }
+.maew-home-brand img { width:31px; height:29.757px; display:block; flex:none; }
+.maew-home-brand-copy { display:flex; flex-direction:column; gap:1px; align-items:flex-start; line-height:normal; width:142px; }
+.maew-home-brand-title { font-size:20px; font-weight:400; letter-spacing:.1216px; color:#a14a20; height:16px; display:flex; align-items:center; line-height:1; white-space:nowrap; }
+.maew-home-brand-sub { font-size:10px; font-weight:300; letter-spacing:.1216px; color:#973413; line-height:normal; white-space:nowrap; }
+.maew-home-topbar-actions { display:flex; align-items:center; gap:5px; flex-shrink:0; }
+.maew-home-bell { position:relative; width:40px; height:40px; padding:7px; border-radius:48px; border:1px solid #edeae2; background:#fff; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; text-decoration:none; }
+.maew-home-bell-badge { position:absolute; top:-5px; right:-5px; min-width:17px; height:17px; padding:0 3px; border:2px solid #ffeee7; border-radius:99px; background:#e85a2c; color:#fff; font-size:9px; font-weight:500; line-height:13px; display:flex; align-items:center; justify-content:center; box-sizing:border-box; }
+
+/* Mobile notification center. The top bar stays fixed while the card scrolls. */
+.maew-notifications-scene > .maew-trip-scroll-content { align-items:stretch; gap:10px; padding-bottom:90px; }
+.maew-notifications-heading { display:flex; align-items:center; gap:10px; min-height:45px; flex-shrink:0; }
+.maew-notifications-heading h1 { margin:0; color:#14110d; font-size:24px; font-weight:500; line-height:1.2; letter-spacing:-.24px; }
+.maew-notifications-back { width:36px; height:36px; display:flex; align-items:center; justify-content:center; border:1px solid #e5e1d7; border-radius:50%; background:#fff; color:#14110d; flex-shrink:0; }
+.maew-notifications-count { min-width:23px; height:23px; padding:0 6px; display:inline-flex; align-items:center; justify-content:center; border-radius:99px; background:#e85a2c; color:#fff; font-size:12px; font-weight:500; box-sizing:border-box; }
+.maew-notifications-card { width:100%; min-height:420px; flex:1 0 auto; padding:20px 17px; border-radius:16px; background:#fff; display:flex; flex-direction:column; gap:18px; box-sizing:border-box; }
+.maew-notifications-card-header { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+.maew-notifications-card-header h2 { margin:0; color:#e85a2c; font-size:21px; font-weight:500; line-height:1.2; }
+.maew-notifications-card-header p { margin:5px 0 0; color:#767168; font-size:12px; font-weight:300; }
+.maew-notifications-card-header button { flex-shrink:0; border:0; background:transparent; color:#d96843; font:inherit; font-size:12px; font-weight:500; cursor:pointer; padding:4px 0; }
+.maew-notifications-empty { flex:1; min-height:205px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+.maew-notifications-empty-icon { width:64px; height:64px; display:flex; align-items:center; justify-content:center; border-radius:20px; background:#fcede3; color:#e85a2c; }
+.maew-notifications-empty h3 { margin:13px 0 0; font-size:18px; font-weight:500; color:#14110d; }
+.maew-notifications-empty p { margin:4px 0 0; color:#767168; font-size:12px; font-weight:300; }
+.maew-notifications-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
+.maew-notifications-list li + li { border-top:1px solid #e5e1d7; }
+.maew-notifications-item { width:100%; display:flex; align-items:flex-start; gap:11px; padding:15px 0; border:0; background:transparent; color:inherit; text-align:left; font:inherit; cursor:pointer; }
+.maew-notifications-item-icon { width:36px; height:36px; display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:11px; background:#fcede3; color:#e85a2c; }
+.maew-notifications-item-copy { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.maew-notifications-item-title { color:#14110d; font-size:14px; font-weight:500; line-height:1.4; }
+.maew-notifications-item-message { color:#4e4a43; font-size:12px; font-weight:300; line-height:1.5; overflow-wrap:anywhere; }
+.maew-notifications-item time { color:#a09a8f; font-size:11px; font-weight:300; }
+.maew-notifications-item.is-read .maew-notifications-item-title { color:#767168; font-weight:400; }
+.maew-notifications-unread-dot { width:8px; height:8px; margin-top:7px; border-radius:50%; background:#e85a2c; flex-shrink:0; }
+.maew-notifications-test { margin-top:auto; padding-top:17px; border-top:1px solid #e5e1d7; display:flex; flex-direction:column; gap:10px; }
+.maew-notifications-test h3 { margin:0; color:#14110d; font-size:15px; font-weight:500; }
+.maew-notifications-test p { margin:3px 0 0; color:#767168; font-size:12px; font-weight:300; line-height:1.5; }
+.maew-notifications-test-button { width:100%; min-height:48px; padding:11px 16px; border:0; border-radius:999px; background:#e85a2c; color:#fff; display:flex; align-items:center; justify-content:center; text-decoration:none; text-align:center; font:inherit; font-size:15px; font-weight:500; cursor:pointer; }
+.maew-notifications-test-button:disabled { opacity:.5; cursor:default; }
+.maew-notifications-test .maew-notifications-status { color:#a14a20; font-size:12px; }
+.maew-home-user-pill { width:40px; height:40px; padding:2px; border-radius:48px; border:1px solid #edeae2; background:#fff; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; flex-shrink:0; overflow:hidden; }
+.maew-home-user-cat { width:30px; height:29px; object-fit:cover; display:block; border-radius:31px; }
+.maew-home-user-initial { width:22px; height:22px; border-radius:31px; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:500; letter-spacing:.08px; line-height:1; }
+
+/* Home Hero Banner (Figma 660:13132 / 796:6282) */
+.maew-home-hero-stack { width:100%; max-width:362px; margin-top:10px; display:flex; flex-direction:column; align-items:center; position:relative; z-index:2; flex-shrink:0; }
+.maew-home-hero-banner { position:relative; width:100%; max-width:362px; height:126px; margin-top:10px; border-radius:16px; padding:30px 17px 10px; overflow:hidden; display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-start; flex-shrink:0; box-sizing:border-box; }
+.maew-home-hero-stack .maew-home-hero-banner { margin-top:0; }
+.maew-home-hero-bg { position:absolute; inset:0; pointer-events:none; z-index:0; }
+.maew-home-hero-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 42%; display:block; }
+.maew-home-hero-overlay { position:absolute; inset:0; background:linear-gradient(139.9deg,rgb(38,27,47) 27.39%,rgba(111,14,191,0) 66.716%); }
+.maew-home-hero-copy { position:relative; z-index:1; width:240px; max-width:calc(100% - 10px); display:flex; flex-direction:column; align-items:flex-start; gap:15px; min-width:0; color:#fff; }
+.maew-home-hero-copy h1 { margin:0; font-size:24px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.maew-home-hero-copy p { margin:0; font-size:14px; font-weight:400; line-height:26.4px; letter-spacing:-.24px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.maew-home-hero-banner--central .maew-home-hero-bg { overflow:hidden; border-radius:inherit; background:#f26b57; }
+.maew-home-hero-banner--central .maew-home-hero-img { inset:auto; left:-2.28%; top:-17.04%; width:135.37%; height:126%; object-fit:fill; mix-blend-mode:color-burn; }
+.maew-home-hero-banner--central .maew-home-hero-overlay { display:none; }
+.maew-home-hero-cat { position:absolute; z-index:3; top:41px; right:30px; display:block; width:126px; height:94px; pointer-events:none; }
+@media (max-width:360px) { .maew-home-hero-cat { top:47px; right:12px; width:96px; height:auto; } }
+.maew-home-hero-add-btn { position:absolute; top:24px; right:24px; z-index:1; width:76px; height:78px; border-radius:14px; background:#fff; padding:5px 17px; display:flex; align-items:center; justify-content:center; text-decoration:none; flex-shrink:0; box-sizing:border-box; transition:transform .14s ease; }
+.maew-home-hero-add-btn:active { transform:scale(.97); }
+.maew-home-hero-add-inner { width:68px; height:68px; padding:5px 0; opacity:.5; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4.179px; color:#767168; font-size:13.929px; font-weight:400; letter-spacing:.1114px; line-height:normal; text-align:center; white-space:nowrap; box-sizing:border-box; }
+
+/* Trip Scenic Hero Banner + 4-Button Section Bar (Figma 768:5244 & 768:4679) */
+.maew-trip-header-stack { width:100%; max-width:362px; margin-top:14px; display:flex; flex-direction:column; align-items:center; position:relative; z-index:2; }
+.maew-trip-hero-banner { position:relative; width:calc(100% + 14px); max-width:376px; height:159px; border-radius:14px; padding:30px 17px 10px; overflow:hidden; display:flex; flex-direction:column; align-items:flex-start; box-sizing:border-box; flex-shrink:0; }
+.maew-trip-hero-content { position:relative; z-index:1; width:100%; display:flex; flex-direction:column; align-items:flex-start; gap:15px; }
+.maew-trip-hero-top-row { width:100%; display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+.maew-trip-hero-title { margin:0; font-size:24px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#fff; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.maew-trip-hero-edit-btn { height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e85a2c; background:#fcede3; color:#a73d10; font-size:11.25px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; flex-shrink:0; white-space:nowrap; transition:transform .12s ease,background-color .15s ease,color .15s ease; }
+.maew-trip-hero-edit-btn[aria-current="page"] { background:#f0732b; color:#fff; border-color:#f0732b; }
+.maew-trip-hero-edit-btn:hover { background:#f9dbc8; }
+.maew-trip-hero-edit-btn[aria-current="page"]:hover { background:#d94d23; }
+.maew-trip-hero-edit-btn:active { transform:scale(.97); }
+.maew-trip-hero-date-row { display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap; }
+.maew-trip-hero-date { margin:0; font-size:20px; font-weight:300; line-height:26.4px; letter-spacing:-.24px; color:#fff; white-space:nowrap; }
+.maew-trip-hero-status-pill { height:26px; padding:6px 10px; border-radius:18px; border:1px solid #e5e1d7; background:#fcede3; color:#b54b26; font-size:12px; font-weight:500; letter-spacing:.06px; line-height:1; display:inline-flex; align-items:center; justify-content:center; white-space:nowrap; flex-shrink:0; }
+
+.maew-section-tabs-card { position:relative; z-index:3; width:100%; max-width:362px; height:67.179px; margin-top:-26px; border-radius:14px; background:#fff; padding:5px 17px; display:flex; align-items:flex-start; justify-content:space-between; box-sizing:border-box; }
+.maew-section-tab-btn { flex:1 0 0; min-width:1px; align-self:stretch; height:57.179px; padding:5px 0; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4.179px; text-decoration:none; color:#767168; opacity:.5; transition:opacity .15s ease,background-color .15s ease,color .15s ease,transform .12s ease; box-sizing:border-box; }
+.maew-section-tab-btn.is-active { background:#f0732b; color:#fff; opacity:1; }
+.maew-section-tab-btn:hover:not(.is-active) { opacity:.75; }
+.maew-section-tab-btn:active { transform:scale(.97); }
+.maew-section-tab-icon-box { width:25px; height:25px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.maew-section-tab-label { font-size:12px; font-weight:400; letter-spacing:.1114px; line-height:normal; text-align:center; white-space:nowrap; width:59px; }
+
+/* Accessory Secondary Selection Bar (Figma 768:5918 / 768:5921) */
+.maew-accessory-tabs-card { width:100%; max-width:362px; height:66.344px; margin-top:10px; border-radius:14px; background:#fff; padding:5px 17px; display:flex; align-items:flex-start; gap:10px; box-sizing:border-box; flex-shrink:0; }
+.maew-accessory-tab-btn { flex:1 0 0; min-width:1px; align-self:stretch; height:56.344px; padding:3px 0; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:2px; text-decoration:none; color:#767168; opacity:.5; transition:opacity .15s ease,background-color .15s ease,transform .12s ease; box-sizing:border-box; }
+.maew-accessory-tab-btn.is-active { background:#9875b5; color:#fff; opacity:1; }
+.maew-accessory-tab-btn:hover:not(.is-active) { opacity:.75; }
+.maew-accessory-tab-btn:active { transform:scale(.97); }
+.maew-accessory-tab-icon-box { width:25px; height:25px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.maew-accessory-tab-label { width:100%; min-height:18px; font-size:12px; font-weight:400; line-height:13px; letter-spacing:.08px; text-align:center; white-space:normal; overflow-wrap:normal; }
+
+.maew-home-ticket { position:relative; width:100%; max-width:362px; height:83.622px; margin-top:12px; flex-shrink:0; }
+.maew-home-ticket-bg { position:absolute; inset:0; width:100%; height:100%; display:block; pointer-events:none; }
+.maew-home-ticket-copy { position:absolute; left:18px; top:11px; right:92px; display:flex; flex-direction:column; align-items:flex-start; color:#fff; pointer-events:none; }
+.maew-home-ticket-copy h1 { margin:0; font-size:20px; font-weight:500; line-height:30.8px; letter-spacing:-.28px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.maew-home-ticket-copy p { margin:0; font-size:12px; font-weight:400; line-height:30.8px; letter-spacing:-.28px; color:rgba(255,255,255,.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.maew-home-ticket-action { position:absolute; top:0; right:0; width:24.17%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4.18px; color:#fcede3; text-decoration:none; font-size:13.929px; font-weight:400; letter-spacing:.1114px; line-height:normal; text-align:center; }
+.maew-home-card { width:100%; max-width:362px; min-height:507px; flex-shrink:0; margin-top:10px; padding:20px 17px; border-radius:14px; background:#fff; display:flex; flex-direction:column; gap:15px; box-sizing:border-box; }
+.maew-trip-scroll-content > :is(.maew-home-trips-card,.maew-profile-card) { min-height:0; flex-grow:0; }
+.maew-home-empty { flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; padding:19px 30px 18px; text-align:center; box-sizing:border-box; }
+.maew-home-empty-avatar { width:110px; height:110px; border-radius:85px; overflow:hidden; background:transparent; display:flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:500; line-height:1; }
+.maew-home-empty-cat { width:100%; height:100%; object-fit:cover; display:block; }
+.maew-home-empty-illustration { width:180px; height:168.763px; object-fit:contain; display:block; flex-shrink:0; }
+.maew-home-empty-title { margin:0; font-size:24px; font-weight:500; color:#14110d; letter-spacing:.08px; line-height:normal; }
+.maew-home-empty-sub { margin:0; font-size:13px; font-weight:300; color:#767168; line-height:normal; text-align:center; }
+.maew-home-retry-btn { min-height:44px; padding:10px 20px; border-radius:18px; border:1px solid #e5e1d7; background:#e85a2c; color:#fff; font:inherit; font-size:14px; font-weight:500; }
+.maew-home-trips-list { display:flex; flex-direction:column; gap:15px; width:100%; }
+.maew-home-section-head { width:100%; padding:0; border:0; background:transparent; display:flex; align-items:center; justify-content:space-between; gap:12px; cursor:pointer; font:inherit; text-align:left; }
+.maew-home-section-title--active { margin:0; font-size:24px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#e85a2c; }
+.maew-home-section-title--past { margin:0; font-size:15px; font-weight:500; line-height:26.4px; letter-spacing:-.24px; color:#767168; opacity:.5; }
+.maew-home-section-chevron { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform .2s ease; }
+.maew-home-section-chevron.is-open { transform:rotate(180deg); }
+.maew-home-trips-group { display:flex; flex-direction:column; align-items:flex-start; width:100%; }
+.maew-home-trip-row { width:100%; padding:14px 0; border-bottom:.8px solid #e5e1d7; display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit; transition:opacity .15s ease; }
+.maew-home-trip-row:hover { opacity:.82; }
+.maew-home-trip-row-icon { width:36px; height:36px; border-radius:10px; background:#f2efe8; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.maew-home-trip-row-body { display:flex; flex-direction:column; align-items:flex-start; min-width:0; flex:1; }
+.maew-home-trip-row-title { margin:0; height:22px; font-size:14.5px; font-weight:500; line-height:22px; letter-spacing:.08px; color:#14110d; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.maew-home-trip-row-sub { margin:0; min-height:20px; display:flex; align-items:center; flex-wrap:wrap; font-size:12px; font-weight:400; line-height:1.4; letter-spacing:-.28px; color:#615b53; max-width:100%; }
+.maew-floating-menu-backdrop { position:fixed; inset:0; z-index:58; width:100%; height:100%; border:0; padding:0; background:rgba(0,0,0,.75); cursor:default; }
+/* Reserve space inside the element that actually scrolls, including profile and short desktop viewports. */
+.maew-home-scene:has(> .maew-floating-menu) > .maew-trip-scroll-content { padding-bottom:calc(132px + env(safe-area-inset-bottom)); }
+@media (max-width:899px), (hover:none) and (pointer:coarse) {
+  .maew-home-scene:is(.maew-trip-fixed-scene,.maew-app-fixed-scene):has(> .maew-floating-menu) { padding-bottom:16px; }
+}
+.maew-floating-menu { position:fixed; right:calc(37px + env(safe-area-inset-right)); bottom:calc(34px + env(safe-area-inset-bottom)); z-index:59; width:min(220px,calc(100vw - 48px)); height:306px; pointer-events:none; }
+.maew-floating-menu.is-reading:not(:focus-within) .maew-floating-menu-trigger { opacity:0; transform:translateY(16px); pointer-events:none; }
+.maew-floating-menu.is-reading:focus-within .maew-floating-menu-trigger { opacity:1; transform:none; pointer-events:auto; }
+.maew-floating-menu-items { position:absolute; right:0; bottom:95px; width:100%; display:flex; flex-direction:column; gap:12px; opacity:0; visibility:hidden; transform:translateY(10px); pointer-events:none; transition:opacity .2s ease,transform .2s ease,visibility 0s linear .2s; }
+.maew-floating-menu.is-open .maew-floating-menu-items { opacity:1; visibility:visible; transform:translateY(0); pointer-events:auto; transition:opacity .2s ease,transform .2s ease,visibility 0s; }
+.maew-floating-menu-link { width:100%; min-height:44px; flex:none; display:flex; align-items:center; gap:16px; padding:0; border:0; background:transparent; color:#feefe4; text-decoration:none; font-size:14px; font-weight:400; line-height:1.2; letter-spacing:.08px; }
+.maew-floating-menu-link:hover .maew-floating-menu-link-icon { background:#fd765d; }
+.maew-floating-menu-link:active { transform:scale(.97); }
+.maew-floating-menu-link-label { flex:1; min-width:0; text-align:right; }
+.maew-floating-menu-link-icon { position:relative; width:44px; height:44px; flex:none; display:flex; align-items:center; justify-content:center; border:2px solid #fd6c42; border-radius:50%; background:#f46f56; }
+.maew-floating-menu-link-icon img { display:block; max-width:none; object-fit:contain; }
+.maew-floating-menu-link-icon.is-add-trip img { position:absolute; left:calc(50% - 12.5px); top:calc(50% - 14.5px); width:31.25px; height:29.167px; }
+.maew-floating-menu-link-icon.is-trips img { width:20px; height:21px; }
+.maew-floating-menu-link-icon.is-recommend img { position:absolute; left:calc(50% - 12.5px); top:calc(50% - 14.5px); width:31.25px; height:29.167px; }
+.maew-floating-menu-link-icon.is-profile img { width:25px; height:25px; }
+.maew-floating-menu-trigger { position:absolute; right:0; bottom:0; width:73px; height:73px; padding:0; border:0; background:transparent; border-radius:50%; cursor:pointer; pointer-events:auto; touch-action:manipulation; transition:opacity .18s ease,transform .18s ease; filter:drop-shadow(0 4px 3px rgba(0,0,0,.16)) drop-shadow(0 7px 8px rgba(0,0,0,.11)); }
+.maew-floating-menu-trigger:active { transform:scale(.96); }
+.maew-floating-menu-trigger img,.maew-floating-menu-close-icon { position:absolute; display:block; pointer-events:none; }
+.maew-floating-menu-base { inset:0; width:73px; height:73px; }
+.maew-floating-menu-glint { left:8px; top:7px; width:9px; height:23.5px; transform:rotate(45deg); }
+.maew-floating-menu-dot { left:4px; top:27px; width:3.2px; height:5.7px; transform:rotate(22deg); }
+.maew-floating-menu-shadow { left:3px; top:29px; width:64px; height:41px; }
+.maew-floating-menu-hamburger { left:19.5px; top:19.5px; width:34px; height:34px; opacity:1; transition:opacity .15s ease,transform .2s ease; }
+.maew-floating-menu-close-icon { left:15px; top:15px; width:43px; height:43px; opacity:0; transform:rotate(-45deg) scale(.8); transition:opacity .15s ease,transform .2s ease; }
+.maew-floating-menu.is-open .maew-floating-menu-hamburger { opacity:0; transform:rotate(45deg) scale(.8); }
+.maew-floating-menu.is-open .maew-floating-menu-close-icon { opacity:1; transform:rotate(0) scale(1); }
+.maew-floating-menu-link:focus-visible,.maew-floating-menu-trigger:focus-visible { outline:3px solid #14110d; outline-offset:3px; }
+@media (prefers-reduced-motion:reduce) { .maew-floating-menu-items,.maew-floating-menu-hamburger,.maew-floating-menu-close-icon { transition:none; } }
+@media(max-width:360px) { .maew-home-ticket-copy h1 { font-size:17px; } .maew-home-empty-title { font-size:21px; } }

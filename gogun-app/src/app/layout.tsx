@@ -1,7 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { kanit } from "@/lib/fonts";
 import "./globals.css";
+// Keep feature styles in this order so later UI fixes retain their existing precedence.
 import "./design-system.css";
+import "./home-and-navigation.css";
+import "./trip-creation.css";
+import "./recommend-and-profile.css";
+import "./trip-details.css";
 import "./auth-v2.css";
 import "./desktop-gate.css";
 import "./mobile-usability.css";
